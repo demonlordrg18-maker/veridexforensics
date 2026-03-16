@@ -1,0 +1,59 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand: #0d9488;
+  --brand-muted: rgba(13, 148, 136, 0.1);
+  --accent: #f43f5e;
+  --bg: #030712;
+  --panel: rgba(17, 24, 39, 0.7);
+  --border: rgba(255, 255, 255, 0.08);
+  --text-main: #f9fafb;
+  --text-muted: #9ca3af;
+}
+
+@layer base {
+  body {
+    @apply bg-slate-950 text-slate-50 antialiased;
+    font-family: 'Outfit', sans-serif;
+    background-image: 
+      radial-gradient(circle at 0% 0%, rgba(13, 148, 136, 0.2), transparent 40%),
+      radial-gradient(circle at 100% 100%, rgba(244, 63, 94, 0.1), transparent 40%);
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl;
+  }
+  
+  .glass-dark {
+    @apply bg-slate-900/50 backdrop-blur-xl border border-white/5 shadow-2xl;
+  }
+
+  .stat-card {
+    @apply rounded-2xl p-4 transition-all duration-300 hover:transform hover:-translate-y-1;
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.6));
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .btn-primary {
+    @apply relative overflow-hidden rounded-xl bg-teal-600 px-6 py-3 font-semibold text-white transition-all hover:bg-teal-500 active:scale-95 shadow-lg shadow-teal-900/20;
+  }
+
+  .input-field {
+    @apply rounded-xl border border-white/10 bg-slate-900/50 p-4 text-slate-200 outline-none transition-all focus:border-teal-500 focus:ring-1 focus:ring-teal-500/50;
+  }
+}
+
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-rose-400;
+}

@@ -1,0 +1,43 @@
+# Enhancement Plan: AI Content Authenticity & Bias Auditor
+
+This plan outlines the steps to transition the project from a "Foundational MVP" to a "Comprehensive Audit Platform" as originally envisioned. We will functionalize the core audit modules and elevate the frontend to a premium, professional standard.
+
+## Proposed Changes
+
+### [Component] Backend Forensics Engine
+
+#### [MODIFY] [detectors.py](file:///c:/AI%20Content%20Authenticity%20&%20Bias%20Auditor/backend/core/detectors.py)
+- **Fact-Checking**: Enhance the [VeridexSearchPlaceholder](file:///c:/AI%20Content%20Authenticity%20&%20Bias%20Auditor/backend/core/detectors.py#302-321) to return more realistic "simulated" results if no API key is provided, or implement a basic web-scraping fallback for common topics.
+- **Bias Analysis**: Improve the lexicon with more nuanced terms and categories (Socio-economic, Cultural).
+
+#### [MODIFY] [copyright.py](file:///c:/AI%20Content%20Authenticity%20&%20Bias%20Auditor/backend/core/copyright.py)
+- **Copyright Risk**: Update [assess_copyright_risk](file:///c:/AI%20Content%20Authenticity%20&%20Bias%20Auditor/backend/core/copyright.py#60-79) to include a "Public Domain" vs "Proprietary" heuristic.
+- Add a mock "Web Search" component to simulate checking against external sources for plagiarism.
+
+---
+
+### [Component] Frontend Dashboard
+
+#### [MODIFY] [page.tsx](file:///c:/AI%20Content%20Authenticity%20&%20Bias%20Auditor/frontend/app/page.tsx)
+- **Premium UI**: Implement glassmorphism effects consistently.
+- **Visualizations**: 
+    - Add a "Copyright Risk" gauge.
+    - Add a "Factuality Score" breakdown.
+    - Improve the "Bias Mapping" chart with better colors and labels.
+- **Media Reports**: Render specific forensic findings for Images (ELA, EXIF) and Audio (Spectral, Metadata) in a clean, readable format instead of just text list.
+- **Animations**: Add subtle transitions using `framer-motion` for result entry and tab switching.
+
+#### [MODIFY] [globals.css](file:///c:/AI%20Content%20Authenticity%20&%20Bias%20Auditor/frontend/app/globals.css)
+- Define a premium color palette (Dark Teals, Slates, and accented Cyber-Yellow/Red for risks).
+- Add utilities for glassmorphism and subtle glows.
+
+## Verification Plan
+
+### Automated Tests
+- Run existing tests: `python -m pytest test_detector.py`
+- Add new tests for Copyright Risk and Factuality scoring logic in `test_forensics.py`.
+
+### Manual Verification
+- **Visual Audit**: Verify the new "Premium" look in the browser.
+- **Multi-Modal Flow**: Upload an image and verify the ELA and Metadata results are displayed correctly in the UI.
+- **Copyright Check**: Run a text audit and verify the similarity search results show up in the new "Copyright Risk" section.

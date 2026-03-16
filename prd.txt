@@ -1,0 +1,91 @@
+Veritas Forensics: AI Content Authenticity
+& Bias Auditor PRD
+
+1. Project Vision
+
+Veritas Forensics (Veridex) aims to be the definitive platform for digital trust and safety. By
+providing multi-modal analysis of content (text, image, audio), it empowers researchers, journalists,
+and legal teams to verify origin, detect bias, and ensure compliance in an AI-saturated digital
+landscape.
+
+2. User Personas
+
+Persona            Role                  Pain Points
+
+Journalist (Alex)  Investigative         Struggles to verify leaked digital assets; needs to
+                   Journalist            ensure sources aren't deepfaked.
+
+Legal Counsel      IP/Compliance         Needs to scan client marketing materials for
+(Sarah)            Lawyer                potential copyright violations or un-credited AI
+                                         generation.
+
+Content Moderator  Platform Safety Lead  Overwhelmed by high volumes of multi-modal
+(Liam)                                   misinformation during sensitive events (e.g.,
+                                         elections).
+
+AI Researcher (Dr. Ethics Academic       Needs a tool to quantify bias in LLM outputs at
+Chen)                                    scale for academic study.
+
+3. Feature Breakdown
+
+3.1. Multi-Modal Analysis
+
+      Text Analysis: Direct input, URLs, or document uploads (PDF, DOCX).
+      Image Analysis: Static image uploads (JPEG, PNG, WebP) with EXIF data extraction.
+      Audio Analysis: Multi-format audio support with automated transcription for sentiment
+          analysis.
+
+3.2. Origin Detection
+
+      AI vs. Human Classification: Probabilistic scoring of content origin.
+      Model Fingerprinting: Identifying specific source models (e.g., Midjourney v6, GPT-4o,
+
+          Flux, DALL-E) based on digital artifacts.
+
+3.3. Bias & Sentiment Analysis
+
+      Bias Mapping: Detection of political leaning, racial/gender stereotypes, and linguistic tropes.
+      Sentiment Polarity: Granular breakdown of emotional tone and intent.
+
+3.4. Fact-Checking & Veracity
+
+      RAG Integration: Cross-referencing claims with real-time news APIs and trusted
+          fact-checking databases (e.g., Snopes, Google Fact Check Explorer).
+
+      Claim Extraction: Automatically identifying "atomic" claims in text for individual verification.
+
+3.5. Copyright & Plagiarism
+
+      Digital Fingerprinting: Similarity search against massive datasets to identify potential
+          copyright infringements.
+
+      Source Attribution: Mapping identified plagiarized segments to their original sources.
+
+4. Tech Stack Recommendations
+
+Layer     Recommendation                     Rationale
+
+Frontend  Next.js 15+, Tailwind CSS, Framer  SSR for SEO, modern aesthetics,
+          Motion                             and smooth micro-interactions.
+
+Visualizations Recharts / D3.js              Complex confidence scores and bias
+                                             mapping diagrams.
+
+Backend   FastAPI (Python)                   Native support for ML libraries and
+                                             high concurrency (async).
+Database      PostgreSQL (Relational) + Pinecone  Storing audit history and performing
+              (Vector)                            similarity searches for plagiarism.
+
+AI/ML Engine  LangChain, HuggingFace              State-of-the-art inference for
+
+              Transformers, OpenAI/Anthropic APIs detection and analysis.
+
+5. Implementation Roadmap (Veridex)
+
+Phase 1: Infrastructure & Foundation (Weeks 1-2)
+
+      Initial FastAPI Backend Scaffold.
+      Initialize Next.js frontend with specialized "Audit Dashboard" UI.
+      Setup PostgreSQL instance for user data and analysis logs.
+... [remaining phases follow same sequence as PRD]
+

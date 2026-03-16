@@ -1,0 +1,5 @@
+transformers>=4.48.0
+numpy>=2.0.0
+# Torch wheels vary by OS/Python; install the correct build for your environment.
+torch
+

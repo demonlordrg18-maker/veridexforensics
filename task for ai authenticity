@@ -1,0 +1,15 @@
+# Task: Assess Project Status and Plan Remaining Features
+
+- [x] Assess project status <!-- id: 0 -->
+    - [x] Review PRD and README <!-- id: 1 -->
+    - [x] Examine backend implementation (detectors, models) <!-- id: 2 -->
+    - [x] Examine frontend implementation (dashboard, components) <!-- id: 3 -->
+    - [x] Verify existing features with tests <!-- id: 4 -->
+- [x] Implement missing core features <!-- id: 5 -->
+    - [x] Functionalize Fact-Checking (RAG/API integration or better mock) <!-- id: 7 -->
+    - [x] Extend Copyright/Plagiarism check (mock external search) <!-- id: 8 -->
+- [ ] Polish UI/UX <!-- id: 9 -->
+    - [ ] Premium Design (Glassmorphism, Typography, Animations) <!-- id: 10 -->
+    - [ ] Detailed Media Report rendering <!-- id: 11 -->
+    - [ ] Copyright Risk visualization <!-- id: 12 -->
+- [ ] Final Verification and Walkthrough <!-- id: 13 -->

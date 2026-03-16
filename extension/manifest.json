@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Veridex Auditor (MVP)",
+  "version": "0.1.0",
+  "description": "Real-time content auditing via Veridex API (MVP scaffold).",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["http://localhost:8000/*"],
+  "action": {
+    "default_title": "Audit this page (MVP)"
+  },
+  "background": {
+    "service_worker": "worker.js"
+  }
+}
+

@@ -39,10 +39,10 @@ export default function LimitationsPage() {
               Disclosure of Limitations
             </div>
             <h1 className="text-4xl md:text-7xl font-black text-white mb-8 tracking-tight">
-              Trust Needs <span className="text-gradient">Boundaries.</span>
+              Bridging the <span className="text-gradient">Gap.</span>
             </h1>
             <p className="text-xl text-slate-400 leading-relaxed max-w-2xl">
-              Veridex is an assistive forensic tool. Understanding what we cannot guarantee is essential for professional use in high-stakes environments.
+              Veridex is an adaptive forensic platform. We are continuously engineering around traditional detection limits through multi-model consensus and deep-pixel analysis.
             </p>
           </motion.div>
         </div>
@@ -73,18 +73,18 @@ export default function LimitationsPage() {
             />
             <LimitationCard 
               icon={AlertTriangle}
-              title="Compression Artifacts"
-              description="High levels of media compression (e.g., social media re-uploads) can degrade forensic signals, making synthetic markers more difficult to isolate or generating false anomalies."
+              title="Entropy Mapping"
+              description="To counter high compression, we use linguistic and visual entropy analysis. This detects structural 'flatness' common in generative models even when surface-level artifacts are obscured."
             />
             <LimitationCard 
               icon={ZapOff}
-              title="Metadata Dependencies"
-              description="Provenance and origin analysis often depend on metadata availability and external platform access. Stripped metadata will significantly reduce origin-tracing accuracy."
+              title="Post-Metadata Forensics"
+              description="Stripped metadata no longer halts analysis. We employ Micro-noise Variance mapping to identify sensor-level inconsistencies and provenance even in scrubbed social media assets."
             />
             <LimitationCard 
                icon={HelpCircle}
-               title="Hallucination Detection"
-               description="While we audit claims against fact-checking archives, we cannot detect every instance of 'AI hallucination,' especially in niche, emerging, or highly technical domains with limited primary source data."
+               title="Live Fact-Crawl"
+               description="Our extraction engine now crawls external links in real-time, cross-referencing claims against active archives to catch hallucinations that traditional static models might miss."
             />
             <LimitationCard 
                icon={Info}

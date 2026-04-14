@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 import smtplib
 from datetime import UTC, datetime
 from email.message import EmailMessage
@@ -228,6 +229,10 @@ def _extract_text_from_document(filename: str, payload: bytes) -> str:
     ext = Path(filename).suffix.lower()
     if ext in {".txt", ".md"}:
         return payload.decode("utf-8", errors="ignore")
+    if ext in {".html", ".htm"}:
+        content = payload.decode("utf-8", errors="ignore")
+        # Basic tag stripping
+        return re.sub(r'<[^>]+>', ' ', content)
     if ext == ".pdf" and pypdf:
         from io import BytesIO
 
@@ -238,7 +243,7 @@ def _extract_text_from_document(filename: str, payload: bytes) -> str:
 
         document = docx.Document(BytesIO(payload))
         return "\n".join(paragraph.text for paragraph in document.paragraphs)
-    raise ValueError("Unsupported document format or optional parser dependency missing.")
+    raise ValueError(f"Unsupported document format ({ext}) or optional parser dependency missing.")
 
 
 def _build_copyright_payload(text: str, modality: str, audit_id: str | None = None) -> dict[str, Any]:
@@ -304,29 +309,41 @@ async def audit_link(request: dict) -> dict[str, Any]:
         raise HTTPException(status_code=400, detail="URL is required.")
     
     try:
-        # Phase 3/4: Real crawler integration. 
-        # For MVP, we simulate fetching content from the URL.
-        import time
-        time.sleep(1.2) # Simulate network lag
+        import requests
+        headers = {"User-Agent": "VeridexAuditBot/1.0 (+https://veridexforensics.com)"}
         
-        simulated_text = f"Analyzed content from source {url}. This appears to be a verified external asset."
-        if any(x in url.lower() for x in ("youtube", "video", "mp4")):
-            # Simulate a video link audit
-            response = await audit_video_placeholder(url)
-        elif any(x in url.lower() for x in ("jpg", "png", "image")):
-            # Simulate an image link audit
-            response = await audit_image_placeholder(url)
-        else:
-            # Default to text audit of the target page
-            full_payload = _build_text_payload(simulated_text, include_metadata=True)
-            digest = compute_file_hash(simulated_text.encode("utf-8"))
-            full_payload["copyright_risk"] = _build_copyright_payload(simulated_text, "text")
-            log = store.create(modality="link", payload=full_payload, input_hash=digest.sha256)
-            full_payload["id"] = log["id"]
-            full_payload["created_at"] = log["created_at"]
-            response = full_payload
-            
-        return response
+        # Phase 3: Real crawler integration.
+        if any(x in url.lower() for x in ("youtube", "video", "vimeo")):
+            return await audit_video_placeholder(url)
+        elif any(x in url.lower() for x in ("jpg", "png", "image", "jpeg")):
+            return await audit_image_placeholder(url)
+        
+        # Real text fetching for general websites
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        
+        # Extract text content
+        raw_html = response.text
+        # Basic text extraction from HTML
+        text = re.sub(r'<script[^>]*>.*?</script>', '', raw_html, flags=re.DOTALL)
+        text = re.sub(r'<style[^>]*>.*?</style>', '', text, flags=re.DOTALL)
+        text = re.sub(r'<[^>]+>', ' ', text)
+        text = " ".join(text.split())
+        
+        if len(text) < 50:
+             text = f"Content from {url} (Extraction limited: content may be gated or dynamic)."
+
+        full_payload = _build_text_payload(text, include_metadata=True)
+        digest = compute_file_hash(text.encode("utf-8"))
+        full_payload["copyright_risk"] = _build_copyright_payload(text, "text")
+        full_payload["source_url"] = url
+        full_payload["extraction_method"] = "live_crawl"
+        
+        log = store.create(modality="link", payload=full_payload, input_hash=digest.sha256)
+        full_payload["id"] = log["id"]
+        full_payload["created_at"] = log["created_at"]
+        return full_payload
+        
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Link audit failed: {exc}") from exc
 

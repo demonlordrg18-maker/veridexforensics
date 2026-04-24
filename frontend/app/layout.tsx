@@ -1,6 +1,19 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import Script from "next/script";
+import { Outfit, JetBrains_Mono } from "next/font/google";
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-outfit",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-jetbrains-mono",
+});
 
 const bingVerification = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION;
 
@@ -58,8 +71,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const clarityId = process.env.NEXT_PUBLIC_CLARITY_ID;
 
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className={`${outfit.variable} ${jetbrainsMono.variable}`}>
+      <body className="antialiased">
         {gaId ? (
           <>
             <Script

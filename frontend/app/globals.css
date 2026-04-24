@@ -15,7 +15,8 @@
 
 @layer base {
   body {
-    @apply bg-slate-950 text-slate-50;
+    @apply bg-slate-950;
+    @apply text-slate-50;
     font-family: var(--font-outfit), sans-serif;
     background-image: 
       radial-gradient(circle at 0% 0%, rgba(13, 148, 136, 0.2), transparent 40%),
@@ -26,25 +27,59 @@
 
 @layer components {
   .glass {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl;
+    @apply bg-white/5;
+    @apply backdrop-blur-xl;
+    @apply border;
+    @apply border-white/10;
+    @apply shadow-2xl;
   }
   
   .glass-dark {
-    @apply bg-slate-900/50 backdrop-blur-xl border border-white/5 shadow-2xl;
+    @apply bg-slate-900/50;
+    @apply backdrop-blur-xl;
+    @apply border;
+    @apply border-white/5;
+    @apply shadow-2xl;
   }
 
   .stat-card {
-    @apply rounded-2xl p-4 transition-all duration-300 hover:transform hover:-translate-y-1;
+    @apply rounded-2xl;
+    @apply p-4;
+    @apply transition-all;
+    @apply duration-300;
+    @apply hover:transform;
+    @apply hover:-translate-y-1;
     background: linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.6));
     border: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   .btn-primary {
-    @apply relative overflow-hidden rounded-xl bg-teal-600 px-6 py-3 font-semibold text-white transition-all hover:bg-teal-500 active:scale-95 shadow-lg shadow-teal-900/20;
+    @apply relative;
+    @apply overflow-hidden;
+    @apply rounded-xl;
+    @apply bg-teal-600;
+    @apply px-6;
+    @apply py-3;
+    @apply font-semibold;
+    @apply text-white;
+    @apply transition-all;
+    @apply hover:bg-teal-500;
+    @apply active:scale-95;
+    @apply shadow-lg;
   }
 
   .input-field {
-    @apply rounded-xl border border-white/10 bg-slate-900/50 p-4 text-slate-200 outline-none transition-all focus:border-teal-500 focus:ring-1 focus:ring-teal-500/50;
+    @apply rounded-xl;
+    @apply border;
+    @apply border-white/10;
+    @apply bg-slate-900/50;
+    @apply p-4;
+    @apply text-slate-200;
+    @apply outline-none;
+    @apply transition-all;
+    @apply focus:border-teal-500;
+    @apply focus:ring-1;
+    @apply focus:ring-teal-500/50;
   }
 }
 
@@ -53,5 +88,9 @@
 }
 
 .text-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-rose-400;
+  @apply bg-clip-text;
+  @apply text-transparent;
+  @apply bg-gradient-to-r;
+  @apply from-teal-400;
+  @apply to-rose-400;
 }

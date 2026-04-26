@@ -17,8 +17,24 @@ const jetbrainsMono = JetBrains_Mono({
 
 const bingVerification = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION;
 
+function toMetadataBase(raw?: string) {
+  if (!raw) return undefined;
+  const trimmed = raw.trim();
+  if (!trimmed) return undefined;
+
+  const candidate = /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
+
+  try {
+    return new URL(candidate);
+  } catch {
+    return undefined;
+  }
+}
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://veridex.ai"),
+  metadataBase: toMetadataBase(process.env.NEXT_PUBLIC_SITE_URL) ?? new URL("https://veridex.ai"),
   title: {
     default: "Veridex Forensics | AI Content Verification for Evidence, News, and Risk",
     template: "%s | Veridex Forensics",

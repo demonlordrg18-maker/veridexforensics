@@ -15,6 +15,8 @@ import {
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/meevnewj";
+
 const ValueProp = ({ icon: Icon, title, desc }: any) => (
   <div className="flex gap-4">
     <div className="h-10 w-10 shrink-0 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-400">
@@ -63,18 +65,38 @@ export default function RequestDemoPage() {
     setError("");
 
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
-      const resp = await fetch(`${apiBase}/leads`, {
+      // Honeypot: silently accept to reduce spam signal
+      if (formData.honeypot?.trim()) {
+        setSubmitted({
+          id: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `lead_${Date.now()}`,
+          created_at: new Date().toISOString(),
+          response_time: "within 1 business day",
+          first_name: formData.full_name.trim().split(" ")[0] || "there",
+          email: formData.email,
+        });
+        return;
+      }
+
+      const resp = await fetch(FORMSPREE_ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify({
           ...formData,
           started_at: startedAt,
         }),
       });
 
-      const data = await resp.json();
       if (resp.ok) {
+        let data: any = null;
+        try {
+          data = await resp.json();
+        } catch {
+          // Some Formspree responses may have no JSON body; ok status is enough.
+        }
+
         const w = window as Window & { gtag?: (...args: unknown[]) => void; clarity?: (...args: unknown[]) => void };
         w.gtag?.("event", "request_demo_submit", {
           role: formData.role,
@@ -82,9 +104,9 @@ export default function RequestDemoPage() {
         });
         w.clarity?.("event", "request_demo_submit");
         setSubmitted({
-          id: data.id,
-          created_at: data.created_at,
-          response_time: data.response_time || "within 1 business day",
+          id: data?.id || (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `lead_${Date.now()}`),
+          created_at: data?.created_at || new Date().toISOString(),
+          response_time: data?.response_time || "within 1 business day",
           first_name: formData.full_name.trim().split(" ")[0] || "there",
           email: formData.email,
         });
@@ -99,10 +121,21 @@ export default function RequestDemoPage() {
         });
         setStartedAt(new Date().toISOString());
       } else {
-        setError(data.detail || "Something went wrong. Please try again.");
+        let msg = "Something went wrong. Please try again.";
+        try {
+          const data = await resp.json();
+          msg =
+            data?.error ||
+            data?.message ||
+            (Array.isArray(data?.errors) && data.errors[0]?.message) ||
+            msg;
+        } catch {
+          // ignore
+        }
+        setError(msg);
       }
     } catch {
-      setError("Failed to connect to the forensic server. Please check your connection.");
+      setError("Failed to submit the request. Please check your connection and try again.");
     } finally {
       setLoading(false);
     }

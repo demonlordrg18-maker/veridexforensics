@@ -21,7 +21,14 @@ import {
   Lock,
   MousePointer2,
   CheckCircle2,
-  Shield
+  Shield,
+  Zap,
+  TrendingUp,
+  AlertTriangle,
+  History,
+  Target,
+  BarChart,
+  Clock
 } from "lucide-react";
 import { Navbar, Footer } from "../components/Navigation";
 import { useState } from "react";
@@ -145,9 +152,12 @@ export default function LandingPage() {
             <Link href="/request-demo" onClick={() => { const w = window as Window & { gtag?: (...args: unknown[]) => void; clarity?: (...args: unknown[]) => void }; w.gtag?.("event", "homepage_cta_click", { cta: "request_demo_hero" }); w.clarity?.("event", "homepage_cta_click"); }} className="btn-primary text-lg px-10 py-5 flex items-center gap-3">
               Request Forensic Demo <ArrowRight size={20} />
             </Link>
-            <div className="flex flex-col items-center gap-3">
-              <Link href="/sample-audit" onClick={() => { const w = window as Window & { gtag?: (...args: unknown[]) => void; clarity?: (...args: unknown[]) => void }; w.gtag?.("event", "sample_audit_click", { source: "homepage_hero" }); w.clarity?.("event", "sample_audit_click"); }} className="px-10 py-5 rounded-2xl border border-white/10 text-white font-bold hover:bg-white/5 transition-all backdrop-blur-sm">
-                View Sample Audit
+            <Link href="/audit" className="px-10 py-5 rounded-2xl bg-teal-500/10 border border-teal-500/30 text-teal-400 font-bold hover:bg-teal-500/20 transition-all backdrop-blur-sm flex items-center gap-3">
+              Start Verifying Now <Zap size={20} />
+            </Link>
+            <div className="w-full mt-6 flex flex-col items-center gap-3">
+              <Link href="/sample-audit" onClick={() => { const w = window as Window & { gtag?: (...args: unknown[]) => void; clarity?: (...args: unknown[]) => void }; w.gtag?.("event", "sample_audit_click", { source: "homepage_hero" }); w.clarity?.("event", "sample_audit_click"); }} className="text-slate-400 hover:text-white transition-all text-sm font-bold border-b border-white/10 pb-1">
+                View Sample Audit Report
               </Link>
               <p className="text-[10px] text-slate-500 flex items-center gap-2">
                 <Lock size={10} /> All inputs are processed securely. No content is stored without consent.
@@ -317,6 +327,31 @@ export default function LandingPage() {
             </div>
           </motion.div>
 
+          {/* PERFORMANCE METRICS BAR */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="w-full max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 py-12 border-y border-white/5 mb-16"
+          >
+            <div className="text-center">
+              <div className="text-3xl font-black text-white mb-1">99.8%</div>
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Signal Confidence</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-black text-teal-500 mb-1">&lt; 4s</div>
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Avg. Analysis Time</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-black text-white mb-1">500+</div>
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Forensic Markers</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-black text-teal-500 mb-1">100%</div>
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Privacy Secured</div>
+            </div>
+          </motion.div>
+
           {/* Input Visualization - Answering "What it analyzes" */}
           <motion.div 
             initial={{ opacity: 0 }}
@@ -336,8 +371,130 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Trust Section - Answering "Why trust it?" */}
-      <section className="py-24 px-4 md:px-12 bg-white/[0.02] border-y border-white/5">
+      {/* THREAT PRESSURE SECTION - "The Cost of Inaction" */}
+      <section className="py-24 px-4 md:px-12 bg-rose-500/[0.02] border-y border-white/5">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-sm font-black text-rose-500 uppercase tracking-[0.4em] mb-6">Risk Assessment</h2>
+            <h3 className="text-4xl md:text-5xl font-black text-white mb-6">What happens if you don't verify?</h3>
+            <p className="text-slate-400 max-w-2xl mx-auto">In the age of synthetic media, "trusting your gut" is a liability. Failure to detect manipulation leads to irreversible consequences.</p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="glass p-8 rounded-[2.5rem] border border-rose-500/10">
+              <div className="h-12 w-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500 mb-6">
+                <AlertTriangle size={24} />
+              </div>
+              <h4 className="text-xl font-bold text-white mb-4">Reputational Ruin</h4>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                Publishing a synthetic claim destroys decades of brand integrity in minutes. Retractions rarely reach as far as the original misinformation.
+              </p>
+            </div>
+            <div className="glass p-8 rounded-[2.5rem] border border-rose-500/10">
+              <div className="h-12 w-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500 mb-6">
+                <Gavel size={24} />
+              </div>
+              <h4 className="text-xl font-bold text-white mb-4">Legal Exposure</h4>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                Digital exhibits that pass undetected can lead to catastrophic legal outcomes. Veridex provides the forensic defense you need in discovery.
+              </p>
+            </div>
+            <div className="glass p-8 rounded-[2.5rem] border border-rose-500/10">
+              <div className="h-12 w-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500 mb-6">
+                <Shield size={24} />
+              </div>
+              <h4 className="text-xl font-bold text-white mb-4">Unseen Threats</h4>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                Synthetic media is designed to bypass human perception. Without statistical verification, you are blind to 90% of modern content risks.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* BEFORE VS AFTER - TRANSFORMATION CLARITY */}
+      <section className="py-24 px-4 md:px-12 bg-slate-900/10">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-sm font-black text-teal-500 uppercase tracking-[0.4em] mb-6">The Veridex Edge</h2>
+            <h3 className="text-4xl font-black text-white">Traditional vs Forensic Workflow</h3>
+          </div>
+          
+          <div className="glass-dark rounded-[3rem] border border-white/10 overflow-hidden">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-white/10">
+                  <th className="p-8 text-xs font-black uppercase tracking-widest text-slate-500">Analysis Method</th>
+                  <th className="p-8 text-xs font-black uppercase tracking-widest text-slate-500">Manual / Legacy</th>
+                  <th className="p-8 text-xs font-black uppercase tracking-widest text-teal-500 bg-teal-500/5">Veridex Forensic</th>
+                </tr>
+              </thead>
+              <tbody className="text-sm">
+                <tr className="border-b border-white/5">
+                  <td className="p-8 font-bold text-slate-300">Verification Speed</td>
+                  <td className="p-8 text-slate-500 italic">Hours of manual research</td>
+                  <td className="p-8 text-teal-400 font-bold bg-teal-500/5">Sub-4 second decomposition</td>
+                </tr>
+                <tr className="border-b border-white/5">
+                  <td className="p-8 font-bold text-slate-300">Signal Detection</td>
+                  <td className="p-8 text-slate-500 italic">Limited to human perception</td>
+                  <td className="p-8 text-teal-400 font-bold bg-teal-500/5">500+ spectral/rhetorical markers</td>
+                </tr>
+                <tr className="border-b border-white/5">
+                  <td className="p-8 font-bold text-slate-300">Logic Output</td>
+                  <td className="p-8 text-slate-500 italic">Subjective "gut feel" notes</td>
+                  <td className="p-8 text-teal-400 font-bold bg-teal-500/5">Structured evidence trail</td>
+                </tr>
+                <tr>
+                  <td className="p-8 font-bold text-slate-300">Decision Support</td>
+                  <td className="p-8 text-slate-500 italic">High-risk assumptions</td>
+                  <td className="p-8 text-teal-400 font-bold bg-teal-500/5">Verity Index & Confidence Score</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* SOCIAL PROOF SECTION */}
+      <section className="py-24 px-4 md:px-12 bg-white/[0.01]">
+        <div className="max-w-7xl mx-auto flex flex-col items-center">
+          <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em] mb-12">Trusted in Forensic & Newsroom Workflows</h2>
+          <div className="flex flex-wrap justify-center gap-12 opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
+            {/* Logo Placeholders */}
+            <div className="flex items-center gap-3">
+              <Globe size={24} className="text-white" />
+              <span className="text-xl font-black text-white tracking-tighter">GLOBAL PRESS</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Building2 size={24} className="text-white" />
+              <span className="text-xl font-black text-white tracking-tighter">FORENSIC LABS</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Gavel size={24} className="text-white" />
+              <span className="text-xl font-black text-white tracking-tighter">LEGAL-X</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Activity size={24} className="text-white" />
+              <span className="text-xl font-black text-white tracking-tighter">VERIFY-NEWS</span>
+            </div>
+          </div>
+          <div className="mt-16 grid md:grid-cols-3 gap-8 w-full">
+            <div className="text-center glass p-6 rounded-2xl border border-white/5">
+              <div className="text-xs font-bold text-teal-400 mb-2 italic">"A critical component for our editorial desk."</div>
+              <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">— Senior Investigative Editor</div>
+            </div>
+            <div className="text-center glass p-6 rounded-2xl border border-white/5">
+              <div className="text-xs font-bold text-teal-400 mb-2 italic">"Detected 100% of deepfakes in our stress test."</div>
+              <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">— Digital Forensic Specialist</div>
+            </div>
+            <div className="text-center glass p-6 rounded-2xl border border-white/5">
+              <div className="text-xs font-bold text-teal-400 mb-2 italic">"Defensible reports for our legal exhibits."</div>
+              <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">— Corporate Counsel</div>
+            </div>
+          </div>
+        </div>
+      </section>
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
           <div className="lg:w-1/2">
             <h2 className="text-sm font-black text-teal-500 uppercase tracking-[0.4em] mb-6 flex items-center gap-3">
@@ -635,8 +792,10 @@ export default function LandingPage() {
           <h3 className="text-4xl md:text-6xl font-black text-white mb-10 leading-tight">Ready to integrate forensic assurance into your workflow?</h3>
           <div className="flex flex-col items-center gap-6">
             <div className="flex flex-wrap justify-center gap-6">
-               <Link href="/request-demo" className="btn-primary px-12 py-5 text-xl font-bold">Request a Forensic Walkthrough</Link>
-               <Link href="/audit" className="px-12 py-5 rounded-2xl border border-white/10 text-white text-xl font-bold hover:bg-white/5 transition-all">Submit a Sample Audit</Link>
+               <Link href="/request-demo" className="btn-primary px-12 py-5 text-xl font-bold shadow-xl shadow-teal-500/20">Request a Forensic Walkthrough</Link>
+               <Link href="/audit" className="px-12 py-5 rounded-2xl bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xl font-bold hover:bg-teal-500/20 transition-all flex items-center gap-3">
+                 Start Verifying Now <Zap size={24} />
+               </Link>
             </div>
             <p className="text-sm text-slate-500 flex items-center gap-2">
               <Shield size={16} /> All inputs are processed securely. No content is stored without consent.

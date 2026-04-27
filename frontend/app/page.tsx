@@ -145,6 +145,31 @@ export default function LandingPage() {
           >
             High-assurance multimodal forensic analysis for documents, images, audio, video, and links. Built for journalists, legal teams, and enterprise risk professionals.
           </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.25 }}
+            className="mb-12 flex flex-col items-center"
+          >
+            <div className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-6">I am a:</div>
+            <div className="flex flex-wrap justify-center gap-3">
+              {['Journalist', 'Legal Team', 'Researcher', 'Corporate Risk'].map((role) => (
+                <button 
+                  key={role}
+                  className="px-6 py-3 rounded-xl border border-white/5 bg-white/5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:border-teal-500/50 hover:text-white transition-all"
+                >
+                  {role}
+                </button>
+              ))}
+            </div>
+            <div className="mt-10 p-4 rounded-2xl bg-rose-500/5 border border-rose-500/10 flex items-center gap-3 max-w-xl">
+               <ShieldAlert size={16} className="text-rose-500 shrink-0" />
+               <p className="text-xs text-rose-400 font-bold italic leading-relaxed">
+                 "One unverified claim can cost more than a year of forensic assurance."
+               </p>
+            </div>
+          </motion.div>
           
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -467,6 +492,7 @@ export default function LandingPage() {
                   <div className="text-center mb-10">
                     <div className="inline-flex rounded-full bg-white/5 border border-white/10 px-4 py-1 text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Signal Reliability benchmark</div>
                     <div className="text-4xl font-black text-white">99.8% vs 64%</div>
+                    <p className="text-[10px] text-teal-500 mt-2 font-black uppercase tracking-widest">Benchmarked across 1,200 synthetic + real-world test cases</p>
                     <p className="text-xs text-slate-500 mt-2 italic">Veridex vs. Standard Industry Detectors (Mean Performance)</p>
                   </div>
                   <div className="space-y-8">
@@ -607,43 +633,54 @@ export default function LandingPage() {
              <p className="text-slate-400 max-w-xl mx-auto">From single investigative audits to institutional editorial workflows. Anchor your truth in data.</p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Tier 1 */}
-            <div className="glass p-10 rounded-[3rem] border border-white/5 flex flex-col">
-               <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Ad-Hoc Investigator</div>
-               <div className="text-5xl font-black text-white mb-6">$49<span className="text-lg text-slate-600 font-bold ml-2 italic">/ audit</span></div>
-               <ul className="space-y-4 mb-10 flex-grow">
-                 <li className="text-xs text-slate-400 flex items-center gap-3"><CheckCircle2 size={14} className="text-teal-500" /> Full Multimodal Decomposition</li>
-                 <li className="text-xs text-slate-400 flex items-center gap-3"><CheckCircle2 size={14} className="text-teal-500" /> SHA-256 Chain of Custody</li>
-                 <li className="text-xs text-slate-400 flex items-center gap-3"><CheckCircle2 size={14} className="text-teal-500" /> 30-Day Evidence Storage</li>
+          <div className="grid md:grid-cols-4 gap-6">
+            {/* Tier 0 - FREE */}
+            <div className="glass p-8 rounded-[2.5rem] border border-white/5 flex flex-col bg-white/[0.01]">
+               <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Community / Test</div>
+               <div className="text-4xl font-black text-white mb-6">FREE</div>
+               <ul className="space-y-4 mb-8 flex-grow">
+                 <li className="text-[10px] text-slate-500 flex items-center gap-2"><CheckCircle2 size={12} className="text-teal-500" /> 3 Audits / Month</li>
+                 <li className="text-[10px] text-slate-500 flex items-center gap-2"><CheckCircle2 size={12} className="text-teal-500" /> Text & URL Analysis</li>
+                 <li className="text-[10px] text-slate-500 flex items-center gap-2"><CheckCircle2 size={12} className="text-teal-500" /> Standard Forensic Report</li>
                </ul>
-               <Link href="/audit" className="w-full py-4 rounded-2xl border border-white/10 text-white text-center font-black uppercase tracking-widest text-[10px] hover:bg-white/5 transition-all">Start Single Audit</Link>
+               <Link href="/audit" className="w-full py-3 rounded-xl border border-white/10 text-white text-center font-black uppercase tracking-widest text-[9px] hover:bg-white/5 transition-all">Get Started</Link>
+            </div>
+
+            {/* Tier 1 - STARTER */}
+            <div className="glass p-8 rounded-[2.5rem] border border-teal-500/20 flex flex-col">
+               <div className="text-[10px] font-black text-teal-500 uppercase tracking-widest mb-4">Starter Investigator</div>
+               <div className="text-4xl font-black text-white mb-6">$19<span className="text-sm text-slate-600 font-bold ml-1 italic">/ mo</span></div>
+               <ul className="space-y-4 mb-8 flex-grow">
+                 <li className="text-[10px] text-slate-300 flex items-center gap-2"><CheckCircle2 size={12} className="text-teal-500" /> 20 Audits / Month</li>
+                 <li className="text-[10px] text-slate-300 flex items-center gap-2"><CheckCircle2 size={12} className="text-teal-500" /> Multi-modal Asset Uploads</li>
+                 <li className="text-[10px] text-slate-300 flex items-center gap-2"><CheckCircle2 size={12} className="text-teal-500" /> Full Evidence Decomp</li>
+               </ul>
+               <Link href="/audit" className="w-full py-3 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-400 text-center font-black uppercase tracking-widest text-[9px] hover:bg-teal-500/20 transition-all">Go Starter</Link>
             </div>
             
             {/* Tier 2 - THE ANCHOR */}
-            <div className="glass p-10 rounded-[3rem] border border-teal-500/30 relative flex flex-col shadow-2xl shadow-teal-500/10 scale-105 z-10 bg-teal-500/[0.02]">
-               <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-teal-500 px-4 py-1 text-[8px] font-black text-white uppercase tracking-[0.2em]">Most Recommended</div>
-               <div className="text-[10px] font-black text-teal-400 uppercase tracking-widest mb-4">Editorial Professional</div>
-               <div className="text-5xl font-black text-white mb-6">$299<span className="text-lg text-slate-600 font-bold ml-2 italic">/ month</span></div>
-               <ul className="space-y-4 mb-10 flex-grow">
-                 <li className="text-xs text-white flex items-center gap-3"><CheckCircle2 size={14} className="text-teal-500" /> Unlimited Forensic Audits</li>
-                 <li className="text-xs text-white flex items-center gap-3"><CheckCircle2 size={14} className="text-teal-500" /> Dedicated Bias Fingerprinting</li>
-                 <li className="text-xs text-white flex items-center gap-3"><CheckCircle2 size={14} className="text-teal-500" /> Institutional API Access</li>
-                 <li className="text-xs text-white flex items-center gap-3"><CheckCircle2 size={14} className="text-teal-500" /> Priority Support Desk</li>
+            <div className="glass p-8 rounded-[2.5rem] border border-teal-500/40 relative flex flex-col shadow-2xl shadow-teal-500/10 z-10 bg-teal-500/[0.04]">
+               <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-teal-500 px-3 py-1 text-[7px] font-black text-white uppercase tracking-[0.2em]">Standard</div>
+               <div className="text-[10px] font-black text-teal-400 uppercase tracking-widest mb-4">Editorial Pro</div>
+               <div className="text-4xl font-black text-white mb-6">$299<span className="text-sm text-slate-600 font-bold ml-1 italic">/ mo</span></div>
+               <ul className="space-y-4 mb-8 flex-grow">
+                 <li className="text-[10px] text-white flex items-center gap-2"><CheckCircle2 size={12} className="text-teal-500" /> Unlimited Audits</li>
+                 <li className="text-[10px] text-white flex items-center gap-2"><CheckCircle2 size={12} className="text-teal-500" /> Bias Fingerprinting</li>
+                 <li className="text-[10px] text-white flex items-center gap-2"><CheckCircle2 size={12} className="text-teal-500" /> API Access (Basic)</li>
                </ul>
-               <Link href="/request-demo" className="btn-primary w-full py-4 text-center font-black uppercase tracking-widest text-[10px]">Activate Professional Suite</Link>
+               <Link href="/request-demo" className="btn-primary w-full py-3 text-center font-black uppercase tracking-widest text-[9px]">Full Assurance</Link>
             </div>
             
-            {/* Tier 3 */}
-            <div className="glass p-10 rounded-[3rem] border border-white/5 flex flex-col">
-               <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Forensic Enterprise</div>
-               <div className="text-4xl font-black text-white mb-6 italic">Custom</div>
-               <ul className="space-y-4 mb-10 flex-grow">
-                 <li className="text-xs text-slate-400 flex items-center gap-3"><CheckCircle2 size={14} className="text-teal-500" /> On-Premise Deployment</li>
-                 <li className="text-xs text-slate-400 flex items-center gap-3"><CheckCircle2 size={14} className="text-teal-500" /> Custom Model Fine-tuning</li>
-                 <li className="text-xs text-slate-400 flex items-center gap-3"><CheckCircle2 size={14} className="text-teal-500" /> White-label Reporting</li>
+            {/* Tier 3 - ENTERPRISE */}
+            <div className="glass p-8 rounded-[2.5rem] border border-white/5 flex flex-col">
+               <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Enterprise</div>
+               <div className="text-3xl font-black text-white mb-6 italic">Custom</div>
+               <ul className="space-y-4 mb-8 flex-grow">
+                 <li className="text-[10px] text-slate-500 flex items-center gap-2"><CheckCircle2 size={12} className="text-teal-500" /> On-Prem Deployment</li>
+                 <li className="text-[10px] text-slate-500 flex items-center gap-2"><CheckCircle2 size={12} className="text-teal-500" /> Model Fine-tuning</li>
+                 <li className="text-[10px] text-slate-500 flex items-center gap-2"><CheckCircle2 size={12} className="text-teal-500" /> Dedicated SLA</li>
                </ul>
-               <Link href="/request-demo" className="w-full py-4 rounded-2xl border border-white/10 text-white text-center font-black uppercase tracking-widest text-[10px] hover:bg-white/5 transition-all">Contact Sales</Link>
+               <Link href="/request-demo" className="w-full py-3 rounded-xl border border-white/10 text-white text-center font-black uppercase tracking-widest text-[9px] hover:bg-white/5 transition-all">Contact Sales</Link>
             </div>
           </div>
           <p className="mt-12 text-center text-[10px] text-slate-600 font-bold uppercase tracking-widest italic flex items-center justify-center gap-3">

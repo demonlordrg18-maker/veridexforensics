@@ -17,9 +17,14 @@ import {
   Info,
   ChevronRight,
   UserCheck,
-  Globe
+  Globe,
+  Lock,
+  MousePointer2,
+  CheckCircle2,
+  Shield
 } from "lucide-react";
 import { Navbar, Footer } from "../components/Navigation";
+import { useState } from "react";
 
 // --- Sub-components ---
 
@@ -54,6 +59,46 @@ const FeatureItem = ({ title, description }: { title: string; description: strin
 );
 
 export default function LandingPage() {
+  const [activeSample, setActiveSample] = useState<"political" | "scientific" | "social">("political");
+
+  const samples = {
+    political: {
+      label: "Political Claim",
+      summary: "High-confidence synthetic markers detected. Multiple claims require corroboration before publication or evidentiary use.",
+      risk: "High",
+      verity: "0.34",
+      derivation: [
+        "Detected 3 factual claims from the transcript.",
+        "Cross-referenced entity: “Apollo 11” and event date framing.",
+        "No contradiction patterns found in demo example; flagged 1 unverified claim.",
+        "Aggregated signals → Verity Index + confidence + bias profile.",
+      ]
+    },
+    scientific: {
+      label: "Scientific Paper",
+      summary: "Anomalous rhetorical patterns identified in the methodology section. Potential hallucinated citation detected.",
+      risk: "Medium",
+      verity: "0.62",
+      derivation: [
+        "Analyzed 12 semantic clusters in abstract and results.",
+        "Cross-referenced DOI: 10.1038/s41586-024-00000-x (Not Found).",
+        "Identified 'Loaded Language' in the conclusion segment.",
+        "Signal suggests potential LLM-assisted fabrication."
+      ]
+    },
+    social: {
+      label: "Social Media Post",
+      summary: "Viral asset shows markers of coordinated inauthentic behavior and synthetic image generation.",
+      risk: "Critical",
+      verity: "0.18",
+      derivation: [
+        "Detected macro-block inconsistencies in the background layer.",
+        "Linguistic fingerprint matches known bot-net engagement patterns.",
+        "Image metadata SHA-256 does not match original platform upload.",
+        "Verity index suggests total synthetic origin."
+      ]
+    }
+  };
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -100,9 +145,14 @@ export default function LandingPage() {
             <Link href="/request-demo" onClick={() => { const w = window as Window & { gtag?: (...args: unknown[]) => void; clarity?: (...args: unknown[]) => void }; w.gtag?.("event", "homepage_cta_click", { cta: "request_demo_hero" }); w.clarity?.("event", "homepage_cta_click"); }} className="btn-primary text-lg px-10 py-5 flex items-center gap-3">
               Request Forensic Demo <ArrowRight size={20} />
             </Link>
-            <Link href="/sample-audit" onClick={() => { const w = window as Window & { gtag?: (...args: unknown[]) => void; clarity?: (...args: unknown[]) => void }; w.gtag?.("event", "sample_audit_click", { source: "homepage_hero" }); w.clarity?.("event", "sample_audit_click"); }} className="px-10 py-5 rounded-2xl border border-white/10 text-white font-bold hover:bg-white/5 transition-all backdrop-blur-sm">
-              View Sample Audit
-            </Link>
+            <div className="flex flex-col items-center gap-3">
+              <Link href="/sample-audit" onClick={() => { const w = window as Window & { gtag?: (...args: unknown[]) => void; clarity?: (...args: unknown[]) => void }; w.gtag?.("event", "sample_audit_click", { source: "homepage_hero" }); w.clarity?.("event", "sample_audit_click"); }} className="px-10 py-5 rounded-2xl border border-white/10 text-white font-bold hover:bg-white/5 transition-all backdrop-blur-sm">
+                View Sample Audit
+              </Link>
+              <p className="text-[10px] text-slate-500 flex items-center gap-2">
+                <Lock size={10} /> All inputs are processed securely. No content is stored without consent.
+              </p>
+            </div>
           </motion.div>
 
           {/* Mini sample report preview (kills "just a demo" doubt) */}
@@ -117,7 +167,7 @@ export default function LandingPage() {
                 <div className="lg:w-1/2">
                   <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-1.5 text-[10px] font-black text-slate-300 border border-white/10 mb-6 uppercase tracking-[0.3em]">
                     <Fingerprint size={14} />
-                    Sample audit preview (real report format)
+                    Live Audit Simulation
                   </div>
                   <h3 className="text-3xl md:text-4xl font-black text-white mb-4 leading-tight">
                     See the evidence trail before you ever click “Request Demo”.
@@ -125,6 +175,24 @@ export default function LandingPage() {
                   <p className="text-slate-400 text-sm leading-relaxed mb-8">
                     Users shouldn’t have to trust vibes. Veridex outputs a structured report: claim-level verification, bias mapping, and a defensible reasoning trace.
                   </p>
+                  
+                  {/* Sample Switcher Tabs */}
+                  <div className="flex flex-wrap gap-2 mb-8">
+                    {(Object.keys(samples) as Array<keyof typeof samples>).map((key) => (
+                      <button
+                        key={key}
+                        onClick={() => setActiveSample(key)}
+                        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
+                          activeSample === key 
+                          ? "bg-teal-500 border-teal-500 text-white shadow-lg shadow-teal-500/20" 
+                          : "bg-white/5 border-white/10 text-slate-400 hover:text-white"
+                        }`}
+                      >
+                        {samples[key].label}
+                      </button>
+                    ))}
+                  </div>
+
                   <div className="flex flex-wrap gap-3">
                     <Link
                       href="/sample-audit"
@@ -144,23 +212,32 @@ export default function LandingPage() {
                       Run a live audit
                     </Link>
                   </div>
-                  <p className="mt-6 text-[10px] text-slate-500 leading-relaxed">
-                    Designed for newsroom verification workflows and legal screening checklists. Inspired by OSINT and forensic audit practices.
+                  <p className="mt-6 text-[10px] text-slate-500 leading-relaxed italic">
+                    All inputs are processed securely. No content is stored without consent.
                   </p>
                 </div>
 
                 <div className="lg:w-1/2 grid gap-4">
-                  <div className="rounded-3xl bg-white/[0.03] border border-white/10 p-6">
+                  <motion.div 
+                    key={activeSample + "-summary"}
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="rounded-3xl bg-white/[0.03] border border-white/10 p-6"
+                  >
                     <div className="flex items-center justify-between mb-4">
                       <div className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">Audit summary</div>
-                      <div className="text-[10px] font-mono text-slate-600">VERITY: 0.34</div>
+                      <div className="text-[10px] font-mono text-slate-600">VERITY: {samples[activeSample].verity}</div>
                     </div>
                     <p className="text-sm text-slate-200 leading-relaxed">
-                      High-confidence synthetic markers detected. Multiple claims require corroboration before publication or evidentiary use.
+                      {samples[activeSample].summary}
                     </p>
                     <div className="mt-5 flex flex-wrap gap-2">
-                      <span className="rounded-full bg-rose-500/10 border border-rose-500/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-rose-400">
-                        Risk: High
+                      <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${
+                        samples[activeSample].risk === 'High' || samples[activeSample].risk === 'Critical' 
+                        ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' 
+                        : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
+                      }`}>
+                        Risk: {samples[activeSample].risk}
                       </span>
                       <span className="rounded-full bg-white/5 border border-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-300">
                         Chain-of-custody: SHA-256
@@ -169,26 +246,27 @@ export default function LandingPage() {
                         Output: claim table + sources
                       </span>
                     </div>
-                  </div>
+                  </motion.div>
 
-                  <div className="rounded-3xl bg-white/[0.03] border border-white/10 p-6">
+                  <motion.div 
+                    key={activeSample + "-derivation"}
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="rounded-3xl bg-white/[0.03] border border-white/10 p-6"
+                  >
                     <div className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500 mb-4">
-                      How the result was derived (example)
+                      How the result was derived
                     </div>
                     <div className="space-y-3 text-xs text-slate-300">
-                      {[
-                        "Detected 3 factual claims from the transcript.",
-                        "Cross-referenced entity: “Apollo 11” and event date framing.",
-                        "No contradiction patterns found in demo example; flagged 1 unverified claim.",
-                        "Aggregated signals → Verity Index + confidence + bias profile.",
-                      ].map((x, i) => (
+                      {samples[activeSample].derivation.map((x, i) => (
                         <div key={i} className="flex gap-3 items-start">
                           <div className="mt-1 h-2 w-2 rounded-full bg-teal-500/80" />
                           <div className="leading-relaxed">{x}</div>
                         </div>
                       ))}
                     </div>
-                  </div>
+                  </motion.div>
 
                   <div className="rounded-3xl bg-amber-500/[0.04] border border-amber-500/20 p-6">
                     <div className="flex items-start gap-3">
@@ -208,6 +286,32 @@ export default function LandingPage() {
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* INTERACTION PROMPT: "Try this yourself" block */}
+              <div className="bg-teal-500/5 border-t border-white/10 p-10 flex flex-col items-center text-center">
+                <div className="h-12 w-12 rounded-2xl bg-teal-500/20 flex items-center justify-center text-teal-400 mb-6">
+                  <MousePointer2 size={24} />
+                </div>
+                <h4 className="text-2xl font-black text-white mb-4">Try this yourself</h4>
+                <p className="text-slate-400 max-w-xl mb-8 leading-relaxed">
+                  Experience the forensic engine in action. Paste a claim or upload an asset to see how Veridex decomposes it into an evidence trail.
+                </p>
+                <div className="flex flex-wrap justify-center gap-4">
+                   <Link href="/audit" className="btn-primary px-8 py-4 flex items-center gap-2">
+                     <Activity size={18} /> Run Live Auditor
+                   </Link>
+                   <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText("The new infrastructure project will cost $50B and complete by 2030, despite current budget deficits.");
+                      alert("Sample text copied! Paste it into the auditor.");
+                      window.location.href = "/audit";
+                    }}
+                    className="px-8 py-4 rounded-2xl border border-white/10 text-white font-bold hover:bg-white/5 transition-all text-sm uppercase tracking-widest"
+                   >
+                     Copy Sample Text & Audit
+                   </button>
                 </div>
               </div>
             </div>
@@ -330,6 +434,122 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* REAL USE CASE SECTION */}
+      <section className="py-24 px-4 md:px-12 bg-teal-500/[0.02] border-y border-white/5 overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-20 items-center">
+            <div className="relative">
+              <div className="absolute -top-20 -left-20 w-64 h-64 bg-teal-500/10 rounded-full blur-[100px] -z-10" />
+              <div className="inline-flex items-center gap-2 rounded-full bg-teal-500/10 px-4 py-1.5 text-[10px] font-black text-teal-400 border border-teal-500/20 mb-8 uppercase tracking-[0.3em]">
+                Situational Forensics
+              </div>
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-8 leading-tight">
+                Real Use Case:<br /><span className="text-gradient">Newsroom Verification</span>
+              </h2>
+              <div className="space-y-8">
+                <div className="flex gap-6">
+                  <div className="h-10 w-10 shrink-0 rounded-xl bg-slate-800 border border-white/5 flex items-center justify-center text-teal-400 font-black">1</div>
+                  <div>
+                    <h4 className="text-white font-bold mb-2">Scenario</h4>
+                    <p className="text-slate-400 text-sm leading-relaxed">
+                      A journalist receives a viral claim about a geopolitical event. Before publishing, they must confirm its authenticity.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-6">
+                  <div className="h-10 w-10 shrink-0 rounded-xl bg-slate-800 border border-white/5 flex items-center justify-center text-teal-400 font-black">2</div>
+                  <div>
+                    <h4 className="text-white font-bold mb-2">Veridex Action</h4>
+                    <p className="text-slate-400 text-sm leading-relaxed">
+                      They run the asset through Veridex to extract claims, check consistency against primary archives, and flag unverifiable statements.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-6">
+                  <div className="h-10 w-10 shrink-0 rounded-xl bg-slate-800 border border-white/5 flex items-center justify-center text-teal-400 font-black">3</div>
+                  <div>
+                    <h4 className="text-white font-bold mb-2">Output</h4>
+                    <p className="text-slate-400 text-sm leading-relaxed">
+                      A structured forensic report + risk indicators that ground their editorial decision in defensible data.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="glass-dark p-8 rounded-[3rem] border border-white/10 relative">
+               <div className="absolute top-0 right-0 p-8">
+                  <Activity size={24} className="text-teal-500/20" />
+               </div>
+               <div className="space-y-6">
+                 <div className="flex items-center gap-3 mb-6">
+                   <div className="h-2 w-2 rounded-full bg-teal-500" />
+                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Live Case Study: Geo-Political Asset</span>
+                 </div>
+                 <div className="bg-white/[0.02] p-6 rounded-2xl border border-white/5 space-y-4">
+                    <div className="h-4 w-full bg-white/5 rounded-full" />
+                    <div className="h-4 w-3/4 bg-white/5 rounded-full" />
+                    <div className="h-4 w-5/6 bg-white/5 rounded-full" />
+                 </div>
+                 <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 rounded-xl bg-teal-500/5 border border-teal-500/10 text-center">
+                       <div className="text-teal-400 font-black text-xl">94%</div>
+                       <div className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-1">Consistency</div>
+                    </div>
+                    <div className="p-4 rounded-xl bg-rose-500/5 border border-rose-500/10 text-center">
+                       <div className="text-rose-400 font-black text-xl">0.12</div>
+                       <div className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-1">Bias Skew</div>
+                    </div>
+                 </div>
+                 <div className="pt-6 border-t border-white/5">
+                    <p className="text-[10px] text-slate-500 leading-relaxed">
+                      "Veridex allowed our editors to flag a fabricated quote within 4 minutes, preventing a major brand integrity risk."
+                    </p>
+                 </div>
+               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* PROGRESSION PATH SECTION */}
+      <section className="py-24 px-4 md:px-12 bg-slate-950">
+        <div className="max-w-5xl mx-auto text-center">
+          <h2 className="text-sm font-black text-teal-500 uppercase tracking-[0.4em] mb-12">The Forensic Journey</h2>
+          <div className="grid md:grid-cols-3 gap-8 relative">
+            {/* Connector Lines (Desktop) */}
+            <div className="hidden md:block absolute top-1/2 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-y-1/2" />
+            
+            <div className="relative group">
+              <div className="h-16 w-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white mx-auto mb-6 group-hover:border-teal-500/50 transition-colors">
+                <Search size={24} />
+              </div>
+              <h4 className="text-lg font-bold text-white mb-2">1. View Sample</h4>
+              <p className="text-slate-500 text-xs">See what a real forensic output looks like.</p>
+              <Link href="/sample-audit" className="inline-flex mt-4 text-[10px] font-black uppercase tracking-widest text-teal-500 hover:underline">Start here</Link>
+            </div>
+
+            <div className="relative group">
+              <div className="h-16 w-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white mx-auto mb-6 group-hover:border-teal-500/50 transition-colors">
+                <Activity size={24} />
+              </div>
+              <h4 className="text-lg font-bold text-white mb-2">2. Try Live Audit</h4>
+              <p className="text-slate-500 text-xs">Run your own analysis on a specific claim.</p>
+              <Link href="/audit" className="inline-flex mt-4 text-[10px] font-black uppercase tracking-widest text-teal-500 hover:underline">Run audit</Link>
+            </div>
+
+            <div className="relative group">
+              <div className="h-16 w-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white mx-auto mb-6 group-hover:border-teal-500/50 transition-colors">
+                <ShieldCheck size={24} />
+              </div>
+              <h4 className="text-lg font-bold text-white mb-2">3. Request Demo</h4>
+              <p className="text-slate-500 text-xs">Integrate full forensic assurance into your workflow.</p>
+              <Link href="/request-demo" className="inline-flex mt-4 text-[10px] font-black uppercase tracking-widest text-teal-500 hover:underline">Get started</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Capabilities / Inputs & Outputs */}
       <section className="py-24 px-4 md:px-12 bg-slate-900/30 overflow-hidden">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
@@ -413,9 +633,14 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-teal-600/5 -z-10" />
         <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
           <h3 className="text-4xl md:text-6xl font-black text-white mb-10 leading-tight">Ready to integrate forensic assurance into your workflow?</h3>
-          <div className="flex flex-wrap justify-center gap-6">
-             <Link href="/request-demo" className="btn-primary px-12 py-5 text-xl font-bold">Request a Forensic Walkthrough</Link>
-             <Link href="/audit" className="px-12 py-5 rounded-2xl border border-white/10 text-white text-xl font-bold hover:bg-white/5 transition-all">Submit a Sample Audit</Link>
+          <div className="flex flex-col items-center gap-6">
+            <div className="flex flex-wrap justify-center gap-6">
+               <Link href="/request-demo" className="btn-primary px-12 py-5 text-xl font-bold">Request a Forensic Walkthrough</Link>
+               <Link href="/audit" className="px-12 py-5 rounded-2xl border border-white/10 text-white text-xl font-bold hover:bg-white/5 transition-all">Submit a Sample Audit</Link>
+            </div>
+            <p className="text-sm text-slate-500 flex items-center gap-2">
+              <Shield size={16} /> All inputs are processed securely. No content is stored without consent.
+            </p>
           </div>
         </div>
       </section>

@@ -300,8 +300,8 @@ export default function Dashboard() {
                 </div>
               )}
               <div className="flex items-center justify-between">
-                <p className="text-xs text-slate-500">
-                  Ready for forensic processing. SHA-256 will be recorded.
+                <p className="text-[10px] text-slate-500 max-w-[200px] leading-tight">
+                  All inputs are processed securely. No content is stored without consent. SHA-256 recorded for integrity.
                 </p>
                 <button 
                   type="submit" 

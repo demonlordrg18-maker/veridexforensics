@@ -498,6 +498,7 @@ export default function LandingPage() {
 
       {/* Trust Section - Answering "Why trust it?" */}
       <section className="py-24 px-4 md:px-12 bg-white/[0.02] border-y border-white/5">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
           <div className="lg:w-1/2">
             <h2 className="text-sm font-black text-teal-500 uppercase tracking-[0.4em] mb-6 flex items-center gap-3">
               <ShieldCheck size={20} />

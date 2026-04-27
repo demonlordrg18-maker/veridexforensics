@@ -88,6 +88,108 @@ export default function MethodologyPage() {
         </div>
       </section>
 
+      {/* Concrete pipeline breakdown (defensible > marketing) */}
+      <section className="py-24 px-4 md:px-12 bg-slate-950/40 border-y border-white/5">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-14">
+            <div className="max-w-2xl">
+              <h2 className="text-sm font-black text-teal-500 uppercase tracking-[0.4em] mb-6 flex items-center gap-3">
+                <Cpu size={18} />
+                The pipeline (what actually happens)
+              </h2>
+              <h3 className="text-4xl font-black text-white leading-tight">
+                Concrete steps, observable artifacts.
+              </h3>
+              <p className="text-slate-400 mt-6 text-sm leading-relaxed">
+                Each audit produces intermediate artifacts (claims, sources, bias triggers, hashes) so the final score is explainable and reviewable.
+              </p>
+            </div>
+            <div className="glass px-5 py-3 rounded-2xl border border-white/10 text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 flex items-center gap-2">
+              <Database size={14} className="text-teal-400" />
+              Output: report + evidence trail
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-4 gap-6">
+            {[
+              {
+                icon: FileText,
+                title: "Step 1 — Input parsing",
+                body: "Normalize text/URL/file, extract metadata, and (if file) compute SHA-256 fingerprint for chain-of-custody.",
+              },
+              {
+                icon: Layers,
+                title: "Step 2 — Claim extraction",
+                body: "Break content into claim units, classify verifiability, and attach per-claim rationale + recommended actions.",
+              },
+              {
+                icon: Activity,
+                title: "Step 3 — Signal scoring",
+                body: "Run modality-specific checks (synthetic artifacts, rhetorical bias, provenance/copyright signals) and produce measurable sub-scores.",
+              },
+              {
+                icon: ShieldCheck,
+                title: "Step 4 — Risk aggregation",
+                body: "Aggregate sub-signals into Verity Index + confidence. Surface contradictions/unverified claims instead of hiding them.",
+              },
+            ].map((s, i) => (
+              <div key={i} className="glass p-7 rounded-3xl border border-white/5 hover:border-teal-500/30 transition-all">
+                <div className="h-12 w-12 rounded-2xl bg-teal-500/10 flex items-center justify-center text-teal-400 mb-6">
+                  <s.icon size={22} />
+                </div>
+                <div className="text-sm font-black text-white uppercase tracking-tight mb-3">{s.title}</div>
+                <div className="text-xs text-slate-500 leading-relaxed">{s.body}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 grid lg:grid-cols-2 gap-6">
+            <div className="glass p-8 rounded-3xl border border-white/5">
+              <h4 className="text-sm font-black text-white uppercase tracking-widest mb-4">
+                Who this is designed for
+              </h4>
+              <ul className="space-y-3 text-xs text-slate-400 leading-relaxed">
+                <li className="flex gap-3">
+                  <span className="text-teal-400 font-black">—</span>
+                  Designed for newsroom verification workflows (pre-publication screening + attribution checks).
+                </li>
+                <li className="flex gap-3">
+                  <span className="text-teal-400 font-black">—</span>
+                  Built to support legal review checklists (exhibit screening + chain-of-custody hygiene).
+                </li>
+                <li className="flex gap-3">
+                  <span className="text-teal-400 font-black">—</span>
+                  Inspired by OSINT and forensic audit practices: evidence trails, not magic answers.
+                </li>
+              </ul>
+            </div>
+
+            <div className="glass p-8 rounded-3xl border border-amber-500/20 bg-amber-500/[0.02]">
+              <h4 className="text-sm font-black text-white uppercase tracking-widest mb-4">
+                Where Veridex should not be used
+              </h4>
+              <ul className="space-y-3 text-xs text-slate-400 leading-relaxed">
+                <li className="flex gap-3">
+                  <span className="text-amber-400 font-black">—</span>
+                  Not a legal verdict system (it does not determine guilt/innocence or admissibility).
+                </li>
+                <li className="flex gap-3">
+                  <span className="text-amber-400 font-black">—</span>
+                  Not a real-time fact database (sources change; human corroboration is required).
+                </li>
+                <li className="flex gap-3">
+                  <span className="text-amber-400 font-black">—</span>
+                  Not safe for fully-automated enforcement; always keep a human in the loop.
+                </li>
+              </ul>
+              <Link href="/limitations" className="inline-flex mt-6 text-xs font-black uppercase tracking-[0.2em] text-amber-400 hover:underline">
+                Read full limitations disclosure
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Core Heuristics Section */}
       <section className="py-24 px-4 md:px-12 bg-slate-950/50">
         <div className="max-w-7xl mx-auto">

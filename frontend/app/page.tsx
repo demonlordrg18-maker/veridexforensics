@@ -105,6 +105,114 @@ export default function LandingPage() {
             </Link>
           </motion.div>
 
+          {/* Mini sample report preview (kills "just a demo" doubt) */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.35 }}
+            className="w-full max-w-6xl mx-auto mb-16"
+          >
+            <div className="glass-dark rounded-[3rem] border border-white/10 overflow-hidden">
+              <div className="p-8 md:p-10 flex flex-col lg:flex-row gap-10 items-stretch">
+                <div className="lg:w-1/2">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-1.5 text-[10px] font-black text-slate-300 border border-white/10 mb-6 uppercase tracking-[0.3em]">
+                    <Fingerprint size={14} />
+                    Sample audit preview (real report format)
+                  </div>
+                  <h3 className="text-3xl md:text-4xl font-black text-white mb-4 leading-tight">
+                    See the evidence trail before you ever click “Request Demo”.
+                  </h3>
+                  <p className="text-slate-400 text-sm leading-relaxed mb-8">
+                    Users shouldn’t have to trust vibes. Veridex outputs a structured report: claim-level verification, bias mapping, and a defensible reasoning trace.
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <Link
+                      href="/sample-audit"
+                      onClick={() => {
+                        const w = window as Window & { gtag?: (...args: unknown[]) => void; clarity?: (...args: unknown[]) => void };
+                        w.gtag?.("event", "sample_audit_click", { source: "homepage_preview_block" });
+                        w.clarity?.("event", "sample_audit_click");
+                      }}
+                      className="btn-primary px-8 py-4 text-sm font-black uppercase tracking-widest"
+                    >
+                      Open full sample report
+                    </Link>
+                    <Link
+                      href="/audit"
+                      className="px-8 py-4 rounded-2xl border border-white/10 text-white font-black hover:bg-white/5 transition-all text-sm uppercase tracking-widest"
+                    >
+                      Run a live audit
+                    </Link>
+                  </div>
+                  <p className="mt-6 text-[10px] text-slate-500 leading-relaxed">
+                    Designed for newsroom verification workflows and legal screening checklists. Inspired by OSINT and forensic audit practices.
+                  </p>
+                </div>
+
+                <div className="lg:w-1/2 grid gap-4">
+                  <div className="rounded-3xl bg-white/[0.03] border border-white/10 p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">Audit summary</div>
+                      <div className="text-[10px] font-mono text-slate-600">VERITY: 0.34</div>
+                    </div>
+                    <p className="text-sm text-slate-200 leading-relaxed">
+                      High-confidence synthetic markers detected. Multiple claims require corroboration before publication or evidentiary use.
+                    </p>
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      <span className="rounded-full bg-rose-500/10 border border-rose-500/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-rose-400">
+                        Risk: High
+                      </span>
+                      <span className="rounded-full bg-white/5 border border-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-300">
+                        Chain-of-custody: SHA-256
+                      </span>
+                      <span className="rounded-full bg-teal-500/10 border border-teal-500/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-teal-300">
+                        Output: claim table + sources
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="rounded-3xl bg-white/[0.03] border border-white/10 p-6">
+                    <div className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500 mb-4">
+                      How the result was derived (example)
+                    </div>
+                    <div className="space-y-3 text-xs text-slate-300">
+                      {[
+                        "Detected 3 factual claims from the transcript.",
+                        "Cross-referenced entity: “Apollo 11” and event date framing.",
+                        "No contradiction patterns found in demo example; flagged 1 unverified claim.",
+                        "Aggregated signals → Verity Index + confidence + bias profile.",
+                      ].map((x, i) => (
+                        <div key={i} className="flex gap-3 items-start">
+                          <div className="mt-1 h-2 w-2 rounded-full bg-teal-500/80" />
+                          <div className="leading-relaxed">{x}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-3xl bg-amber-500/[0.04] border border-amber-500/20 p-6">
+                    <div className="flex items-start gap-3">
+                      <Info size={18} className="text-amber-400 mt-0.5" />
+                      <div>
+                        <div className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-300 mb-2">
+                          Where Veridex should not be used
+                        </div>
+                        <ul className="text-[11px] text-slate-300 leading-relaxed space-y-1">
+                          <li>Not a legal verdict system.</li>
+                          <li>Not a real-time fact database.</li>
+                          <li>Outputs require human review for final decisions.</li>
+                        </ul>
+                        <Link href="/limitations" className="inline-flex mt-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-slate-300">
+                          Read limitations disclosure
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
           {/* Input Visualization - Answering "What it analyzes" */}
           <motion.div 
             initial={{ opacity: 0 }}

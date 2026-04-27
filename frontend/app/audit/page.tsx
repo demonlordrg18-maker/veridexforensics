@@ -113,6 +113,58 @@ export default function Dashboard() {
       .sort((a, b) => b.value - a.value);
   }, [result]);
 
+  const derivationSteps = useMemo(() => {
+    if (!result) return [];
+
+    const claims = result.factuality_report?.claims ?? [];
+    const verifiableCount = claims.filter((c) => c.is_verifiable).length;
+    const sourcesCount = claims.reduce((acc, c) => acc + (c.veracity?.sources?.length || 0), 0);
+    const contradictedCount = claims.filter((c) => c.veracity?.verification_status === "debunked").length;
+    const unverifiedCount = claims.filter((c) => c.veracity?.verification_status === "unverified").length;
+
+    const primaryBias = result.bias_report?.primary_bias;
+    const topBias = biasData[0]?.name ? `${biasData[0].name} (${Math.round(biasData[0].value * 100)}%)` : undefined;
+
+    const isDemo =
+      (result.findings || []).some((f) => typeof f === "string" && f.toLowerCase().includes("demo auditor")) ||
+      result.id?.startsWith?.("demo_");
+
+    const steps: Array<{ title: string; detail: string }> = [];
+
+    steps.push({
+      title: "Step 1 — Input normalization",
+      detail:
+        mode === "link"
+          ? `Validated URL input and prepared it for crawl + extraction.`
+          : mode === "text"
+            ? `Parsed and normalized ${content.trim().length} characters of text.`
+            : `Prepared uploaded ${mode} asset for hashing + modality scanning.`,
+    });
+
+    steps.push({
+      title: "Step 2 — Claim extraction",
+      detail: claims.length
+        ? `Detected ${claims.length} claim units (${verifiableCount} verifiable).`
+        : "No claim extraction module output returned for this audit.",
+    });
+
+    steps.push({
+      title: "Step 3 — Cross-reference & contradiction scan",
+      detail: claims.length
+        ? `Attached ${sourcesCount} source pointer(s). Flagged ${contradictedCount} contradicted, ${unverifiedCount} unverified.`
+        : "No cross-reference pointers available for this audit.",
+    });
+
+    steps.push({
+      title: "Step 4 — Signal scoring → risk aggregation",
+      detail: `Aggregated signals into Verity Index ${Math.round(result.verity_index * 100)}/100 with confidence ${Math.round(
+        result.confidence * 100
+      )}%.${primaryBias ? ` Primary bias: ${topBias || primaryBias}.` : ""}${isDemo ? " (Demo mode: illustrative evidence pointers.)" : ""}`,
+    });
+
+    return steps;
+  }, [result, biasData, mode, content]);
+
   const handleAudit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -314,6 +366,40 @@ export default function Dashboard() {
                     </span>
                   </div>
                 </div>
+
+                {/* Proof of thinking / derivation */}
+                {derivationSteps.length > 0 && (
+                  <div className="glass rounded-3xl p-8 border border-white/5">
+                    <div className="flex items-center justify-between gap-6 mb-6">
+                      <div>
+                        <h3 className="text-xl font-bold uppercase tracking-widest text-slate-300">
+                          How this result was derived
+                        </h3>
+                        <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                          A concrete trace of the steps used for this specific audit. This is not a verdict—it's an evidence trail for human review.
+                        </p>
+                      </div>
+                      <div className="hidden sm:block text-[10px] font-mono text-slate-500">
+                        Audit ID: <span className="text-teal-400">{result.id}</span>
+                      </div>
+                    </div>
+                    <div className="grid gap-3">
+                      {derivationSteps.map((s, i) => (
+                        <div key={i} className="rounded-2xl bg-white/5 border border-white/5 p-5 hover:bg-white/10 transition-all">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="space-y-2">
+                              <div className="text-[10px] font-black uppercase tracking-[0.25em] text-teal-400">
+                                {s.title}
+                              </div>
+                              <div className="text-sm text-slate-200 leading-relaxed">{s.detail}</div>
+                            </div>
+                            <div className="text-[10px] font-mono text-slate-600 mt-1">D{i + 1}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Findings & Claims */}
                 <div className="glass rounded-3xl p-8">

@@ -120,18 +120,17 @@ export default function Dashboard() {
     setResult(null);
 
     try {
-      const apiBase = "http://localhost:8000";
       let response: Response;
 
       if (mode === "text") {
-        response = await fetch(`${apiBase}/audit/text`, {
+        response = await fetch(`/api/audit/text`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ content, include_metadata: true }),
         });
       } else if (mode === "link") {
         if (!url) throw new Error("URL required for link audit.");
-        response = await fetch(`${apiBase}/audit/link`, {
+        response = await fetch(`/api/audit/link`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url }),
@@ -140,11 +139,17 @@ export default function Dashboard() {
         if (!file) throw new Error("File required for this audit mode.");
         const form = new FormData();
         form.append("file", file);
-        response = await fetch(`${apiBase}/audit/${mode}`, { method: "POST", body: form });
+        response = await fetch(`/api/audit/${mode}`, { method: "POST", body: form });
       }
 
-      if (!response.ok) throw new Error(`Forensic engine returned ${response.status}`);
-      const data = await response.json();
+      const contentType = response.headers.get("content-type") || "";
+      const data = contentType.includes("application/json") ? await response.json() : await response.text();
+      if (!response.ok) {
+        const msg =
+          (data && typeof data === "object" && ("error" in data ? (data as any).error : undefined)) ||
+          `Forensic engine returned ${response.status}`;
+        throw new Error(msg);
+      }
       setResult(data);
     } catch (err: any) {
       setError(err.message || "Audit failed");

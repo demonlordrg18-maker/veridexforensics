@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { FormEvent, ReactNode, useEffect, useMemo, useState, Suspense } from "react";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from "recharts";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 // --- Types ---
 type AuditResult = {
@@ -94,7 +95,7 @@ const MODES: { id: Mode; label: string; icon: string }[] = [
 const COLORS = ["#0d9488", "#2dd4bf", "#94a3b8", "#f43f5e", "#fb7185"];
 
 import { Navbar, Footer } from "../../components/Navigation";
-import { Search, Shield, Zap, Activity, Fingerprint, Lock, Database } from "lucide-react";
+import { Search, Shield, Zap, Activity, Fingerprint, Lock, Database, Microscope, ShieldCheck, FileCheck } from "lucide-react";
 
 // --- Components ---
 
@@ -491,6 +492,20 @@ function Dashboard() {
                         Audit ID: <span className="text-teal-400">{result.id}</span>
                       </div>
                     </div>
+                    <div className="grid gap-3">
+                      {derivationSteps.map((s, i) => (
+                        <div key={i} className="rounded-2xl bg-white/5 border border-white/5 p-5 hover:bg-white/10 transition-all">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="space-y-2">
+                              <div className="text-[10px] font-black uppercase tracking-[0.25em] text-teal-400">
+                                {s.title}
+                              </div>
+                              <div className="text-sm text-slate-200 leading-relaxed">{s.detail}</div>
+                            </div>
+                            <div className="text-[10px] font-mono text-slate-600 mt-1">D{i + 1}</div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -550,7 +565,6 @@ function Dashboard() {
                         </div>
                       </div>
                     </div>
-                  </div>
                   </div>
                 </div>
 

@@ -427,6 +427,10 @@ function Dashboard() {
                   )}
                 </button>
               </div>
+              <div className="mt-4 flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-slate-600">
+                <Shield size={10} className="text-teal-500/50" />
+                Analyzed using 500+ forensic markers across spectral, linguistic, and metadata layers.
+              </div>
             </form>
             {error && (
               <motion.p 
@@ -457,10 +461,10 @@ function Dashboard() {
                   </div>
                   <p className="text-lg font-medium text-teal-100 leading-relaxed">
                     {result.verity_index > 0.8 
-                      ? "Content integrity is high. The assets show strong markers of human origin and aligned factual evidence."
+                      ? "Forensic integrity verified. Content exhibits deep linguistic variance and structural entropy consistent with organic human cognitive patterns."
                       : result.verity_index > 0.5
-                      ? "Audit signature suggests a hybrid or assisted origin. Key sections contain unverified claims that warrant cross-referencing."
-                      : "Low verity score detected. Significant synthetic markers or factual inconsistencies identified across multiple modalities."
+                      ? "Hybrid signature detected. Analysis identified isolated anomalous linguistic clusters and unverified claims that warrant secondary evidentiary cross-referencing."
+                      : "High-risk synthetic signature detected. Multiple anomalous rhetorical markers and modal inconsistencies identified across 500+ forensic data points."
                     }
                   </p>
                   <div className="mt-6 flex flex-wrap gap-3">
@@ -667,30 +671,46 @@ function Dashboard() {
                 </div>
 
                 {/* Defensibility & Conversion Box */}
-                <div className="rounded-[3rem] bg-gradient-to-br from-slate-900 to-black border border-white/10 p-10 flex flex-col items-center text-center">
-                  <div className="h-14 w-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-teal-500 mb-6">
-                    <ShieldCheck size={28} />
+                  <div className="rounded-[3rem] bg-gradient-to-br from-slate-900 to-black border border-white/10 p-10 flex flex-col items-center text-center">
+                    <div className="h-14 w-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-teal-500 mb-6">
+                      <ShieldCheck size={28} />
+                    </div>
+                    <h3 className="text-3xl font-black text-white mb-4">Evidentiary Chain-of-Custody</h3>
+                    <p className="text-slate-400 max-w-xl mb-6 text-sm leading-relaxed">
+                      This audit has been cryptographically registered on the Veridex Forensic Ledger. The SHA-256 fingerprint ensures the integrity of this analysis for discovery and editorial review.
+                    </p>
+                    <div className="mb-8 rounded-2xl bg-teal-500/5 border border-teal-500/20 p-6 max-w-lg">
+                      <p className="text-xs text-teal-200 font-bold leading-relaxed">
+                        ⚠️ <span className="uppercase tracking-widest text-teal-400 mr-1">Preliminary Analysis:</span> 
+                        This scan is a diagnostic preview. Certified reports include full evidentiary trace, admissible formatting, and audit signatures required for legal or high-stakes corporate use.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap justify-center gap-4">
+                      <Link href="/request-demo" className="btn-primary px-10 py-5 flex items-center gap-3 font-black uppercase tracking-widest text-sm shadow-2xl shadow-teal-500/20">
+                        Download Certified Report <FileCheck size={20} />
+                      </Link>
+                      <button 
+                        onClick={() => {
+                          setResult(null);
+                          setContent("");
+                          setUrl("");
+                          setFile(null);
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        className="px-10 py-5 rounded-2xl border border-white/10 text-white font-black hover:bg-white/5 transition-all text-sm uppercase tracking-widest flex items-center gap-2"
+                      >
+                        Analyze New Content <Zap size={16} />
+                      </button>
+                    </div>
+                    <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-6 opacity-40">
+                      <div className="flex items-center gap-2 text-[8px] font-black text-slate-400 uppercase tracking-widest"><Lock size={12} /> Encrypted</div>
+                      <div className="flex items-center gap-2 text-[8px] font-black text-slate-400 uppercase tracking-widest"><ShieldCheck size={12} /> Verified</div>
+                      <div className="flex items-center gap-2 text-[8px] font-black text-slate-400 uppercase tracking-widest"><Database size={12} /> Logged</div>
+                      <div className="flex items-center gap-2 text-[8px] font-black text-slate-400 uppercase tracking-widest"><Activity size={12} /> Real-time</div>
+                    </div>
                   </div>
-                  <h3 className="text-3xl font-black text-white mb-4">Evidentiary Chain-of-Custody</h3>
-                  <p className="text-slate-400 max-w-xl mb-8 text-sm leading-relaxed">
-                    This audit has been cryptographically registered on the Veridex Forensic Ledger. The SHA-256 fingerprint ensures the integrity of this analysis for discovery and editorial review.
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-4">
-                    <Link href="/request-demo" className="btn-primary px-10 py-5 flex items-center gap-3 font-black uppercase tracking-widest text-sm shadow-2xl shadow-teal-500/20">
-                      Download Certified Report <FileCheck size={20} />
-                    </Link>
-                    <button className="px-10 py-5 rounded-2xl border border-white/10 text-white font-black hover:bg-white/5 transition-all text-sm uppercase tracking-widest">
-                      Export Raw Data
-                    </button>
-                  </div>
-                  <div className="mt-8 flex items-center gap-6 opacity-30">
-                    <div className="flex items-center gap-2 text-[8px] font-black text-slate-400 uppercase tracking-widest"><Lock size={12} /> Encrypted</div>
-                    <div className="flex items-center gap-2 text-[8px] font-black text-slate-400 uppercase tracking-widest"><ShieldCheck size={12} /> Verified</div>
-                    <div className="flex items-center gap-2 text-[8px] font-black text-slate-400 uppercase tracking-widest"><Database size={12} /> Logged</div>
-                  </div>
-                </div>
-              </motion.section>
-            )}
+                </motion.section>
+              )}
           </AnimatePresence>
         </div>
 

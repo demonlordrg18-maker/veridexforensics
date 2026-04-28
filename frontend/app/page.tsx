@@ -348,16 +348,12 @@ export default function LandingPage() {
                   "Leaked video from Brussels meeting shows markers of lip-sync manipulation and voice cloning in the 02:45 segment."
                 </div>
                 <div className="flex flex-wrap justify-center gap-4">
-                   <button 
-                    onClick={() => {
-                      navigator.clipboard.writeText("Leaked video from Brussels meeting shows markers of lip-sync manipulation and voice cloning in the 02:45 segment.");
-                      alert("Forensic test text copied!");
-                      window.location.href = "/audit";
-                    }}
+                   <Link 
+                    href="/audit?sample=true"
                     className="btn-primary px-8 py-4 flex items-center gap-2 font-black uppercase tracking-widest text-xs"
                    >
                      <Zap size={18} /> Run Free Test Audit
-                   </button>
+                   </Link>
                    <Link href="/audit" className="px-8 py-4 rounded-2xl border border-white/10 text-white font-bold hover:bg-white/5 transition-all text-xs uppercase tracking-widest">
                      Manual Upload
                    </Link>

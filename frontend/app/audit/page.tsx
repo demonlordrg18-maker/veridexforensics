@@ -1,8 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { FormEvent, ReactNode, useMemo, useState } from "react";
+import { FormEvent, ReactNode, useEffect, useMemo, useState, Suspense } from "react";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { useSearchParams } from "next/navigation";
 
 // --- Types ---
 type AuditResult = {
@@ -93,10 +94,74 @@ const MODES: { id: Mode; label: string; icon: string }[] = [
 const COLORS = ["#0d9488", "#2dd4bf", "#94a3b8", "#f43f5e", "#fb7185"];
 
 import { Navbar, Footer } from "../../components/Navigation";
+import { Search, Shield, Zap, Activity, Fingerprint, Lock, Database } from "lucide-react";
 
 // --- Components ---
 
-export default function Dashboard() {
+const LoadingOverlay = ({ isSample }: { isSample?: boolean }) => (
+  <motion.div 
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-xl"
+  >
+    <div className="relative mb-12">
+      <motion.div 
+        animate={{ rotate: 360 }}
+        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+        className="h-32 w-32 rounded-full border-t-4 border-teal-500/40 border-r-4 border-teal-500/20"
+      />
+      <motion.div 
+        animate={{ rotate: -360 }}
+        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+        className="absolute inset-0 h-32 w-32 rounded-full border-b-4 border-teal-400"
+      />
+      <div className="absolute inset-0 flex items-center justify-center">
+        <Activity size={32} className="text-teal-400 animate-pulse" />
+      </div>
+    </div>
+    
+    <div className="text-center">
+      <h2 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter">
+        {isSample ? "Deep Forensic Analysis In Progress" : "Analyzing Content Signature"}
+      </h2>
+      <div className="flex items-center justify-center gap-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">
+        <div className="flex items-center gap-2">
+          <Fingerprint size={12} className="text-teal-500" /> Fingerprinting
+        </div>
+        <div className="flex items-center gap-2">
+          <Database size={12} className="text-teal-500" /> Fact Matching
+        </div>
+        <div className="flex items-center gap-2">
+          <Search size={12} className="text-teal-500" /> Signal Scan
+        </div>
+      </div>
+    </div>
+
+    {/* Scanning Line Animation */}
+    <motion.div 
+      initial={{ top: "20%" }}
+      animate={{ top: "80%" }}
+      transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+      className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-teal-500/50 to-transparent shadow-[0_0_15px_rgba(20,184,166,0.5)] pointer-events-none"
+    />
+  </motion.div>
+);
+
+export default function AuditPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-teal-500 border-t-transparent" />
+      </div>
+    }>
+      <Dashboard />
+    </Suspense>
+  );
+}
+
+function Dashboard() {
+  const searchParams = useSearchParams();
   const [mode, setMode] = useState<Mode>("text");
   const [content, setContent] = useState("The Apollo 11 mission landed on the Moon in 1969. It was a historic achievement for humanity.");
   const [url, setUrl] = useState("");
@@ -105,6 +170,20 @@ export default function Dashboard() {
   const [error, setError] = useState("");
   const [result, setResult] = useState<AuditResult | null>(null);
   const [expandedMatch, setExpandedMatch] = useState<number | null>(null);
+
+  const isSample = searchParams.get("sample") === "true";
+
+  useEffect(() => {
+    if (isSample) {
+      const sampleText = "Leaked video from Brussels meeting shows markers of lip-sync manipulation and voice cloning in the 02:45 segment.";
+      setContent(sampleText);
+      // Give it a tiny bit of time to settle and show the text before starting
+      const timer = setTimeout(() => {
+        runAudit("text", sampleText);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isSample]);
 
   const biasData = useMemo(() => {
     if (!result?.bias_report) return [];
@@ -165,22 +244,29 @@ export default function Dashboard() {
     return steps;
   }, [result, biasData, mode, content]);
 
-  const handleAudit = async (e: FormEvent) => {
-    e.preventDefault();
+  const runAudit = async (forcedMode?: Mode, forcedContent?: string) => {
+    const activeMode = forcedMode || mode;
+    const activeContent = forcedContent || content;
+
     setLoading(true);
     setError("");
     setResult(null);
 
+    // Artificial delay for sample audits to enhance "forensic" feel
+    if (isSample) {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    }
+
     try {
       let response: Response;
 
-      if (mode === "text") {
+      if (activeMode === "text") {
         response = await fetch(`/api/audit/text`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content, include_metadata: true }),
+          body: JSON.stringify({ content: activeContent, include_metadata: true }),
         });
-      } else if (mode === "link") {
+      } else if (activeMode === "link") {
         if (!url) throw new Error("URL required for link audit.");
         response = await fetch(`/api/audit/link`, {
           method: "POST",
@@ -191,7 +277,7 @@ export default function Dashboard() {
         if (!file) throw new Error("File required for this audit mode.");
         const form = new FormData();
         form.append("file", file);
-        response = await fetch(`/api/audit/${mode}`, { method: "POST", body: form });
+        response = await fetch(`/api/audit/${activeMode}`, { method: "POST", body: form });
       }
 
       const contentType = response.headers.get("content-type") || "";
@@ -210,9 +296,18 @@ export default function Dashboard() {
     }
   };
 
+  const handleAudit = async (e: FormEvent) => {
+    e.preventDefault();
+    await runAudit();
+  };
+
   return (
     <div className="min-h-screen">
       <Navbar />
+      
+      <AnimatePresence>
+        {loading && <LoadingOverlay isSample={isSample} />}
+      </AnimatePresence>
       
       <div className="pt-24 p-4 md:p-8 lg:p-12">
         <header className="mb-12 flex flex-col items-start justify-between gap-6 md:flex-row">
@@ -222,7 +317,7 @@ export default function Dashboard() {
               animate={{ opacity: 1, y: 0 }}
               className="text-xs font-bold uppercase tracking-widest text-teal-500"
             >
-              Forensic Answer Engine
+              {isSample ? "Sample Audit Simulation" : "Forensic Answer Engine"}
             </motion.p>
             <motion.h1 
               initial={{ opacity: 0, x: -20 }} 

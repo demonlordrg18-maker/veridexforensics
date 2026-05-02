@@ -51,10 +51,28 @@ export const Navbar = () => {
       </div>
 
       <div className="flex items-center gap-4">
-        <Link href="/audit" className="hidden sm:block text-sm font-bold text-slate-400 hover:text-white transition-colors">
+        <Link 
+          href="/audit" 
+          onClick={() => {
+            window.gtag?.('event', 'run_audit_click', {
+              event_category: 'engagement',
+              event_label: 'navbar_open_auditor',
+            });
+          }}
+          className="hidden sm:block text-sm font-bold text-slate-400 hover:text-white transition-colors"
+        >
           Open Auditor
         </Link>
-        <Link href="/request-demo" className="btn-primary py-2 px-5 text-sm whitespace-nowrap">
+        <Link 
+          href="/request-demo" 
+          onClick={() => {
+            window.gtag?.('event', 'demo_click', {
+              event_category: 'engagement',
+              event_label: 'navbar_request_demo',
+            });
+          }}
+          className="btn-primary py-2 px-5 text-sm whitespace-nowrap"
+        >
           Request Demo
         </Link>
       </div>
@@ -100,7 +118,20 @@ export const Footer = () => (
         <ul className="space-y-4 text-sm text-slate-500">
           <li><Link href="/learn" className="hover:text-teal-400 transition-colors">Learn Hub</Link></li>
           <li><Link href="/learn/deepfake-detection" className="hover:text-teal-400 transition-colors">Deepfake Guide</Link></li>
-          <li><Link href="/request-demo" className="hover:text-teal-400 transition-colors">Book a Walkthrough</Link></li>
+          <li>
+            <Link 
+              href="/request-demo" 
+              onClick={() => {
+                window.gtag?.('event', 'demo_click', {
+                  event_category: 'engagement',
+                  event_label: 'footer_book_walkthrough',
+                });
+              }}
+              className="hover:text-teal-400 transition-colors"
+            >
+              Book a Walkthrough
+            </Link>
+          </li>
           <li><Link href="/terms" className="hover:text-teal-400 transition-colors">Terms of Service</Link></li>
         </ul>
       </div>

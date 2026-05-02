@@ -36,6 +36,13 @@ import {
 import { Navbar, Footer } from "../components/Navigation";
 import { useState } from "react";
 
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+    clarity: (...args: any[]) => void;
+  }
+}
+
 // --- Sub-components ---
 
 const SolutionTile = ({ icon: Icon, title, description, href }: any) => (
@@ -109,6 +116,35 @@ export default function LandingPage() {
       ]
     }
   };
+
+  const handleCheckout = async (priceId: string, mode: "payment" | "subscription") => {
+    // Track pricing click
+    window.gtag?.('event', 'pricing_click', {
+      event_category: 'engagement',
+      event_label: priceId === 'starter' ? 'starter_49' : 'pro_299',
+    });
+
+    try {
+      const res = await fetch("/api/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          priceId: priceId === 'starter' ? (process.env.NEXT_PUBLIC_STRIPE_PRICE_49 || 'price_49_placeholder') : (process.env.NEXT_PUBLIC_STRIPE_PRICE_299 || 'price_299_placeholder'), 
+          mode 
+        }),
+      });
+
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        console.error("Checkout session creation failed");
+      }
+    } catch (err) {
+      console.error("Payment error:", err);
+    }
+  };
+
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -177,11 +213,29 @@ export default function LandingPage() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="flex flex-wrap justify-center gap-4 mb-20"
           >
-            <Link href="/request-demo" className="btn-primary text-lg px-10 py-5 flex items-center gap-3 shadow-2xl shadow-teal-500/20">
+            <Link 
+              href="/request-demo" 
+              onClick={() => {
+                window.gtag?.('event', 'demo_click', {
+                  event_category: 'engagement',
+                  event_label: 'hero_request_demo',
+                });
+              }}
+              className="btn-primary text-lg px-10 py-5 flex items-center gap-3 shadow-2xl shadow-teal-500/20"
+            >
               Request Forensic Demo <ArrowRight size={20} />
             </Link>
             <div className="flex flex-col items-center gap-4">
-              <Link href="/audit" className="px-10 py-5 rounded-2xl bg-teal-500/10 border border-teal-500/30 text-teal-400 font-bold hover:bg-teal-500/20 transition-all backdrop-blur-sm flex items-center gap-3">
+              <Link 
+                href="/audit" 
+                onClick={() => {
+                  window.gtag?.('event', 'run_audit_click', {
+                    event_category: 'engagement',
+                    event_label: 'hero_audit_button',
+                  });
+                }}
+                className="px-10 py-5 rounded-2xl bg-teal-500/10 border border-teal-500/30 text-teal-400 font-bold hover:bg-teal-500/20 transition-all backdrop-blur-sm flex items-center gap-3"
+              >
                 Run Immediate Forensic Audit <Zap size={20} />
               </Link>
               <p className="text-[10px] font-black uppercase tracking-widest text-teal-500/60 flex items-center gap-2">
@@ -240,9 +294,8 @@ export default function LandingPage() {
                     <Link
                       href="/sample-audit"
                       onClick={() => {
-                        const w = window as Window & { gtag?: (...args: unknown[]) => void; clarity?: (...args: unknown[]) => void };
-                        w.gtag?.("event", "sample_audit_click", { source: "homepage_preview_block" });
-                        w.clarity?.("event", "sample_audit_click");
+                        window.gtag?.("event", "sample_audit_click", { source: "homepage_preview_block" });
+                        window.clarity?.("event", "sample_audit_click");
                       }}
                       className="btn-primary px-8 py-4 text-sm font-black uppercase tracking-widest"
                     >
@@ -350,6 +403,12 @@ export default function LandingPage() {
                 <div className="flex flex-wrap justify-center gap-4">
                    <Link 
                     href="/audit?sample=true"
+                    onClick={() => {
+                      window.gtag?.('event', 'run_audit_click', {
+                        event_category: 'engagement',
+                        event_label: 'homepage_audit_button',
+                      });
+                    }}
                     className="btn-primary px-8 py-4 flex items-center gap-2 font-black uppercase tracking-widest text-xs"
                    >
                      <Zap size={18} /> Run Free Test Audit
@@ -607,7 +666,7 @@ export default function LandingPage() {
                    <div className="h-4 w-5/6 bg-white/5 rounded-lg" />
                  </div>
                  <div className="pt-6 border-t border-white/5 flex justify-center">
-                    <Link href="/sample-audit" onClick={() => { const w = window as Window & { gtag?: (...args: unknown[]) => void; clarity?: (...args: unknown[]) => void }; w.gtag?.("event", "sample_audit_click", { source: "homepage_evidence_panel" }); w.clarity?.("event", "sample_audit_click"); }} className="text-xs font-bold text-teal-500 uppercase tracking-widest hover:underline">View Forensic Evidence Trail</Link>
+                    <Link href="/sample-audit" onClick={() => { window.gtag?.("event", "sample_audit_click", { source: "homepage_evidence_panel" }); window.clarity?.("event", "sample_audit_click"); }} className="text-xs font-bold text-teal-500 uppercase tracking-widest hover:underline">View Forensic Evidence Trail</Link>
                  </div>
                </div>
             </div>
@@ -642,19 +701,24 @@ export default function LandingPage() {
                <Link href="/audit" className="w-full py-3 rounded-xl border border-white/10 text-white text-center font-black uppercase tracking-widest text-[9px] hover:bg-white/5 transition-all">Get Started</Link>
             </div>
 
-            {/* Tier 1 - STARTER */}
+            {/* Tier 1 - STARTER (Updated to $49 One-time) */}
             <div className="glass p-8 rounded-[2.5rem] border border-teal-500/20 flex flex-col">
                <div className="text-[10px] font-black text-teal-500 uppercase tracking-widest mb-4">Starter Investigator</div>
-               <div className="text-4xl font-black text-white mb-6">$19<span className="text-sm text-slate-600 font-bold ml-1 italic">/ mo</span></div>
+               <div className="text-4xl font-black text-white mb-6">$49<span className="text-sm text-slate-600 font-bold ml-1 italic">/ one-time</span></div>
                <ul className="space-y-4 mb-8 flex-grow">
-                 <li className="text-[10px] text-slate-300 flex items-center gap-2"><CheckCircle2 size={12} className="text-teal-500" /> 20 Audits / Month</li>
+                 <li className="text-[10px] text-slate-300 flex items-center gap-2"><CheckCircle2 size={12} className="text-teal-500" /> 20 Audits / Lifetime</li>
                  <li className="text-[10px] text-slate-300 flex items-center gap-2"><CheckCircle2 size={12} className="text-teal-500" /> Multi-modal Asset Uploads</li>
                  <li className="text-[10px] text-slate-300 flex items-center gap-2"><CheckCircle2 size={12} className="text-teal-500" /> Full Evidence Decomp</li>
                </ul>
-               <Link href="/audit" className="w-full py-3 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-400 text-center font-black uppercase tracking-widest text-[9px] hover:bg-teal-500/20 transition-all">Go Starter</Link>
+               <button 
+                 onClick={() => handleCheckout('starter', 'payment')}
+                 className="w-full py-3 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-400 text-center font-black uppercase tracking-widest text-[9px] hover:bg-teal-500/20 transition-all"
+               >
+                 Go Starter
+               </button>
             </div>
             
-            {/* Tier 2 - THE ANCHOR */}
+            {/* Tier 2 - THE ANCHOR (Updated to $299 Subscription) */}
             <div className="glass p-8 rounded-[2.5rem] border border-teal-500/40 relative flex flex-col shadow-2xl shadow-teal-500/10 z-10 bg-teal-500/[0.04]">
                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-teal-500 px-3 py-1 text-[7px] font-black text-white uppercase tracking-[0.2em]">Standard</div>
                <div className="text-[10px] font-black text-teal-400 uppercase tracking-widest mb-4">Editorial Pro</div>
@@ -664,7 +728,12 @@ export default function LandingPage() {
                  <li className="text-[10px] text-white flex items-center gap-2"><CheckCircle2 size={12} className="text-teal-500" /> Bias Fingerprinting</li>
                  <li className="text-[10px] text-white flex items-center gap-2"><CheckCircle2 size={12} className="text-teal-500" /> API Access (Basic)</li>
                </ul>
-               <Link href="/request-demo" className="btn-primary w-full py-3 text-center font-black uppercase tracking-widest text-[9px]">Full Assurance</Link>
+               <button 
+                 onClick={() => handleCheckout('pro', 'subscription')}
+                 className="btn-primary w-full py-3 text-center font-black uppercase tracking-widest text-[9px]"
+               >
+                 Full Assurance
+               </button>
             </div>
             
             {/* Tier 3 - ENTERPRISE */}
@@ -676,7 +745,18 @@ export default function LandingPage() {
                  <li className="text-[10px] text-slate-500 flex items-center gap-2"><CheckCircle2 size={12} className="text-teal-500" /> Model Fine-tuning</li>
                  <li className="text-[10px] text-slate-500 flex items-center gap-2"><CheckCircle2 size={12} className="text-teal-500" /> Dedicated SLA</li>
                </ul>
-               <Link href="/request-demo" className="w-full py-3 rounded-xl border border-white/10 text-white text-center font-black uppercase tracking-widest text-[9px] hover:bg-white/5 transition-all">Contact Sales</Link>
+               <Link 
+                 href="/request-demo" 
+                 onClick={() => {
+                   window.gtag?.('event', 'demo_click', {
+                     event_category: 'engagement',
+                     event_label: 'pricing_enterprise_demo',
+                   });
+                 }}
+                 className="w-full py-3 rounded-xl border border-white/10 text-white text-center font-black uppercase tracking-widest text-[9px] hover:bg-white/5 transition-all"
+               >
+                 Contact Sales
+               </Link>
             </div>
           </div>
           <p className="mt-12 text-center text-[10px] text-slate-600 font-bold uppercase tracking-widest italic flex items-center justify-center gap-3">

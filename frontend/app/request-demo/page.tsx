@@ -15,6 +15,13 @@ import {
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+    clarity: (...args: any[]) => void;
+  }
+}
+
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/meevnewj";
 
 const ValueProp = ({ icon: Icon, title, desc }: any) => (
@@ -97,12 +104,11 @@ export default function RequestDemoPage() {
           // Some Formspree responses may have no JSON body; ok status is enough.
         }
 
-        const w = window as Window & { gtag?: (...args: unknown[]) => void; clarity?: (...args: unknown[]) => void };
-        w.gtag?.("event", "request_demo_submit", {
+        window.gtag?.("event", "demo_submitted", {
           role: formData.role,
           use_case: formData.use_case,
         });
-        w.clarity?.("event", "request_demo_submit");
+        window.clarity?.("event", "demo_submitted");
         setSubmitted({
           id: data?.id || (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `lead_${Date.now()}`),
           created_at: data?.created_at || new Date().toISOString(),
@@ -164,27 +170,35 @@ export default function RequestDemoPage() {
              <p className="text-sm text-slate-400">Submitted: {new Date(submitted.created_at).toLocaleString()}</p>
            </div>
            
-           <div className="grid md:grid-cols-2 gap-4 w-full max-w-2xl mb-12">
-              <Link href="/sample-audit" className="group flex items-center gap-4 p-6 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.04] transition-all text-left">
+           <div className="grid md:grid-cols-3 gap-4 w-full max-w-3xl mb-12">
+              <Link href="/audit" className="group flex flex-col items-center gap-3 p-6 bg-teal-500/5 border border-teal-500/20 rounded-2xl hover:bg-teal-500/10 transition-all text-center">
+                <div className="h-12 w-12 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-400 group-hover:scale-110 transition-transform">
+                  <Zap size={24} />
+                </div>
+                <div>
+                  <h4 className="text-white font-bold text-sm">Try Live Audit</h4>
+                  <p className="text-[10px] text-slate-500">Run a test while you wait.</p>
+                </div>
+              </Link>
+
+              <Link href="/sample-audit" className="group flex flex-col items-center gap-3 p-6 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.04] transition-all text-center">
                 <div className="h-12 w-12 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-400 group-hover:scale-110 transition-transform">
                   <FileText size={24} />
                 </div>
                 <div>
-                  <h4 className="text-white font-bold text-sm">View Sample Audit</h4>
-                  <p className="text-xs text-slate-500">Explore a real forensic report while you wait.</p>
+                  <h4 className="text-white font-bold text-sm">Sample Report</h4>
+                  <p className="text-[10px] text-slate-500">See a forensic output.</p>
                 </div>
-                <ChevronRight size={16} className="ml-auto text-slate-700 group-hover:text-teal-500 transition-colors" />
               </Link>
               
-              <a href="mailto:forensics@veridex.ai" className="group flex items-center gap-4 p-6 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.04] transition-all text-left">
+              <a href="mailto:forensics@veridex.ai" className="group flex flex-col items-center gap-3 p-6 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.04] transition-all text-center">
                 <div className="h-12 w-12 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-400 group-hover:scale-110 transition-transform">
                   <Mail size={24} />
                 </div>
                 <div>
                   <h4 className="text-white font-bold text-sm">Direct Contact</h4>
-                  <p className="text-xs text-slate-500">Need urgent access? Email us directly.</p>
+                  <p className="text-[10px] text-slate-500">Need urgent access?</p>
                 </div>
-                <ChevronRight size={16} className="ml-auto text-slate-700 group-hover:text-teal-500 transition-colors" />
               </a>
            </div>
 

@@ -62,6 +62,7 @@ ledger = VerityLedger()
 class AnalysisRequest(BaseModel):
     content: str = Field(..., min_length=1)
     include_metadata: bool = False
+    email: str | None = None
 
 
 class Lead(BaseModel):
@@ -256,6 +257,43 @@ def _build_copyright_payload(text: str, modality: str, audit_id: str | None = No
     ).__dict__
 
 
+def _get_user_and_validate_credits(email: str | None) -> dict[str, Any] | None:
+    if not email:
+        return None
+    user = store.find_or_create_user(email)
+    
+    # Pro plan is unlimited
+    if user["plan"] == "pro":
+        return user
+    
+    # Free plan is 3 per month
+    if user["plan"] == "free":
+        usage = store.get_audit_count_last_30_days(user["id"])
+        if usage >= 3:
+            raise HTTPException(
+                status_code=403, 
+                detail="You have reached your 3 free monthly audits. Please upgrade to continue."
+            )
+        return user
+        
+    # Other plans (Starter) use credits
+    if user["credits"] <= 0:
+        raise HTTPException(
+            status_code=403, 
+            detail=f"You have reached the limit for your {user['plan']} plan. Please upgrade to continue analyzing content."
+        )
+    return user
+
+
+def _deduct_and_enrich_payload(user: dict[str, Any] | None, payload: dict[str, Any]) -> None:
+    if user:
+        if user["plan"] != "pro":
+            store.deduct_credit(user["id"])
+            payload["remaining_credits"] = user["credits"] - 1
+        else:
+            payload["remaining_credits"] = "unlimited"
+
+
 @app.get("/health")
 async def health_check() -> dict[str, Any]:
     return {"status": "ok", "version": app.version, "service": "Veritas Forensics (Veridex)"}
@@ -263,14 +301,18 @@ async def health_check() -> dict[str, Any]:
 
 @app.post("/audit/text")
 async def audit_text(request: AnalysisRequest) -> dict[str, Any]:
+    user = _get_user_and_validate_credits(request.email)
     try:
         full_payload = _build_text_payload(request.content, include_metadata=True)
         digest = compute_file_hash(request.content.encode("utf-8"))
         full_payload["copyright_risk"] = _build_copyright_payload(request.content, "text")
-        log = store.create(modality="text", payload=full_payload, input_hash=digest.sha256)
-        _build_copyright_payload(request.content, "text", audit_id=log["id"])
+        
+        user_id = user["id"] if user else None
+        log = store.create(modality="text", payload=full_payload, input_hash=digest.sha256, user_id=user_id)
+        
+        _deduct_and_enrich_payload(user, full_payload)
 
-        # Phase 5 MVP: optional transparency ledger.
+        _build_copyright_payload(request.content, "text", audit_id=log["id"])
         ledger.append(log["id"], "text", digest.sha256, full_payload.get("verity_index", 0.0))
         full_payload["id"] = log["id"]
         full_payload["created_at"] = log["created_at"]
@@ -280,7 +322,8 @@ async def audit_text(request: AnalysisRequest) -> dict[str, Any]:
 
 
 @app.post("/audit/document")
-async def audit_document(file: UploadFile = File(...)) -> dict[str, Any]:
+async def audit_document(email: str | None = Query(default=None), file: UploadFile = File(...)) -> dict[str, Any]:
+    user = _get_user_and_validate_credits(email)
     try:
         payload = await file.read()
         text = _extract_text_from_document(file.filename or "document", payload)
@@ -290,7 +333,12 @@ async def audit_document(file: UploadFile = File(...)) -> dict[str, Any]:
         digest = compute_file_hash(payload)
         full_payload["document"] = {"filename": file.filename, "sha256": digest.sha256, "bytes": digest.byte_size}
         full_payload["copyright_risk"] = _build_copyright_payload(text, "document")
-        log = store.create(modality="document", payload=full_payload, input_hash=digest.sha256)
+        
+        user_id = user["id"] if user else None
+        log = store.create(modality="document", payload=full_payload, input_hash=digest.sha256, user_id=user_id)
+        
+        _deduct_and_enrich_payload(user, full_payload)
+
         _build_copyright_payload(text, "document", audit_id=log["id"])
         ledger.append(log["id"], "document", digest.sha256, full_payload.get("verity_index", 0.0))
         full_payload["id"] = log["id"]
@@ -378,7 +426,8 @@ async def audit_video_placeholder(url: str):
 
 
 @app.post("/audit/image")
-async def audit_image(file: UploadFile = File(...)) -> dict[str, Any]:
+async def audit_image(email: str | None = Query(default=None), file: UploadFile = File(...)) -> dict[str, Any]:
+    user = _get_user_and_validate_credits(email)
     try:
         payload = await file.read()
         digest = compute_file_hash(payload)
@@ -399,7 +448,12 @@ async def audit_image(file: UploadFile = File(...)) -> dict[str, Any]:
             "file_hash": digest.sha256,
             "findings": forensic["forensic_findings"],
         }
-        log = store.create(modality="image", payload=response, input_hash=digest.sha256)
+        
+        user_id = user["id"] if user else None
+        log = store.create(modality="image", payload=response, input_hash=digest.sha256, user_id=user_id)
+        
+        _deduct_and_enrich_payload(user, response)
+
         ledger.append(log["id"], "image", digest.sha256, response.get("verity_index", 0.0))
         response["id"] = log["id"]
         response["created_at"] = log["created_at"]
@@ -409,7 +463,8 @@ async def audit_image(file: UploadFile = File(...)) -> dict[str, Any]:
 
 
 @app.post("/audit/audio")
-async def audit_audio(file: UploadFile = File(...)) -> dict[str, Any]:
+async def audit_audio(email: str | None = Query(default=None), file: UploadFile = File(...)) -> dict[str, Any]:
+    user = _get_user_and_validate_credits(email)
     try:
         payload = await file.read()
         digest = compute_file_hash(payload)
@@ -434,7 +489,12 @@ async def audit_audio(file: UploadFile = File(...)) -> dict[str, Any]:
             "file_hash": digest.sha256,
             "findings": forensic["forensic_findings"],
         }
-        log = store.create(modality="audio", payload=response, input_hash=digest.sha256)
+        
+        user_id = user["id"] if user else None
+        log = store.create(modality="audio", payload=response, input_hash=digest.sha256, user_id=user_id)
+        
+        _deduct_and_enrich_payload(user, response)
+
         ledger.append(log["id"], "audio", digest.sha256, response.get("verity_index", 0.0))
         response["id"] = log["id"]
         response["created_at"] = log["created_at"]
@@ -444,7 +504,8 @@ async def audit_audio(file: UploadFile = File(...)) -> dict[str, Any]:
 
 
 @app.post("/audit/video")
-async def audit_video(file: UploadFile = File(...)) -> dict[str, Any]:
+async def audit_video(email: str | None = Query(default=None), file: UploadFile = File(...)) -> dict[str, Any]:
+    user = _get_user_and_validate_credits(email)
     try:
         payload = await file.read()
         digest = compute_file_hash(payload)
@@ -465,7 +526,12 @@ async def audit_video(file: UploadFile = File(...)) -> dict[str, Any]:
             "file_hash": digest.sha256,
             "findings": forensic.get("forensic_findings", []),
         }
-        log = store.create(modality="video", payload=response, input_hash=digest.sha256)
+        
+        user_id = user["id"] if user else None
+        log = store.create(modality="video", payload=response, input_hash=digest.sha256, user_id=user_id)
+        
+        _deduct_and_enrich_payload(user, response)
+
         ledger.append(log["id"], "video", digest.sha256, response.get("verity_index", 0.0))
         response["id"] = log["id"]
         response["created_at"] = log["created_at"]
@@ -498,6 +564,21 @@ async def create_lead(lead: Lead) -> dict[str, Any]:
         raise
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Lead submission failed: {exc}") from exc
+
+
+@app.post("/users/update-plan")
+async def update_user_plan(data: dict) -> dict[str, Any]:
+    email = data.get("email")
+    plan = data.get("plan")
+    credits = data.get("credits")
+    if not email or not plan:
+        raise HTTPException(status_code=400, detail="Email and plan are required.")
+    
+    try:
+        store.update_user_plan(email, plan, credits)
+        return {"status": "success"}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Failed to update user plan: {exc}") from exc
 
 
 @app.get("/audits/{audit_id}")

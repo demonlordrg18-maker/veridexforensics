@@ -95,45 +95,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
               strategy="afterInteractive"
             />
-            <Script id="ga4-init" strategy="afterInteractive">
+            <Script id="google-analytics" strategy="afterInteractive">
               {`
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
                 window.gtag = gtag;
                 gtag('js', new Date());
-                gtag('config', '${gaId}', { send_page_view: false });
-
-                window.__veridexTrackPage = function() {
-                  var pagePath = window.location.pathname + window.location.search;
-                  gtag('event', 'page_view', { page_path: pagePath, page_location: window.location.href });
-                  if (pagePath.indexOf('/features/') === 0) {
-                    gtag('event', 'feature_page_view', { page_path: pagePath });
-                  }
-                  if (pagePath.indexOf('/solutions/') === 0 || pagePath === '/solutions') {
-                    gtag('event', 'solution_page_view', { page_path: pagePath });
-                  }
-                };
-
-                window.__veridexTrackPage();
-                var originalPushState = history.pushState;
-                var originalReplaceState = history.replaceState;
-                history.pushState = function() {
-                  originalPushState.apply(history, arguments);
-                  setTimeout(window.__veridexTrackPage, 0);
-                };
-                history.replaceState = function() {
-                  originalReplaceState.apply(history, arguments);
-                  setTimeout(window.__veridexTrackPage, 0);
-                };
-                window.addEventListener('popstate', function() {
-                  setTimeout(window.__veridexTrackPage, 0);
-                });
+                gtag('config', '${gaId}');
               `}
             </Script>
           </>
         ) : null}
         {clarityId ? (
-          <Script id="clarity-init" strategy="afterInteractive">
+          <Script id="microsoft-clarity" strategy="afterInteractive">
             {`
               (function(c,l,a,r,i,t,y){
                 c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};

@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import sqlite3
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -13,6 +13,15 @@ class AuditStore:
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_schema()
+        self._migrate_schema()
+
+    def _migrate_schema(self) -> None:
+        with self._get_conn() as conn:
+            # Check if user_id exists in audits
+            cursor = conn.execute("PRAGMA table_info(audits)")
+            columns = [row["name"] for row in cursor.fetchall()]
+            if "user_id" not in columns:
+                conn.execute("ALTER TABLE audits ADD COLUMN user_id TEXT")
 
     def _get_conn(self) -> sqlite3.Connection:
         conn = sqlite3.connect(str(self.db_path))
@@ -25,6 +34,7 @@ class AuditStore:
                 """
                 CREATE TABLE IF NOT EXISTS audits (
                     id TEXT PRIMARY KEY,
+                    user_id TEXT,
                     modality TEXT NOT NULL,
                     input_hash TEXT,
                     origin TEXT,
@@ -77,12 +87,24 @@ class AuditStore:
                 ON leads(created_at DESC)
                 """
             )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS users (
+                    id TEXT PRIMARY KEY,
+                    email TEXT UNIQUE NOT NULL,
+                    plan TEXT DEFAULT 'free',
+                    credits INTEGER DEFAULT 3,
+                    created_at TEXT NOT NULL
+                )
+                """
+            )
 
-    def create(self, modality: str, payload: dict[str, Any], input_hash: str | None = None) -> dict[str, Any]:
+    def create(self, modality: str, payload: dict[str, Any], input_hash: str | None = None, user_id: str | None = None) -> dict[str, Any]:
         audit_id = f"veridex_{modality}_{uuid.uuid4().hex[:12]}"
         created_at = datetime.now(UTC).isoformat()
         row = {
             "id": audit_id,
+            "user_id": user_id,
             "modality": modality,
             "input_hash": input_hash,
             "origin": payload.get("origin"),
@@ -94,8 +116,8 @@ class AuditStore:
         with self._get_conn() as conn:
             conn.execute(
                 """
-                INSERT INTO audits (id, modality, input_hash, origin, truth_score, verity_index, payload_json, created_at)
-                VALUES (:id, :modality, :input_hash, :origin, :truth_score, :verity_index, :payload_json, :created_at)
+                INSERT INTO audits (id, user_id, modality, input_hash, origin, truth_score, verity_index, payload_json, created_at)
+                VALUES (:id, :user_id, :modality, :input_hash, :origin, :truth_score, :verity_index, :payload_json, :created_at)
                 """,
                 row,
             )
@@ -187,3 +209,43 @@ class AuditStore:
                 row,
             )
         return {"id": lead_id, "created_at": created_at}
+
+    def get_user_by_email(self, email: str) -> dict[str, Any] | None:
+        with self._get_conn() as conn:
+            row = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+            return dict(row) if row else None
+
+    def find_or_create_user(self, email: str) -> dict[str, Any]:
+        user = self.get_user_by_email(email)
+        if user:
+            return user
+        
+        user_id = f"user_{uuid.uuid4().hex[:8]}"
+        created_at = datetime.now(UTC).isoformat()
+        with self._get_conn() as conn:
+            conn.execute(
+                "INSERT INTO users (id, email, plan, credits, created_at) VALUES (?, ?, ?, ?, ?)",
+                (user_id, email, "free", 3, created_at)
+            )
+        return {"id": user_id, "email": email, "plan": "free", "credits": 3, "created_at": created_at}
+
+    def update_user_plan(self, email: str, plan: str, credits: int) -> None:
+        with self._get_conn() as conn:
+            conn.execute(
+                "UPDATE users SET plan = ?, credits = ? WHERE email = ?",
+                (plan, credits, email)
+            )
+
+    def deduct_credit(self, user_id: str) -> bool:
+        with self._get_conn() as conn:
+            res = conn.execute("UPDATE users SET credits = credits - 1 WHERE id = ? AND credits > 0", (user_id,))
+            return res.rowcount > 0
+
+    def get_audit_count_last_30_days(self, user_id: str) -> int:
+        thirty_days_ago = (datetime.now(UTC) - timedelta(days=30)).isoformat()
+        with self._get_conn() as conn:
+            row = conn.execute(
+                "SELECT COUNT(*) as count FROM audits WHERE user_id = ? AND created_at > ?",
+                (user_id, thirty_days_ago)
+            ).fetchone()
+            return row["count"] if row else 0

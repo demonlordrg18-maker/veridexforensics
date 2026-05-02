@@ -6,6 +6,13 @@ import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis, Radar,
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+    clarity: (...args: any[]) => void;
+  }
+}
+
 // --- Types ---
 type AuditResult = {
   id: string;
@@ -95,7 +102,7 @@ const MODES: { id: Mode; label: string; icon: string }[] = [
 const COLORS = ["#0d9488", "#2dd4bf", "#94a3b8", "#f43f5e", "#fb7185"];
 
 import { Navbar, Footer } from "../../components/Navigation";
-import { Search, Shield, Zap, Activity, Fingerprint, Lock, Database, Microscope, ShieldCheck, FileCheck } from "lucide-react";
+import { Search, Shield, Zap, Activity, Fingerprint, Lock, Database, Microscope, ShieldCheck, FileCheck, Mail } from "lucide-react";
 
 // --- Components ---
 
@@ -171,6 +178,9 @@ function Dashboard() {
   const [error, setError] = useState("");
   const [result, setResult] = useState<AuditResult | null>(null);
   const [expandedMatch, setExpandedMatch] = useState<number | null>(null);
+  const [email, setEmail] = useState("");
+  const [showEmailPrompt, setShowEmailPrompt] = useState(false);
+  const [creditsRemaining, setCreditsRemaining] = useState<number | null>(null);
 
   const isSample = searchParams.get("sample") === "true";
 
@@ -278,20 +288,26 @@ function Dashboard() {
         response = await fetch(`/api/audit/text`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: activeContent, include_metadata: true }),
+          body: JSON.stringify({ 
+            content: activeContent, 
+            include_metadata: true,
+            email: email || undefined
+          }),
         });
       } else if (activeMode === "link") {
         if (!url) throw new Error("URL required for link audit.");
         response = await fetch(`/api/audit/link`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url }),
+          body: JSON.stringify({ url, email: email || undefined }),
         });
       } else {
         if (!file) throw new Error("File required for this audit mode.");
         const form = new FormData();
         form.append("file", file);
-        response = await fetch(`/api/audit/${activeMode}`, { method: "POST", body: form });
+        const urlParams = new URLSearchParams();
+        if (email) urlParams.append("email", email);
+        response = await fetch(`/api/audit/${activeMode}?${urlParams.toString()}`, { method: "POST", body: form });
       }
 
       const contentType = response.headers.get("content-type") || "";
@@ -303,8 +319,21 @@ function Dashboard() {
         throw new Error(msg);
       }
       setResult(data);
+      if (data.remaining_credits !== undefined) {
+        setCreditsRemaining(data.remaining_credits);
+      }
+      // Track audit completion
+      window.gtag?.('event', 'audit_completed', {
+        event_category: 'engagement',
+        event_label: activeMode,
+        verity_index: data.verity_index,
+      });
     } catch (err: any) {
-      setError(err.message || "Audit failed");
+      if (err.message.includes("403")) {
+        setError("You have reached your audit limit. Please upgrade your plan.");
+      } else {
+        setError(err.message || "Audit failed");
+      }
     } finally {
       setLoading(false);
     }
@@ -342,6 +371,11 @@ function Dashboard() {
             </motion.h1>
           </div>
           <div className="flex items-center gap-4">
+            {creditsRemaining !== null && (
+              <div className="rounded-full bg-teal-500/10 px-4 py-2 text-xs font-bold text-teal-400 border border-teal-500/20">
+                Credits: {creditsRemaining}
+              </div>
+            )}
             <div className="rounded-full bg-white/5 px-4 py-2 text-xs font-medium text-slate-400 border border-white/10">
               Session Node: <span className="text-teal-400">Secure-Audit-01</span>
             </div>
@@ -365,6 +399,30 @@ function Dashboard() {
                 <span className="hidden sm:inline">{m.label}</span>
               </button>
             ))}
+          </section>
+
+          {/* Email Input (Required for tracking/plans) */}
+          <section className="glass rounded-3xl p-6 border border-white/5">
+            <div className="flex flex-col md:flex-row items-center gap-4">
+              <div className="h-10 w-10 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-400 shrink-0">
+                <Mail size={18} />
+              </div>
+              <div className="flex-grow">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Verify your identity for forensic tracking</p>
+                <input 
+                  type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your professional email..."
+                  className="bg-transparent border-none text-white focus:ring-0 p-0 text-sm w-full placeholder:text-slate-700"
+                />
+              </div>
+              {email && (
+                <div className="text-[10px] font-bold text-teal-500 uppercase tracking-widest animate-pulse">
+                  System Active
+                </div>
+              )}
+            </div>
           </section>
 
           {/* Form */}
@@ -685,9 +743,69 @@ function Dashboard() {
                         This scan is a diagnostic preview. Certified reports include full evidentiary trace, admissible formatting, and audit signatures required for legal or high-stakes corporate use.
                       </p>
                     </div>
+                    {/* Email Capture / Lead Loop */}
+                    {!email && (
+                      <div className="w-full max-w-lg mb-8 p-6 rounded-2xl bg-teal-500/5 border border-teal-500/20 text-left">
+                        <h4 className="text-white font-bold text-sm mb-2">Want to save this forensic report?</h4>
+                        <p className="text-xs text-slate-500 mb-4 leading-relaxed">
+                          Enter your professional email to receive the full evidentiary trace and cryptographically signed PDF.
+                        </p>
+                        <div className="flex gap-2">
+                          <input 
+                            type="email"
+                            placeholder="jane@company.com"
+                            className="flex-grow bg-slate-900 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:border-teal-500 outline-none"
+                            onBlur={(e) => setEmail(e.target.value)}
+                          />
+                          <button 
+                            onClick={() => {
+                              if (!email) {
+                                // The onBlur might not have triggered yet or value is empty
+                                const input = document.querySelector('input[placeholder="jane@company.com"]') as HTMLInputElement;
+                                if (input?.value) setEmail(input.value);
+                                else {
+                                  setError("Please enter a valid email to save the report.");
+                                  return;
+                                }
+                              }
+                              window.gtag?.('event', 'report_save_click', { email });
+                              alert("Report saved! Check your email shortly.");
+                            }}
+                            className="px-4 py-2 rounded-xl bg-teal-500 text-black text-[10px] font-black uppercase tracking-widest hover:bg-teal-400 transition-all"
+                          >
+                            Save Report
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="flex flex-wrap justify-center gap-4">
-                      <Link href="/request-demo" className="btn-primary px-10 py-5 flex items-center gap-3 font-black uppercase tracking-widest text-sm shadow-2xl shadow-teal-500/20">
-                        Download Certified Report <FileCheck size={20} />
+                      <button 
+                        onClick={() => {
+                          if (!email) {
+                            setError("Email required to download forensic reports.");
+                            const emailInput = document.querySelector('input[type="email"]');
+                            emailInput?.parentElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            return;
+                          }
+                          window.gtag?.('event', 'report_download_click', { email });
+                          alert("Full forensic report sent to " + email);
+                        }}
+                        className="btn-primary px-10 py-5 flex items-center gap-3 font-black uppercase tracking-widest text-sm shadow-2xl shadow-teal-500/20"
+                      >
+                        Download Full Forensic Report <FileCheck size={20} />
+                      </button>
+                      <Link 
+                        href="/request-demo" 
+                        onClick={() => {
+                          window.gtag?.('event', 'demo_click', {
+                            event_category: 'engagement',
+                            event_label: 'audit_result_bottom',
+                          });
+                        }}
+                        className="px-10 py-5 rounded-2xl border border-white/10 text-white font-black hover:bg-white/5 transition-all text-sm uppercase tracking-widest flex items-center gap-2"
+                      >
+                        Request Custom Walkthrough <ChevronRight size={16} />
                       </Link>
                       <button 
                         onClick={() => {
@@ -697,9 +815,9 @@ function Dashboard() {
                           setFile(null);
                           window.scrollTo({ top: 0, behavior: 'smooth' });
                         }}
-                        className="px-10 py-5 rounded-2xl border border-white/10 text-white font-black hover:bg-white/5 transition-all text-sm uppercase tracking-widest flex items-center gap-2"
+                        className="px-8 py-4 rounded-xl text-slate-500 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest"
                       >
-                        Analyze New Content <Zap size={16} />
+                        Analyze New Content
                       </button>
                     </div>
                     <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-6 opacity-40">

@@ -9,12 +9,12 @@ export async function POST(req: NextRequest) {
   try {
     const { plan, mode, email } = await req.json();
 
-    // Map plan to Price ID on the server side
+    // Map plan to Price ID on the server side (checks both prefixed and non-prefixed env vars)
     let stripePriceId = "";
     if (plan === "starter") {
-      stripePriceId = process.env.STRIPE_PRICE_49 || "";
+      stripePriceId = process.env.STRIPE_PRICE_49 || process.env.NEXT_PUBLIC_STRIPE_PRICE_49 || "";
     } else if (plan === "pro") {
-      stripePriceId = process.env.STRIPE_PRICE_299 || "";
+      stripePriceId = process.env.STRIPE_PRICE_299 || process.env.NEXT_PUBLIC_STRIPE_PRICE_299 || "";
     }
 
     if (!stripePriceId) {

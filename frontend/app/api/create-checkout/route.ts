@@ -7,7 +7,19 @@ export async function POST(req: NextRequest) {
   });
 
   try {
-    const { priceId, mode, email } = await req.json();
+    const { plan, mode, email } = await req.json();
+
+    // Map plan to Price ID on the server side
+    let stripePriceId = "";
+    if (plan === "starter") {
+      stripePriceId = process.env.STRIPE_PRICE_49 || "";
+    } else if (plan === "pro") {
+      stripePriceId = process.env.STRIPE_PRICE_299 || "";
+    }
+
+    if (!stripePriceId) {
+      throw new Error(`Invalid plan or missing Price ID for: ${plan}`);
+    }
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -15,12 +27,12 @@ export async function POST(req: NextRequest) {
       customer_email: email,
       line_items: [
         {
-          price: priceId, // from Stripe dashboard
+          price: stripePriceId,
           quantity: 1,
         },
       ],
       metadata: {
-        priceId: priceId,
+        plan: plan,
       },
       success_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://veridex.ai'}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://veridex.ai'}/pricing`,

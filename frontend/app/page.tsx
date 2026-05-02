@@ -117,31 +117,30 @@ export default function LandingPage() {
     }
   };
 
-  const handleCheckout = async (priceId: string, mode: "payment" | "subscription") => {
+  const handleCheckout = async (plan: string, mode: "payment" | "subscription") => {
     // Track pricing click
     window.gtag?.('event', 'pricing_click', {
       event_category: 'engagement',
-      event_label: priceId === 'starter' ? 'starter_49' : 'pro_299',
+      event_label: plan === 'starter' ? 'starter_49' : 'pro_299',
     });
 
     try {
       const res = await fetch("/api/create-checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          priceId: priceId === 'starter' ? (process.env.NEXT_PUBLIC_STRIPE_PRICE_49 || 'price_49_placeholder') : (process.env.NEXT_PUBLIC_STRIPE_PRICE_299 || 'price_299_placeholder'), 
-          mode 
-        }),
+        body: JSON.stringify({ plan, mode }),
       });
 
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
       } else {
-        console.error("Checkout session creation failed");
+        console.error("Checkout session creation failed:", data.error);
+        alert(`Checkout failed: ${data.error || "Unknown error"}. Please ensure your Price IDs are correctly set in the environment variables.`);
       }
     } catch (err) {
       console.error("Payment error:", err);
+      alert("Payment connection error. Please check your internet and try again.");
     }
   };
 

@@ -102,7 +102,7 @@ const MODES: { id: Mode; label: string; icon: string }[] = [
 const COLORS = ["#0d9488", "#2dd4bf", "#94a3b8", "#f43f5e", "#fb7185"];
 
 import { Navbar, Footer } from "../../components/Navigation";
-import { Search, Shield, Zap, Activity, Fingerprint, Lock, Database, Microscope, ShieldCheck, FileCheck, Mail } from "lucide-react";
+import { Search, Shield, Zap, Activity, Fingerprint, Lock, Database, Microscope, ShieldCheck, FileCheck, Mail, ChevronRight } from "lucide-react";
 
 // --- Components ---
 

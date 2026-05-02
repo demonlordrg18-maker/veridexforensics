@@ -313,6 +313,11 @@ function Dashboard() {
       const contentType = response.headers.get("content-type") || "";
       const data = contentType.includes("application/json") ? await response.json() : await response.text();
       if (!response.ok) {
+        if (response.status === 403) {
+          setError(`LIMIT REACHED: ${data.detail || "Please upgrade your plan to continue."}`);
+          setLoading(false);
+          return;
+        }
         const msg =
           (data && typeof data === "object" && ("error" in data ? (data as any).error : undefined)) ||
           `Forensic engine returned ${response.status}`;
@@ -743,38 +748,66 @@ function Dashboard() {
                         This scan is a diagnostic preview. Certified reports include full evidentiary trace, admissible formatting, and audit signatures required for legal or high-stakes corporate use.
                       </p>
                     </div>
-                    {/* Email Capture / Lead Loop */}
+                    {/* Download Full Report / Lead Capture Loop */}
                     {!email && (
-                      <div className="w-full max-w-lg mb-8 p-6 rounded-2xl bg-teal-500/5 border border-teal-500/20 text-left">
-                        <h4 className="text-white font-bold text-sm mb-2">Want to save this forensic report?</h4>
-                        <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-                          Enter your professional email to receive the full evidentiary trace and cryptographically signed PDF.
-                        </p>
-                        <div className="flex gap-2">
-                          <input 
-                            type="email"
-                            placeholder="jane@company.com"
-                            className="flex-grow bg-slate-900 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:border-teal-500 outline-none"
-                            onBlur={(e) => setEmail(e.target.value)}
-                          />
-                          <button 
-                            onClick={() => {
-                              if (!email) {
-                                // The onBlur might not have triggered yet or value is empty
-                                const input = document.querySelector('input[placeholder="jane@company.com"]') as HTMLInputElement;
-                                if (input?.value) setEmail(input.value);
-                                else {
-                                  setError("Please enter a valid email to save the report.");
-                                  return;
+                      <div className="w-full max-w-xl mb-12 overflow-hidden rounded-[2rem] border border-teal-500/20 bg-teal-500/[0.02] backdrop-blur-md relative">
+                        <div className="absolute top-0 right-0 p-4 opacity-5">
+                          <FileCheck size={80} className="text-teal-500" />
+                        </div>
+                        <div className="p-8 text-left">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="h-8 w-8 rounded-lg bg-teal-500 flex items-center justify-center text-black">
+                              <Mail size={16} />
+                            </div>
+                            <h4 className="text-xl font-black text-white uppercase tracking-tighter">Download Full Forensic Report</h4>
+                          </div>
+                          <p className="text-sm text-slate-400 mb-6 leading-relaxed">
+                            Get the complete evidentiary trace, cryptographically signed PDF, and admissible formatting delivered to your professional inbox.
+                          </p>
+                          <div className="flex flex-col sm:flex-row gap-3">
+                            <input 
+                              type="email"
+                              placeholder="professional@work-email.com"
+                              className="flex-grow bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-all"
+                              onBlur={(e) => setEmail(e.target.value)}
+                            />
+                            <button 
+                              onClick={async () => {
+                                let currentEmail = email;
+                                if (!currentEmail) {
+                                  const input = document.querySelector('input[placeholder="professional@work-email.com"]') as HTMLInputElement;
+                                  if (input?.value) {
+                                    currentEmail = input.value;
+                                    setEmail(currentEmail);
+                                  } else {
+                                    setError("Valid work email required for forensic export.");
+                                    return;
+                                  }
                                 }
-                              }
-                              window.gtag?.('event', 'report_save_click', { email });
-                              alert("Report saved! Check your email shortly.");
-                            }}
-                            className="px-4 py-2 rounded-xl bg-teal-500 text-black text-[10px] font-black uppercase tracking-widest hover:bg-teal-400 transition-all"
-                          >
-                            Save Report
-                          </button>
+                                
+                                try {
+                                  const res = await fetch("/api/leads/capture", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ email: currentEmail }),
+                                  });
+                                  if (!res.ok) throw new Error("Lead capture failed");
+                                  
+                                  window.gtag?.('event', 'report_download_click', { email: currentEmail });
+                                  alert("Forensic report is being generated and will be sent to your email shortly.");
+                                } catch (err) {
+                                  console.error("Lead capture failed:", err);
+                                  alert("Something went wrong. Please try again.");
+                                }
+                              }}
+                              className="px-8 py-4 rounded-2xl bg-teal-500 text-black text-xs font-black uppercase tracking-widest hover:bg-teal-400 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                            >
+                              Download Report <ChevronRight size={16} />
+                            </button>
+                          </div>
+                          <div className="mt-4 flex items-center gap-2 text-[9px] font-bold text-slate-600 uppercase tracking-widest">
+                            <Lock size={10} /> Data encrypted. Zero-storage policy compliant.
+                          </div>
                         </div>
                       </div>
                     )}

@@ -1,107 +1,29 @@
 from __future__ import annotations
 
 import json
-import sqlite3
+import os
 import uuid
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
 from typing import Any
 
+from supabase import create_client, Client
 
 class AuditStore:
-    def __init__(self, db_path: str = "backend/veridex.db") -> None:
-        self.db_path = Path(db_path)
-        self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        self._init_schema()
-        self._migrate_schema()
-
-    def _migrate_schema(self) -> None:
-        with self._get_conn() as conn:
-            # Check if user_id exists in audits
-            cursor = conn.execute("PRAGMA table_info(audits)")
-            columns = [row["name"] for row in cursor.fetchall()]
-            if "user_id" not in columns:
-                conn.execute("ALTER TABLE audits ADD COLUMN user_id TEXT")
-
-    def _get_conn(self) -> sqlite3.Connection:
-        conn = sqlite3.connect(str(self.db_path))
-        conn.row_factory = sqlite3.Row
-        return conn
-
-    def _init_schema(self) -> None:
-        with self._get_conn() as conn:
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS audits (
-                    id TEXT PRIMARY KEY,
-                    user_id TEXT,
-                    modality TEXT NOT NULL,
-                    input_hash TEXT,
-                    origin TEXT,
-                    truth_score REAL,
-                    verity_index REAL,
-                    payload_json TEXT NOT NULL,
-                    created_at TEXT NOT NULL
-                )
-                """
-            )
-            conn.execute(
-                """
-                CREATE INDEX IF NOT EXISTS idx_audits_created_at
-                ON audits(created_at DESC)
-                """
-            )
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS fingerprints (
-                    audit_id TEXT PRIMARY KEY,
-                    modality TEXT NOT NULL,
-                    simhash64 TEXT NOT NULL,
-                    created_at TEXT NOT NULL
-                )
-                """
-            )
-            conn.execute(
-                """
-                CREATE INDEX IF NOT EXISTS idx_fingerprints_modality_created_at
-                ON fingerprints(modality, created_at DESC)
-                """
-            )
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS leads (
-                    id TEXT PRIMARY KEY,
-                    full_name TEXT NOT NULL,
-                    email TEXT NOT NULL,
-                    organization TEXT NOT NULL,
-                    role TEXT NOT NULL,
-                    use_case TEXT NOT NULL,
-                    notes TEXT,
-                    created_at TEXT NOT NULL
-                )
-                """
-            )
-            conn.execute(
-                """
-                CREATE INDEX IF NOT EXISTS idx_leads_created_at
-                ON leads(created_at DESC)
-                """
-            )
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS users (
-                    id TEXT PRIMARY KEY,
-                    email TEXT UNIQUE NOT NULL,
-                    plan TEXT DEFAULT 'free',
-                    credits INTEGER DEFAULT 3,
-                    created_at TEXT NOT NULL
-                )
-                """
-            )
+    def __init__(self) -> None:
+        self.url = os.getenv("SUPABASE_URL")
+        self.key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY")
+        
+        if not self.url or not self.key:
+            # Fallback or warning - in a real app we'd want this to fail fast if DB is required
+            print("Warning: Supabase credentials missing. DB operations will fail.")
+            self.client = None
+        else:
+            self.client: Client = create_client(self.url, self.key)
 
     def create(self, modality: str, payload: dict[str, Any], input_hash: str | None = None, user_id: str | None = None) -> dict[str, Any]:
         audit_id = f"veridex_{modality}_{uuid.uuid4().hex[:12]}"
         created_at = datetime.now(UTC).isoformat()
+        
         row = {
             "id": audit_id,
             "user_id": user_id,
@@ -113,45 +35,41 @@ class AuditStore:
             "payload_json": json.dumps(payload),
             "created_at": created_at,
         }
-        with self._get_conn() as conn:
-            conn.execute(
-                """
-                INSERT INTO audits (id, user_id, modality, input_hash, origin, truth_score, verity_index, payload_json, created_at)
-                VALUES (:id, :user_id, :modality, :input_hash, :origin, :truth_score, :verity_index, :payload_json, :created_at)
-                """,
-                row,
-            )
+        
+        if self.client:
+            self.client.table("audits").insert(row).execute()
+        
         return {"id": audit_id, "created_at": created_at}
 
     def upsert_fingerprint(self, audit_id: str, modality: str, simhash64: int) -> None:
         created_at = datetime.now(UTC).isoformat()
-        # Store as hex string to avoid SQLite signed 64-bit INTEGER overflow.
         fp_hex = f"{int(simhash64) & ((1 << 64) - 1):016x}"
-        with self._get_conn() as conn:
-            conn.execute(
-                """
-                INSERT INTO fingerprints (audit_id, modality, simhash64, created_at)
-                VALUES (?, ?, ?, ?)
-                ON CONFLICT(audit_id) DO UPDATE SET simhash64=excluded.simhash64
-                """,
-                (audit_id, modality, fp_hex, created_at),
-            )
+        
+        row = {
+            "audit_id": audit_id,
+            "modality": modality,
+            "simhash64": fp_hex,
+            "created_at": created_at
+        }
+        
+        if self.client:
+            self.client.table("fingerprints").upsert(row).execute()
 
     def search_similar_fingerprints(self, modality: str, simhash64: int, limit: int = 5) -> list[dict[str, Any]]:
-        # Brute-force over recent rows (MVP); upgrade to proper ANN/vector DB in Phase 4+.
-        with self._get_conn() as conn:
-            rows = conn.execute(
-                """
-                SELECT audit_id, simhash64
-                FROM fingerprints
-                WHERE modality = ?
-                ORDER BY created_at DESC
-                LIMIT 250
-                """,
-                (modality,),
-            ).fetchall()
+        if not self.client:
+            return []
+            
+        # Supabase/Postgres doesn't have a built-in bitwise XOR for similarity directly in a simple query 
+        # without a custom function, but we can fetch recent and do it in Python like before.
+        res = self.client.table("fingerprints") \
+            .select("audit_id, simhash64") \
+            .eq("modality", modality) \
+            .order("created_at", desc=True) \
+            .limit(250) \
+            .execute()
+            
         candidates = []
-        for row in rows:
+        for row in res.data:
             raw = row["simhash64"]
             try:
                 other = int(str(raw), 16)
@@ -159,37 +77,42 @@ class AuditStore:
                 other = int(raw) if raw is not None else 0
             dist = (int(simhash64) ^ other).bit_count()
             candidates.append({"id": row["audit_id"], "distance": dist})
+            
         candidates.sort(key=lambda x: x["distance"])
         return candidates[:limit]
 
     def get(self, audit_id: str) -> dict[str, Any] | None:
-        with self._get_conn() as conn:
-            data = conn.execute("SELECT * FROM audits WHERE id = ?", (audit_id,)).fetchone()
-            if not data:
-                return None
-            payload = json.loads(data["payload_json"])
-            payload["id"] = data["id"]
-            payload["modality"] = data["modality"]
-            payload["created_at"] = data["created_at"]
-            payload["input_hash"] = data["input_hash"]
-            return payload
+        if not self.client:
+            return None
+            
+        res = self.client.table("audits").select("*").eq("id", audit_id).maybe_single().execute()
+        data = res.data
+        if not data:
+            return None
+            
+        payload = json.loads(data["payload_json"])
+        payload["id"] = data["id"]
+        payload["modality"] = data["modality"]
+        payload["created_at"] = data["created_at"]
+        payload["input_hash"] = data["input_hash"]
+        return payload
 
     def list_recent(self, limit: int = 25) -> list[dict[str, Any]]:
-        with self._get_conn() as conn:
-            rows = conn.execute(
-                """
-                SELECT id, modality, origin, truth_score, verity_index, created_at
-                FROM audits
-                ORDER BY created_at DESC
-                LIMIT ?
-                """,
-                (limit,),
-            ).fetchall()
-        return [dict(row) for row in rows]
+        if not self.client:
+            return []
+            
+        res = self.client.table("audits") \
+            .select("id, modality, origin, truth_score, verity_index, created_at") \
+            .order("created_at", desc=True) \
+            .limit(limit) \
+            .execute()
+            
+        return res.data
 
     def create_lead(self, data: dict[str, Any]) -> dict[str, Any]:
         lead_id = f"lead_{uuid.uuid4().hex[:8]}"
         created_at = datetime.now(UTC).isoformat()
+        
         row = {
             "id": lead_id,
             "full_name": data["full_name"],
@@ -200,20 +123,18 @@ class AuditStore:
             "notes": data.get("notes", ""),
             "created_at": created_at,
         }
-        with self._get_conn() as conn:
-            conn.execute(
-                """
-                INSERT INTO leads (id, full_name, email, organization, role, use_case, notes, created_at)
-                VALUES (:id, :full_name, :email, :organization, :role, :use_case, :notes, :created_at)
-                """,
-                row,
-            )
+        
+        if self.client:
+            self.client.table("leads").insert(row).execute()
+            
         return {"id": lead_id, "created_at": created_at}
 
     def get_user_by_email(self, email: str) -> dict[str, Any] | None:
-        with self._get_conn() as conn:
-            row = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
-            return dict(row) if row else None
+        if not self.client:
+            return None
+            
+        res = self.client.table("users").select("*").eq("email", email).maybe_single().execute()
+        return res.data
 
     def find_or_create_user(self, email: str) -> dict[str, Any]:
         user = self.get_user_by_email(email)
@@ -222,30 +143,57 @@ class AuditStore:
         
         user_id = f"user_{uuid.uuid4().hex[:8]}"
         created_at = datetime.now(UTC).isoformat()
-        with self._get_conn() as conn:
-            conn.execute(
-                "INSERT INTO users (id, email, plan, credits, created_at) VALUES (?, ?, ?, ?, ?)",
-                (user_id, email, "free", 3, created_at)
-            )
-        return {"id": user_id, "email": email, "plan": "free", "credits": 3, "created_at": created_at}
+        
+        row = {
+            "id": user_id,
+            "email": email,
+            "plan": "free",
+            "credits": 3,
+            "created_at": created_at
+        }
+        
+        if self.client:
+            self.client.table("users").insert(row).execute()
+            
+        return row
 
     def update_user_plan(self, email: str, plan: str, credits: int) -> None:
-        with self._get_conn() as conn:
-            conn.execute(
-                "UPDATE users SET plan = ?, credits = ? WHERE email = ?",
-                (plan, credits, email)
-            )
+        if not self.client:
+            return
+            
+        user = self.get_user_by_email(email)
+        if not user:
+            self.find_or_create_user(email)
+            
+        self.client.table("users") \
+            .update({"plan": plan, "credits": credits}) \
+            .eq("email", email) \
+            .execute()
 
     def deduct_credit(self, user_id: str) -> bool:
-        with self._get_conn() as conn:
-            res = conn.execute("UPDATE users SET credits = credits - 1 WHERE id = ? AND credits > 0", (user_id,))
-            return res.rowcount > 0
+        if not self.client:
+            return False
+            
+        # In Supabase/Postgres, we should ideally use an RPC or a clever update
+        # For now, we'll do a simple update if credits > 0
+        user = self.client.table("users").select("credits").eq("id", user_id).single().execute().data
+        if user and user["credits"] > 0:
+            self.client.table("users") \
+                .update({"credits": user["credits"] - 1}) \
+                .eq("id", user_id) \
+                .execute()
+            return True
+        return False
 
     def get_audit_count_last_30_days(self, user_id: str) -> int:
+        if not self.client:
+            return 0
+            
         thirty_days_ago = (datetime.now(UTC) - timedelta(days=30)).isoformat()
-        with self._get_conn() as conn:
-            row = conn.execute(
-                "SELECT COUNT(*) as count FROM audits WHERE user_id = ? AND created_at > ?",
-                (user_id, thirty_days_ago)
-            ).fetchone()
-            return row["count"] if row else 0
+        res = self.client.table("audits") \
+            .select("id", count="exact") \
+            .eq("user_id", user_id) \
+            .gt("created_at", thirty_days_ago) \
+            .execute()
+            
+        return res.count if res.count is not None else 0

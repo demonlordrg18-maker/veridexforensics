@@ -318,12 +318,8 @@ export async function POST(
 
     if (!upstreamResp.ok) {
       return NextResponse.json(
-        {
-          error: "Upstream forensic engine error.",
-          status: upstreamResp.status,
-          details: payload,
-        },
-        { status: 502 }
+        payload, // The backend already structured this as { detail: "..." }
+        { status: upstreamResp.status }
       );
     }
 

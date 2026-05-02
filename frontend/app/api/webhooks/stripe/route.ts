@@ -28,28 +28,38 @@ export async function POST(req: NextRequest) {
     case "checkout.session.completed":
       const session = event.data.object as Stripe.Checkout.Session;
       const email = session.customer_details?.email;
-      const priceId = session.metadata?.priceId;
+      const planFromMetadata = session.metadata?.plan;
 
       if (email) {
-        // Determine plan and credits
+        // Determine plan and credits based on metadata
         let plan = "free";
         let credits = 3;
 
-        // You should map your Stripe Price IDs to plans
-        if (priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_49) {
+        if (planFromMetadata === "starter") {
           plan = "starter";
           credits = 20;
-        } else if (priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_299) {
+        } else if (planFromMetadata === "pro") {
           plan = "pro";
-          credits = 1000; // Unlimited or high number
+          credits = 1000; // Unlimited marker
         }
 
+        console.log(`Updating plan for ${email} to ${plan} with ${credits} credits`);
+
         // Call backend to update user
-        await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'}/users/update-plan`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, plan, credits }),
-        });
+        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+        try {
+          const response = await fetch(`${apiUrl}/users/update-plan`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, plan, credits }),
+          });
+          
+          if (!response.ok) {
+            console.error(`Failed to update plan in backend: ${response.statusText}`);
+          }
+        } catch (fetchError) {
+          console.error(`Error calling backend /users/update-plan: ${fetchError}`);
+        }
       }
       break;
     default:

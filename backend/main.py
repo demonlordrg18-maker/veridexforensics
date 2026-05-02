@@ -566,6 +566,29 @@ async def create_lead(lead: Lead) -> dict[str, Any]:
         raise HTTPException(status_code=500, detail=f"Lead submission failed: {exc}") from exc
 
 
+@app.post("/leads/capture")
+async def capture_lead(data: dict) -> dict[str, Any]:
+    email = data.get("email")
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Valid email is required.")
+    
+    try:
+        # We can reuse the leads table or a specialized one. 
+        # Reusing leads table with placeholder values for now.
+        lead_data = {
+            "full_name": "Report Save User",
+            "email": email,
+            "organization": "Unknown (Report Capture)",
+            "role": "Interested User",
+            "use_case": "Self-Service Audit",
+            "notes": "Captured via 'Save Report' loop after audit completion.",
+        }
+        res = store.create_lead(lead_data)
+        return {"status": "success", "id": res["id"]}
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Lead capture failed: {exc}") from exc
+
+
 @app.post("/users/update-plan")
 async def update_user_plan(data: dict) -> dict[str, Any]:
     email = data.get("email")

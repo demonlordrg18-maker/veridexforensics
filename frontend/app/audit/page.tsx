@@ -182,6 +182,33 @@ function Dashboard() {
   const [showEmailPrompt, setShowEmailPrompt] = useState(false);
   const [creditsRemaining, setCreditsRemaining] = useState<number | null>(null);
 
+  const handleCheckout = async (plan: string, mode: "payment" | "subscription") => {
+    // Track pricing click
+    window.gtag?.('event', 'pricing_click', {
+      event_category: 'engagement',
+      event_label: plan === 'starter' ? 'audit_limit_starter_49' : 'audit_limit_pro_299',
+    });
+
+    try {
+      const res = await fetch("/api/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan, mode, email: email || undefined }),
+      });
+
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        console.error("Checkout session creation failed:", data.error);
+        alert(`Checkout failed: ${data.error || "Unknown error"}. Please ensure your Price IDs are correctly set in the environment variables.`);
+      }
+    } catch (err) {
+      console.error("Payment error:", err);
+      alert("Payment connection error. Please check your internet and try again.");
+    }
+  };
+
   const isSample = searchParams.get("sample") === "true";
 
   useEffect(() => {
@@ -495,14 +522,59 @@ function Dashboard() {
                 Analyzed using 500+ forensic markers across spectral, linguistic, and metadata layers.
               </div>
             </form>
-            {error && (
-              <motion.p 
-                initial={{ opacity: 0 }} 
-                animate={{ opacity: 1 }}
-                className="mt-4 rounded-xl bg-rose-500/10 p-4 text-sm text-rose-400 border border-rose-500/20"
+             {error && (
+              <motion.div 
+                initial={{ opacity: 0, y: 15 }} 
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-6 rounded-[2rem] bg-rose-500/[0.03] p-8 border border-rose-500/20 text-left"
               >
-                ⚠️ {error}
-              </motion.p>
+                <div className="flex gap-4 items-start mb-6">
+                  <div className="h-10 w-10 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-400 shrink-0">
+                    ⚠️
+                  </div>
+                  <div>
+                    <h4 className="text-base font-extrabold text-rose-400 uppercase tracking-wider">Forensic Assurance Required</h4>
+                    <p className="text-xs text-slate-400 mt-2 leading-relaxed">{error}</p>
+                  </div>
+                </div>
+
+                {error.toLowerCase().includes("limit") && (
+                  <div className="pt-6 border-t border-white/5 space-y-5">
+                    <p className="text-xs text-slate-300 leading-relaxed">
+                      Unlock instant unlimited audits, priority spectral signal queue, document/image/audio/video uploads, bias mapping, and cryptographically signed admissible PDF exports.
+                    </p>
+                    
+                    {!email && (
+                      <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/15 text-[10px] text-amber-300 font-bold uppercase tracking-widest leading-relaxed">
+                        💡 Please enter your email in the professional identity tracker above to unlock self-serve checkouts.
+                      </div>
+                    )}
+
+                    <div className="flex flex-wrap gap-3">
+                      <button 
+                        onClick={() => handleCheckout('starter', 'payment')}
+                        disabled={!email}
+                        className="px-5 py-3 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-400 font-black uppercase tracking-widest text-[9px] hover:bg-teal-500/20 transition-all disabled:opacity-30 disabled:pointer-events-none"
+                      >
+                        Buy Starter Batch ($49)
+                      </button>
+                      <button 
+                        onClick={() => handleCheckout('pro', 'subscription')}
+                        disabled={!email}
+                        className="px-5 py-3 rounded-xl bg-teal-500 text-black font-black uppercase tracking-widest text-[9px] hover:bg-teal-400 transition-all disabled:opacity-30 disabled:pointer-events-none"
+                      >
+                        Unlock Pro ($299/mo)
+                      </button>
+                      <Link 
+                        href="/pricing"
+                        className="px-5 py-3 rounded-xl border border-white/10 text-white font-black uppercase tracking-widest text-[9px] text-center hover:bg-white/5 transition-all"
+                      >
+                        Compare All Plans
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
             )}
           </section>
 

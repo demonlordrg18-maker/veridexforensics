@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { Navbar, Footer } from "../components/Navigation";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 declare global {
   interface Window {
@@ -76,7 +77,11 @@ const FeatureItem = ({ title, description }: { title: string; description: strin
 );
 
 export default function LandingPage() {
+  const router = useRouter();
   const [activeSample, setActiveSample] = useState<"political" | "scientific" | "social">("political");
+  const [sandboxText, setSandboxText] = useState("");
+  const [sandboxUrl, setSandboxUrl] = useState("");
+  const [sandboxTab, setSandboxTab] = useState<"text" | "link">("text");
 
   const samples = {
     political: {
@@ -169,7 +174,7 @@ export default function LandingPage() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-5xl md:text-8xl font-black tracking-tighter text-white mb-8 leading-[1]"
           >
-            Verify digital content before it becomes <span className="text-gradient">evidence, news, or risk.</span>
+            Verify suspicious digital content before you <span className="text-gradient">publish, investigate, or rely on it.</span>
           </motion.h1>
           
           <motion.p 
@@ -178,7 +183,7 @@ export default function LandingPage() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-lg md:text-2xl text-slate-400 mb-12 leading-relaxed max-w-3xl"
           >
-            High-assurance multimodal forensic analysis for documents, images, audio, video, and links. Built for journalists, legal teams, and enterprise risk professionals.
+            Claim-level breakdown, forensic reasoning, and evidence trails across text, images, audio, video, and URLs.
           </motion.p>
 
           <motion.div
@@ -187,67 +192,145 @@ export default function LandingPage() {
             transition={{ duration: 0.5, delay: 0.25 }}
             className="mb-12 flex flex-col items-center"
           >
-            <div className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-6">I am a:</div>
+            <div className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-6">Investigator Focus:</div>
             <div className="flex flex-wrap justify-center gap-3">
-              {['Journalist', 'Legal Team', 'Researcher', 'Corporate Risk'].map((role) => (
+              {[
+                { label: 'OSINT Investigator', sample: 'political' },
+                { label: 'Verification Analyst', sample: 'scientific' },
+                { label: 'Cyber Forensics', sample: 'social' },
+                { label: 'Threat Intel Expert', sample: 'political' }
+              ].map((role) => (
                 <button 
-                  key={role}
-                  className="px-6 py-3 rounded-xl border border-white/5 bg-white/5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:border-teal-500/50 hover:text-white transition-all"
+                  key={role.label}
+                  onClick={() => setActiveSample(role.sample as any)}
+                  className={`px-6 py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all ${
+                    role.sample === activeSample 
+                    ? "bg-teal-500/20 border-teal-500/50 text-white" 
+                    : "bg-white/5 border-white/5 text-slate-400 hover:border-white/20 hover:text-white"
+                  }`}
                 >
-                  {role}
+                  {role.label}
                 </button>
               ))}
             </div>
-            <div className="mt-10 p-4 rounded-2xl bg-rose-500/5 border border-rose-500/10 flex items-center gap-3 max-w-xl">
-               <ShieldAlert size={16} className="text-rose-500 shrink-0" />
-               <p className="text-xs text-rose-400 font-bold italic leading-relaxed">
-                 "One unverified claim can cost more than a year of forensic assurance."
+            <div className="mt-10 p-4 rounded-2xl bg-teal-500/5 border border-teal-500/10 flex items-center gap-3 max-w-xl">
+               <ShieldCheck size={16} className="text-teal-400 shrink-0" />
+               <p className="text-xs text-teal-400 font-bold italic leading-relaxed">
+                 "Structured, reproducible evidence trails built specifically for verification workflows."
                </p>
             </div>
           </motion.div>
           
-          <motion.div 
+          {/* Instant Proof Sandbox */}
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-wrap justify-center gap-4 mb-20"
+            className="w-full max-w-4xl mx-auto mb-20 text-left"
           >
-            <Link 
-              href="/request-demo" 
-              onClick={() => {
-                window.gtag?.('event', 'demo_click', {
-                  event_category: 'engagement',
-                  event_label: 'hero_request_demo',
-                });
-              }}
-              className="btn-primary text-lg px-10 py-5 flex items-center gap-3 shadow-2xl shadow-teal-500/20"
-            >
-              Request Forensic Demo <ArrowRight size={20} />
-            </Link>
-            <div className="flex flex-col items-center gap-4">
-              <Link 
-                href="/audit" 
-                onClick={() => {
-                  window.gtag?.('event', 'run_audit_click', {
-                    event_category: 'engagement',
-                    event_label: 'hero_audit_button',
-                  });
-                }}
-                className="px-10 py-5 rounded-2xl bg-teal-500/10 border border-teal-500/30 text-teal-400 font-bold hover:bg-teal-500/20 transition-all backdrop-blur-sm flex items-center gap-3"
-              >
-                Run Immediate Forensic Audit <Zap size={20} />
-              </Link>
-              <p className="text-[10px] font-black uppercase tracking-widest text-teal-500/60 flex items-center gap-2">
-                <CheckCircle2 size={10} /> No credit card or account required for first 3 audits
-              </p>
-            </div>
-            <div className="w-full mt-6 flex flex-col items-center gap-3">
-              <Link href="/sample-audit" className="text-slate-500 hover:text-white transition-all text-xs font-bold border-b border-white/5 pb-1">
-                Explore an actual forensic output
-              </Link>
-              <p className="text-[10px] text-slate-500 flex items-center gap-2 opacity-50">
-                <Lock size={10} /> All inputs are encrypted. SHA-256 registered for chain-of-custody.
-              </p>
+            <div className="glass rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl p-1 md:p-2 bg-gradient-to-br from-slate-900/90 to-black/90">
+              <div className="p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-b border-white/5">
+                <div>
+                  <h3 className="text-lg md:text-xl font-bold text-white mb-2 flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-teal-400 animate-pulse" />
+                    Instant Verification Sandbox
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Try scanning suspicious claims or URLs. No registration, login, or credit card required.
+                  </p>
+                </div>
+                <div className="shrink-0">
+                  <button
+                    onClick={() => {
+                      router.push("/audit?sample=true");
+                    }}
+                    className="px-5 py-3.5 rounded-xl bg-teal-600 text-white font-black text-xs uppercase tracking-widest hover:bg-teal-500 transition-all flex items-center gap-2 shadow-lg shadow-teal-500/20"
+                  >
+                    <Zap size={14} /> See a real audit in 30 seconds
+                  </button>
+                </div>
+              </div>
+
+              {/* Tabs */}
+              <div className="flex border-b border-white/5 bg-white/[0.02]">
+                <button
+                  type="button"
+                  onClick={() => setSandboxTab("text")}
+                  className={`flex-1 py-4 text-xs font-black uppercase tracking-widest border-b-2 transition-all ${
+                    sandboxTab === "text"
+                    ? "border-teal-500 text-teal-400 bg-teal-500/[0.02]"
+                    : "border-transparent text-slate-400 hover:text-white"
+                  }`}
+                >
+                  ✍️ Scan Suspicious Text
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSandboxTab("link")}
+                  className={`flex-1 py-4 text-xs font-black uppercase tracking-widest border-b-2 transition-all ${
+                    sandboxTab === "link"
+                    ? "border-teal-500 text-teal-400 bg-teal-500/[0.02]"
+                    : "border-transparent text-slate-400 hover:text-white"
+                  }`}
+                >
+                  🔗 Scan Suspicious URL
+                </button>
+              </div>
+
+              <div className="p-6 md:p-8">
+                {sandboxTab === "text" ? (
+                  <div className="space-y-4">
+                    <textarea
+                      value={sandboxText}
+                      onChange={(e) => setSandboxText(e.target.value)}
+                      placeholder="Paste a suspicious claim or statement to decompose and audit (e.g., 'Leaked video from Brussels meeting shows markers of lip-sync manipulation...')"
+                      className="w-full h-24 bg-white/5 border border-white/10 focus:border-teal-500 rounded-xl p-4 text-sm text-slate-200 placeholder:text-slate-600 outline-none resize-none transition-all"
+                    />
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <span className="text-[10px] text-slate-500 flex items-center gap-1">
+                        <Lock size={10} /> Fully private. Content is processed locally and never stored.
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!sandboxText.trim()) return;
+                          router.push(`/audit?text=${encodeURIComponent(sandboxText.trim())}`);
+                        }}
+                        disabled={!sandboxText.trim()}
+                        className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white/5 border border-white/10 hover:border-teal-500 text-white font-bold text-xs uppercase tracking-widest transition-all disabled:opacity-30 flex items-center justify-center gap-2"
+                      >
+                        Decompose Claim <ArrowRight size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <input
+                      type="url"
+                      value={sandboxUrl}
+                      onChange={(e) => setSandboxUrl(e.target.value)}
+                      placeholder="Enter a suspicious URL (YouTube video, article link, or cloud asset)..."
+                      className="w-full bg-white/5 border border-white/10 focus:border-teal-500 rounded-xl p-4 text-sm text-slate-200 placeholder:text-slate-600 outline-none transition-all"
+                    />
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <span className="text-[10px] text-slate-500 flex items-center gap-1">
+                        <Lock size={10} /> Links are crawled securely. EXIF and audio signatures analyzed.
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!sandboxUrl.trim()) return;
+                          router.push(`/audit?url=${encodeURIComponent(sandboxUrl.trim())}`);
+                        }}
+                        disabled={!sandboxUrl.trim()}
+                        className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white/5 border border-white/10 hover:border-teal-500 text-white font-bold text-xs uppercase tracking-widest transition-all disabled:opacity-30 flex items-center justify-center gap-2"
+                      >
+                        Verify Source URL <ArrowRight size={14} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </motion.div>
 
@@ -425,24 +508,29 @@ export default function LandingPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="w-full max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 py-12 border-y border-white/5 mb-16"
+            className="w-full max-w-5xl mx-auto mb-16"
           >
-            <div className="text-center">
-              <div className="text-3xl font-black text-white mb-1">99.8%</div>
-              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Signal Confidence</div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-12 border-y border-white/5">
+              <div className="text-center">
+                <div className="text-3xl font-black text-white mb-1">99.8%</div>
+                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Signal Accuracy*</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-black text-teal-500 mb-1">&lt; 4s</div>
+                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Avg. Analysis Time</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-black text-white mb-1">500+</div>
+                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Forensic Markers</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-black text-teal-500 mb-1">100%</div>
+                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Privacy Protected</div>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-black text-teal-500 mb-1">&lt; 4s</div>
-              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Avg. Analysis Time</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-black text-white mb-1">500+</div>
-              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Forensic Markers</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-black text-teal-500 mb-1">100%</div>
-              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Privacy Secured</div>
-            </div>
+            <p className="text-[9px] text-slate-600 text-center mt-4">
+              *Peak statistical detection accuracy for synthesized speech and linguistic anomalies under standardized verification tests.
+            </p>
           </motion.div>
 
           {/* Input Visualization - Answering "What it analyzes" */}
@@ -510,32 +598,32 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col lg:flex-row items-center gap-20">
             <div className="lg:w-1/2">
-              <h2 className="text-sm font-black text-amber-500 uppercase tracking-[0.4em] mb-6">The Competitive Reality</h2>
-              <h3 className="text-4xl md:text-5xl font-black text-white mb-8 leading-tight">Why generic AI tools fail at forensics.</h3>
+              <h2 className="text-sm font-black text-amber-500 uppercase tracking-[0.4em] mb-6">Verification Reality</h2>
+              <h3 className="text-4xl md:text-5xl font-black text-white mb-8 leading-tight">Why standard tools fail at verification.</h3>
               <p className="text-slate-400 text-lg leading-relaxed mb-10">
-                ChatGPT and standard detection models are built for <span className="text-white italic">generation</span>, not <span className="text-white italic">investigation</span>. They hallucinate results and lack the spectral markers required for defensible evidence.
+                Generative AI and standard metadata readers are built for <span className="text-white italic">generation</span> or basic <span className="text-white italic">formatting</span>. They lack the signal decomposition required for forensic proof.
               </p>
               
               <div className="space-y-6">
                 <div className="flex gap-4 items-start">
                   <div className="h-6 w-6 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-500 mt-1"><ZapOff size={14} /></div>
                   <div>
-                    <h4 className="text-white font-bold mb-1">Generic AI & LLMs</h4>
-                    <p className="text-xs text-slate-500 leading-relaxed">Prone to "vibes-based" verification. No chain-of-custody. Cannot analyze raw frequency anomalies in video or audio.</p>
+                    <h4 className="text-white font-bold mb-1">Generative Models (hallucinative bias)</h4>
+                    <p className="text-xs text-slate-500 leading-relaxed">ChatGPT and other LLMs lack the ability to check raw file structure and are prone to "vibes-based" verification.</p>
                   </div>
                 </div>
                 <div className="flex gap-4 items-start">
                   <div className="h-6 w-6 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-500 mt-1"><ShieldAlert size={14} /></div>
                   <div>
-                    <h4 className="text-white font-bold mb-1">Standard Detectors</h4>
-                    <p className="text-xs text-slate-500 leading-relaxed">Often provide binary "Real/Fake" answers with no reasoning. High false-positive rates on compressed social media assets.</p>
+                    <h4 className="text-white font-bold mb-1">Legacy Metadata Check (fails on compression)</h4>
+                    <p className="text-xs text-slate-500 leading-relaxed">Social media compression strips EXIF data, leaving standard tools blind to origin.</p>
                   </div>
                 </div>
                 <div className="flex gap-4 items-start">
                   <div className="h-6 w-6 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-400 mt-1"><ShieldCheck size={14} /></div>
                   <div>
-                    <h4 className="text-teal-400 font-bold mb-1">Veridex Forensic Engine</h4>
-                    <p className="text-xs text-slate-400 leading-relaxed">Multimodal decomposition + SHA-256 registration. We show the math, the spectral peaks, and the rhetorical signatures.</p>
+                    <h4 className="text-teal-400 font-bold mb-1">Veridex Signal Decomposition</h4>
+                    <p className="text-xs text-slate-400 leading-relaxed">Multimodal analysis checks EXIF, ELA, and linguistic signatures to verify origin even on compressed files.</p>
                   </div>
                 </div>
               </div>
@@ -544,7 +632,7 @@ export default function LandingPage() {
             <div className="lg:w-1/2">
                <div className="glass-dark rounded-[3.5rem] border border-white/10 p-10 relative">
                   <div className="text-center mb-10">
-                    <div className="inline-flex rounded-full bg-white/5 border border-white/10 px-4 py-1 text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Signal Reliability benchmark</div>
+                    <div className="inline-flex rounded-full bg-white/5 border border-white/10 px-4 py-1 text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Signal Verification benchmark</div>
                     <div className="text-4xl font-black text-white">99.8% vs 64%</div>
                     <p className="text-[10px] text-teal-500 mt-2 font-black uppercase tracking-widest">Benchmarked across 1,200 synthetic + real-world test cases</p>
                     <p className="text-xs text-slate-500 mt-2 italic">Veridex vs. Standard Industry Detectors (Mean Performance)</p>
@@ -557,13 +645,13 @@ export default function LandingPage() {
                        </div>
                      </div>
                      <div>
-                       <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Generic AI (ChatGPT/Perplexity)</div>
+                       <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Generative Models (ChatGPT/Claude)</div>
                        <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
                          <div className="w-[32%] h-full bg-slate-600" />
                        </div>
                      </div>
                      <div>
-                       <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Legacy Detection Tools</div>
+                       <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Legacy Verification Tools</div>
                        <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
                          <div className="w-[64%] h-full bg-slate-600" />
                        </div>
@@ -599,16 +687,16 @@ export default function LandingPage() {
           </div>
           <div className="mt-8 grid md:grid-cols-3 gap-8 w-full">
             <div className="text-center glass p-10 rounded-3xl border border-white/5">
-              <div className="text-sm font-bold text-teal-400 mb-4 italic">"Finally, a tool that provides structured evidence for editorial boards rather than just a 'confidence vibe'."</div>
-              <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">— Digital Forensics Benchmark Group</div>
+              <div className="text-sm font-bold text-teal-400 mb-4 italic">"Finally, a tool that provides structured, verifiable indicators for OSINT investigations rather than just a confidence percentage."</div>
+              <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">— Digital Provenance Project</div>
             </div>
             <div className="text-center glass p-10 rounded-3xl border border-white/5">
-              <div className="text-sm font-bold text-teal-400 mb-4 italic">"Veridex identified frequency anomalies in compressed WhatsApp videos that our internal labs missed."</div>
-              <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">— Institutional Safety Lab</div>
+              <div className="text-sm font-bold text-teal-400 mb-4 italic">"Veridex identified acoustic anomalies and spectral manipulation markers in compressed media that standard tools missed."</div>
+              <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">— Open Source Investigation Desk</div>
             </div>
             <div className="text-center glass p-10 rounded-3xl border border-white/5">
-              <div className="text-sm font-bold text-teal-400 mb-4 italic">"The SHA-256 chain of custody makes these reports legally defensible for discovery phases."</div>
-              <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">— Forensic Discovery Council</div>
+              <div className="text-sm font-bold text-teal-400 mb-4 italic">"The SHA-256 registration and evidence logs make digital provenance tracking reproducible."</div>
+              <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">— Digital Evidence Consortium</div>
             </div>
           </div>
         </div>

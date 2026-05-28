@@ -220,8 +220,26 @@ function Dashboard() {
         runAudit("text", sampleText);
       }, 500);
       return () => clearTimeout(timer);
+    } else {
+      const qText = searchParams.get("text");
+      const qUrl = searchParams.get("url");
+      if (qText) {
+        setContent(qText);
+        setMode("text");
+        const timer = setTimeout(() => {
+          runAudit("text", qText);
+        }, 500);
+        return () => clearTimeout(timer);
+      } else if (qUrl) {
+        setUrl(qUrl);
+        setMode("link");
+        const timer = setTimeout(() => {
+          runAudit("link", undefined, qUrl);
+        }, 500);
+        return () => clearTimeout(timer);
+      }
     }
-  }, [isSample]);
+  }, [isSample, searchParams]);
 
   const biasData = useMemo(() => {
     if (!result?.bias_report) return [];
@@ -295,9 +313,10 @@ function Dashboard() {
     return steps;
   }, [result, biasData, mode, content]);
 
-  const runAudit = async (forcedMode?: Mode, forcedContent?: string) => {
+  const runAudit = async (forcedMode?: Mode, forcedContent?: string, forcedUrl?: string) => {
     const activeMode = forcedMode || mode;
     const activeContent = forcedContent || content;
+    const activeUrl = forcedUrl || url;
 
     setLoading(true);
     setError("");
@@ -322,11 +341,11 @@ function Dashboard() {
           }),
         });
       } else if (activeMode === "link") {
-        if (!url) throw new Error("URL required for link audit.");
+        if (!activeUrl) throw new Error("URL required for link audit.");
         response = await fetch(`/api/audit/link`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url, email: email || undefined }),
+          body: JSON.stringify({ url: activeUrl, email: email || undefined }),
         });
       } else {
         if (!file) throw new Error("File required for this audit mode.");

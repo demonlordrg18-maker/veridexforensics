@@ -158,16 +158,6 @@ export default function LandingPage() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1000px] bg-[radial-gradient(circle_at_center,rgba(13,148,136,0.1),transparent_70%)] -z-10" />
         
         <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 rounded-full bg-teal-500/10 px-4 py-1.5 text-[10px] font-black text-teal-400 border border-teal-500/20 mb-8 uppercase tracking-[0.3em]"
-          >
-            <Activity size={12} />
-            Forensic Answer Engine
-          </motion.div>
-          
           <motion.h1 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -183,14 +173,14 @@ export default function LandingPage() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-lg md:text-2xl text-slate-400 mb-12 leading-relaxed max-w-3xl"
           >
-            Claim-level breakdown, forensic reasoning, and evidence trails across text, images, audio, video, and URLs.
+            Claim-level breakdown, reasoning traces, and structured verification output across text, images, audio, video, and URLs.
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.25 }}
-            className="mb-12 flex flex-col items-center"
+            className="hidden"
           >
             <div className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-6">Investigator Focus:</div>
             <div className="flex flex-wrap justify-center gap-3">
@@ -216,7 +206,7 @@ export default function LandingPage() {
             <div className="mt-10 p-4 rounded-2xl bg-teal-500/5 border border-teal-500/10 flex items-center gap-3 max-w-xl">
                <ShieldCheck size={16} className="text-teal-400 shrink-0" />
                <p className="text-xs text-teal-400 font-bold italic leading-relaxed">
-                 "Structured, reproducible evidence trails built specifically for verification workflows."
+                 "Structured, reproducible reasoning traces built specifically for verification workflows."
                </p>
             </div>
           </motion.div>
@@ -226,17 +216,17 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="w-full max-w-4xl mx-auto mb-20 text-left"
+            className="w-full max-w-6xl mx-auto mb-16 text-left"
           >
             <div className="glass rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl p-1 md:p-2 bg-gradient-to-br from-slate-900/90 to-black/90">
               <div className="p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-b border-white/5">
                 <div>
                   <h3 className="text-lg md:text-xl font-bold text-white mb-2 flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-teal-400 animate-pulse" />
-                    Instant Verification Sandbox
+                    Try suspicious content instantly
                   </h3>
                   <p className="text-xs text-slate-400">
-                    Try scanning suspicious claims or URLs. No registration, login, or credit card required.
+                    Paste a URL, text, or image. No login required, with an example report included.
                   </p>
                 </div>
                 <div className="shrink-0">
@@ -246,35 +236,41 @@ export default function LandingPage() {
                     }}
                     className="px-5 py-3.5 rounded-xl bg-teal-600 text-white font-black text-xs uppercase tracking-widest hover:bg-teal-500 transition-all flex items-center gap-2 shadow-lg shadow-teal-500/20"
                   >
-                    <Zap size={14} /> See a real audit in 30 seconds
+                    <Zap size={14} /> Run Sample Audit
                   </button>
                 </div>
               </div>
 
               {/* Tabs */}
-              <div className="flex border-b border-white/5 bg-white/[0.02]">
+              <div className="grid grid-cols-3 border-b border-white/5 bg-white/[0.02]">
                 <button
                   type="button"
                   onClick={() => setSandboxTab("text")}
-                  className={`flex-1 py-4 text-xs font-black uppercase tracking-widest border-b-2 transition-all ${
+                  className={`py-4 text-xs font-black uppercase tracking-widest border-b-2 transition-all ${
                     sandboxTab === "text"
                     ? "border-teal-500 text-teal-400 bg-teal-500/[0.02]"
                     : "border-transparent text-slate-400 hover:text-white"
                   }`}
                 >
-                  ✍️ Scan Suspicious Text
+                  <span className="text-xs">Text</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setSandboxTab("link")}
-                  className={`flex-1 py-4 text-xs font-black uppercase tracking-widest border-b-2 transition-all ${
+                  className={`py-4 text-xs font-black uppercase tracking-widest border-b-2 transition-all ${
                     sandboxTab === "link"
                     ? "border-teal-500 text-teal-400 bg-teal-500/[0.02]"
                     : "border-transparent text-slate-400 hover:text-white"
                   }`}
                 >
-                  🔗 Scan Suspicious URL
+                  <span className="text-xs">URL</span>
                 </button>
+                <Link
+                  href="/audit#image"
+                  className="py-4 text-center text-xs font-black uppercase tracking-widest border-b-2 border-transparent text-slate-400 hover:text-white transition-all"
+                >
+                  Image
+                </Link>
               </div>
 
               <div className="p-6 md:p-8">
@@ -283,12 +279,12 @@ export default function LandingPage() {
                     <textarea
                       value={sandboxText}
                       onChange={(e) => setSandboxText(e.target.value)}
-                      placeholder="Paste a suspicious claim or statement to decompose and audit (e.g., 'Leaked video from Brussels meeting shows markers of lip-sync manipulation...')"
-                      className="w-full h-24 bg-white/5 border border-white/10 focus:border-teal-500 rounded-xl p-4 text-sm text-slate-200 placeholder:text-slate-600 outline-none resize-none transition-all"
+                      placeholder="Paste suspicious text, a claim, or a short transcript..."
+                      className="w-full h-28 bg-white/5 border border-white/10 focus:border-teal-500 rounded-xl p-4 text-sm text-slate-200 placeholder:text-slate-600 outline-none resize-none transition-all"
                     />
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                       <span className="text-[10px] text-slate-500 flex items-center gap-1">
-                        <Lock size={10} /> Fully private. Content is processed locally and never stored.
+                        <Lock size={10} /> Private diagnostic preview.
                       </span>
                       <button
                         type="button"
@@ -299,7 +295,7 @@ export default function LandingPage() {
                         disabled={!sandboxText.trim()}
                         className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white/5 border border-white/10 hover:border-teal-500 text-white font-bold text-xs uppercase tracking-widest transition-all disabled:opacity-30 flex items-center justify-center gap-2"
                       >
-                        Decompose Claim <ArrowRight size={14} />
+                        Run Text Audit <ArrowRight size={14} />
                       </button>
                     </div>
                   </div>
@@ -309,12 +305,12 @@ export default function LandingPage() {
                       type="url"
                       value={sandboxUrl}
                       onChange={(e) => setSandboxUrl(e.target.value)}
-                      placeholder="Enter a suspicious URL (YouTube video, article link, or cloud asset)..."
+                      placeholder="Paste a suspicious article, video, image, or social URL..."
                       className="w-full bg-white/5 border border-white/10 focus:border-teal-500 rounded-xl p-4 text-sm text-slate-200 placeholder:text-slate-600 outline-none transition-all"
                     />
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                       <span className="text-[10px] text-slate-500 flex items-center gap-1">
-                        <Lock size={10} /> Links are crawled securely. EXIF and audio signatures analyzed.
+                        <Lock size={10} /> Opens directly in the auditor.
                       </span>
                       <button
                         type="button"
@@ -325,11 +321,38 @@ export default function LandingPage() {
                         disabled={!sandboxUrl.trim()}
                         className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white/5 border border-white/10 hover:border-teal-500 text-white font-bold text-xs uppercase tracking-widest transition-all disabled:opacity-30 flex items-center justify-center gap-2"
                       >
-                        Verify Source URL <ArrowRight size={14} />
+                        Run URL Audit <ArrowRight size={14} />
                       </button>
                     </div>
                   </div>
                 )}
+                <div className="mt-8 grid gap-4 lg:grid-cols-4">
+                  <div className="rounded-2xl bg-white/[0.03] border border-white/10 p-4 lg:col-span-2">
+                    <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">
+                      <span>Confidence trace</span>
+                      <span className="text-teal-300">72%</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-white/5 overflow-hidden">
+                      <div className="h-full w-[72%] bg-teal-500" />
+                    </div>
+                  </div>
+                  <div className="rounded-2xl bg-amber-500/[0.05] border border-amber-500/20 p-4">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-amber-300 mb-2">Anomaly markers</div>
+                    <div className="text-2xl font-black text-white">4</div>
+                  </div>
+                  <div className="rounded-2xl bg-teal-500/[0.05] border border-teal-500/20 p-4">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-teal-300 mb-2">Claims found</div>
+                    <div className="text-2xl font-black text-white">3</div>
+                  </div>
+                </div>
+                <div className="mt-4 rounded-2xl bg-white/[0.03] border border-white/10 p-4">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">Claim extraction preview</div>
+                  <div className="grid gap-2 text-xs text-slate-300 md:grid-cols-3">
+                    <div><span className="text-teal-400">01</span> Meeting location claim</div>
+                    <div><span className="text-amber-400">02</span> Voice-clone allegation</div>
+                    <div><span className="text-rose-400">03</span> Missing source attribution</div>
+                  </div>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -349,10 +372,10 @@ export default function LandingPage() {
                     Live Audit Simulation
                   </div>
                   <h3 className="text-3xl md:text-4xl font-black text-white mb-4 leading-tight">
-                    See the evidence trail before you ever click “Request Demo”.
+                    See the reviewable analysis before you ever click Request Demo.
                   </h3>
                   <p className="text-slate-400 text-sm leading-relaxed mb-8">
-                    Users shouldn’t have to trust vibes. Veridex outputs a structured report: claim-level verification, bias mapping, and a defensible reasoning trace.
+                    Users should not have to trust vibes. Veridex outputs a structured report: claim-level verification, bias mapping, and a reviewable reasoning trace.
                   </p>
                   
                   {/* Sample Switcher Tabs */}
@@ -753,7 +776,7 @@ export default function LandingPage() {
                    <div className="h-4 w-5/6 bg-white/5 rounded-lg" />
                  </div>
                  <div className="pt-6 border-t border-white/5 flex justify-center">
-                    <Link href="/sample-audit" onClick={() => { window.gtag?.("event", "sample_audit_click", { source: "homepage_evidence_panel" }); window.clarity?.("event", "sample_audit_click"); }} className="text-xs font-bold text-teal-500 uppercase tracking-widest hover:underline">View Forensic Evidence Trail</Link>
+                    <Link href="/sample-audit" onClick={() => { window.gtag?.("event", "sample_audit_click", { source: "homepage_evidence_panel" }); window.clarity?.("event", "sample_audit_click"); }} className="text-xs font-bold text-teal-500 uppercase tracking-widest hover:underline">View Structured Verification Output</Link>
                  </div>
                </div>
             </div>
@@ -1042,7 +1065,7 @@ export default function LandingPage() {
                <ul className="grid gap-4">
                  {[
                    'Verity Index Score',
-                   'Forensic Evidence Trail',
+                   'Structured Verification Output',
                    'Claim Verification Status',
                    'Rhetorical Bias Mapping',
                    'Copyright Risk Profile',
@@ -1114,5 +1137,3 @@ function CheckCircleIcon() {
     </div>
   );
 }
-
-

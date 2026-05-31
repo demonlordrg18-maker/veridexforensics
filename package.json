@@ -7,6 +7,9 @@
   "scripts": {
     "build": "npm run build --workspace=frontend",
     "dev": "npm run dev --workspace=frontend",
-    "start": "npm run start --workspace=frontend"
+    "start": "npm run start --workspace=frontend",
+    "email:dev": "npx wrangler dev --config cloudflare-email-worker/wrangler.jsonc",
+    "email:deploy": "npx wrangler deploy --config cloudflare-email-worker/wrangler.jsonc",
+    "email:secret": "npx wrangler secret put EMAIL_WORKER_TOKEN --config cloudflare-email-worker/wrangler.jsonc"
   }
 }

@@ -75,6 +75,33 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Cloudflare Email Service
+
+The repo includes a small Cloudflare Worker in `cloudflare-email-worker/` that sends lead notifications through the `SEND_EMAIL` Email Service binding.
+
+1. In Cloudflare Email Routing for `veridexforensics.in`, fix the DNS records until the dashboard no longer shows `Email DNS records misconfigured`.
+2. Confirm `noreply@veridexforensics.in` is allowed as a sender, or update `FROM_EMAIL` and `allowed_sender_addresses` in `cloudflare-email-worker/wrangler.jsonc`.
+3. Set the Worker auth token:
+
+```bash
+npm run email:secret
+```
+
+4. Deploy the Worker:
+
+```bash
+npm run email:deploy
+```
+
+5. Set these backend environment variables in production:
+
+```bash
+EMAIL_WORKER_URL=https://veridex-email-service.<your-workers-subdomain>.workers.dev
+EMAIL_WORKER_TOKEN=<same token set with npm run email:secret>
+```
+
+When `EMAIL_WORKER_URL` is set, lead notifications use Cloudflare Email Service. If it is not set, the backend keeps using the existing SMTP environment variables.
+
 ## Run tests
 
 ```bash

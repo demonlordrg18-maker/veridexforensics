@@ -3,10 +3,13 @@ from __future__ import annotations
 import os
 import re
 import smtplib
+import json
 from datetime import UTC, datetime
 from email.message import EmailMessage
 from pathlib import Path
 from typing import Any
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 import uvicorn
 from dotenv import load_dotenv
@@ -123,6 +126,11 @@ class Lead(BaseModel):
 
 
 def _notify_lead_submission(lead: Lead, lead_id: str, created_at: str) -> None:
+    worker_url = os.getenv("EMAIL_WORKER_URL", "").strip()
+    if worker_url:
+        _notify_lead_submission_via_worker(lead, lead_id, created_at, worker_url)
+        return
+
     recipient = os.getenv("DEMO_REQUEST_TO_EMAIL", "").strip()
     smtp_host = os.getenv("SMTP_HOST", "").strip()
     if not recipient or not smtp_host:
@@ -162,8 +170,43 @@ def _notify_lead_submission(lead: Lead, lead_id: str, created_at: str) -> None:
         if use_tls:
             smtp.starttls()
         if username:
-            smtp.login(username, password)
+        smtp.login(username, password)
         smtp.send_message(msg)
+
+
+def _notify_lead_submission_via_worker(
+    lead: Lead,
+    lead_id: str,
+    created_at: str,
+    worker_url: str,
+) -> None:
+    payload = {
+        "lead_id": lead_id,
+        "created_at": created_at,
+        "full_name": lead.full_name,
+        "email": lead.email,
+        "organization": lead.organization,
+        "role": lead.role,
+        "use_case": lead.use_case,
+        "notes": lead.notes,
+    }
+    headers = {"Content-Type": "application/json"}
+    token = os.getenv("EMAIL_WORKER_TOKEN", "").strip()
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+
+    request = Request(
+        worker_url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers=headers,
+        method="POST",
+    )
+    try:
+        with urlopen(request, timeout=20) as response:
+            if response.status >= 400:
+                raise RuntimeError(f"Email Worker returned HTTP {response.status}.")
+    except (HTTPError, URLError, TimeoutError, RuntimeError) as exc:
+        print(f"Lead notification via Email Worker failed: {exc}")
 
 
 def _validate_lead_timing(started_at: str | None) -> None:

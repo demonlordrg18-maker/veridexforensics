@@ -1,0 +1,20 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "veridex-email-service",
+  "main": "src/index.js",
+  "compatibility_date": "2026-05-29",
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "TO_EMAIL": "forensics@veridexforensics.in",
+    "FROM_EMAIL": "noreply@veridexforensics.in",
+    "FROM_NAME": "Veridex Forensics"
+  },
+  "send_email": [
+    {
+      "name": "SEND_EMAIL",
+      "allowed_sender_addresses": ["noreply@veridexforensics.in"]
+    }
+  ]
+}

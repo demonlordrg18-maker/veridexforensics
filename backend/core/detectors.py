@@ -110,8 +110,88 @@ class ClaimExtractor:
         return claims[:max_claims]
 
 
+_LLM_WORDS = re.compile(
+    r"\b(delve|tapestry|testament|beacon|pivotal|crucial|vibrant|leverage|moreover|furthermore|catalyst|conundrum|paradigm|intertwined|multifaceted|demystify)\b",
+    re.IGNORECASE
+)
+_LLM_PHRASES = re.compile(
+    r"\b(it is important to note|let's dive in|not only\b.*\bbut also|a testament to|in conclusion|at the end of the day|underscores the importance|it is crucial to|plays a pivotal role|delve deep|sheds light on|realm of|by analyzing|it is worth noting)\b",
+    re.IGNORECASE
+)
+
+
 class OriginDetector:
     """Heuristic origin detector designed for deterministic offline operation."""
+
+    def _detect_homoglyphs(self, text: str) -> list[str]:
+        import unicodedata
+        words = re.findall(r"\b\w+\b", text)
+        flagged = []
+        for word in words:
+            scripts = set()
+            for char in word:
+                if char.isalpha():
+                    try:
+                        name = unicodedata.name(char)
+                        if "LATIN" in name:
+                            scripts.add("latin")
+                        elif "CYRILLIC" in name:
+                            scripts.add("cyrillic")
+                        elif "GREEK" in name:
+                            scripts.add("greek")
+                    except ValueError:
+                        pass
+            if len(scripts) > 1:
+                flagged.append(word)
+        return flagged
+
+    def _detect_invisible_chars(self, text: str) -> list[str]:
+        pattern = re.compile(r"[\u200b-\u200f\u202a-\u202e\u2060\ufeff]")
+        flagged = []
+        for word in re.findall(r"\S+", text):
+            if pattern.search(word):
+                flagged.append(word)
+        return flagged
+
+    def _detect_artificial_cadence(self, text: str) -> bool:
+        sentences = [s.strip() for s in re.split(r'[.!?]+', text) if s.strip()]
+        lengths = [len(s.split()) for s in sentences]
+        if len(lengths) < 5:
+            return False
+
+        # 1. Alternating short-long sentence cadence check
+        alternations = 0
+        for i in range(len(lengths) - 1):
+            len1 = lengths[i]
+            len2 = lengths[i+1]
+            if (len1 <= 12 and len2 >= 20) or (len1 >= 20 and len2 <= 12):
+                alternations += 1
+        if alternations / (len(lengths) - 1) >= 0.5:
+            return True
+
+        # 2. Bimodal distribution of sentence lengths
+        sorted_lengths = sorted(lengths)
+        mid = len(sorted_lengths) // 2
+        low_half = sorted_lengths[:mid]
+        high_half = sorted_lengths[mid:]
+        if low_half and high_half:
+            mean_low = sum(low_half) / len(low_half)
+            mean_high = sum(high_half) / len(high_half)
+            if mean_high - mean_low >= 15:
+                return True
+
+        return False
+
+    def _calculate_vocabulary_signature(self, text: str) -> float:
+        words_hits = len(_LLM_WORDS.findall(text))
+        phrases_hits = len(_LLM_PHRASES.findall(text))
+        
+        tokens = re.findall(r"\w+", text.lower())
+        token_count = max(1, len(tokens))
+        
+        raw_score = (words_hits * 0.05) + (phrases_hits * 0.15)
+        density_score = raw_score / (token_count / 100.0) if token_count >= 50 else raw_score
+        return _clip(density_score)
 
     def analyze(self, text: str) -> dict[str, Any]:
         content = (text or "").strip()
@@ -131,23 +211,55 @@ class OriginDetector:
             re.findall(r"\b(in conclusion|overall|moreover|furthermore|therefore)\b", content.lower())
         )
 
-        # Expanded features for immunity to simple AI generation
         entropy = self._calculate_entropy(content)
         burstiness = self._calculate_burstiness(content)
 
-        ai_likelihood = (
-            0.20 * _clip(abs(avg_sentence_len - 18.0) / 18.0)
-            + 0.20 * _clip((0.45 - lexical_density) / 0.45)
-            + 0.15 * _clip(boilerplate_hits / 5.0)
-            + 0.15 * _clip(content.count(":") / 6.0)
-            + 0.15 * _clip((4.5 - entropy) / 1.5) # AI often has lower entropy (more predictable)
-            + 0.15 * _clip((0.6 - burstiness) / 0.6) # AI often has lower burstiness
-        )
+        # Detect humanizer bypass methods & rhetoric signatures
+        homoglyphs = self._detect_homoglyphs(content)
+        invisible_chars = self._detect_invisible_chars(content)
+        has_cadence_anomaly = self._detect_artificial_cadence(content)
+        vocab_sig = self._calculate_vocabulary_signature(content)
+
+        has_bypass = bool(homoglyphs) or bool(invisible_chars)
+
+        if has_bypass:
+            ai_likelihood = 0.98
+        else:
+            ai_likelihood = (
+                0.15 * _clip(abs(avg_sentence_len - 18.0) / 18.0)
+                + 0.15 * _clip((0.45 - lexical_density) / 0.45)
+                + 0.10 * _clip(boilerplate_hits / 5.0)
+                + 0.10 * _clip(content.count(":") / 6.0)
+                + 0.10 * _clip((4.5 - entropy) / 1.5)
+                + 0.10 * _clip((0.6 - burstiness) / 0.6)
+                + 0.15 * (1.0 if has_cadence_anomaly else 0.0)
+                + 0.15 * vocab_sig
+            )
         ai_likelihood = _clip(ai_likelihood)
         origin = "ai" if ai_likelihood >= 0.51 else "human"
         truth_score = 1.0 - ai_likelihood if origin == "ai" else _clip(0.52 + (0.48 - ai_likelihood))
 
         reasons = []
+        findings = [
+            f"Vocabulary distribution: {lexical_density:.2f} — {'high' if lexical_density > 0.45 else 'balanced'} lexical variety detected.",
+            f"Rhythmic signature: {avg_sentence_len:.1f} tokens/avg — {'variable' if abs(avg_sentence_len-18)>3 else 'structured'} cadence analysis.",
+            f"Linguistic entropy: {entropy:.2f} — {'complex' if entropy > 3.8 else 'repetitive'} information density profile.",
+            f"Burstiness index: {burstiness:.2f} — {'natural' if burstiness > 0.4 else 'systemic'} structural variance.",
+            f"Structural pattern score: {ai_likelihood:.2f} — {'minimal' if ai_likelihood < 0.4 else 'elevated'} procedural markers detected.",
+        ]
+
+        if homoglyphs:
+            reasons.append("mixed alphabet script (homoglyphs) bypass attempt detected")
+            findings.append(f"Mixed alphabet script (homoglyphs) detected in words: {', '.join(homoglyphs)} — high risk bypass signature.")
+        if invisible_chars:
+            reasons.append("invisible characters/zero-width space bypass attempt detected")
+            findings.append(f"Invisible zero-width space bypass markers detected in {len(invisible_chars)} word(s) — high risk bypass signature.")
+        if has_cadence_anomaly:
+            reasons.append("artificial cadence/bimodal structure consistent with machine generation")
+            findings.append("Sentence cadence variance: artificial cadence / bimodal structure detected.")
+        if vocab_sig > 0.1:
+            findings.append(f"Vocabulary signature: {vocab_sig:.2f} — density of characteristic generative AI rhetoric.")
+
         if origin == "human":
             if abs(avg_sentence_len - 18.0) > 4.0:
                 reasons.append("high sentence length variance consistent with human writing")
@@ -155,28 +267,24 @@ class OriginDetector:
                 reasons.append("lexical repetition low; high vocabulary diversity")
             if boilerplate_hits == 0:
                 reasons.append("low synthetic phrasing pattern score")
-            reasons.append("no strong LLM probability signature found")
+            if not reasons:
+                reasons.append("no strong LLM probability signature found")
         else:
-            if abs(avg_sentence_len - 18.0) < 2.0:
-                reasons.append("uniform sentence structure detected")
-            if lexical_density < 0.35:
-                reasons.append("limited lexical variety; repetitive patterns found")
-            if boilerplate_hits > 1:
-                reasons.append("synthetic transitional phrasing detected")
-            reasons.append("detected probability signature consistent with generative models")
+            if not has_bypass:
+                if abs(avg_sentence_len - 18.0) < 2.0:
+                    reasons.append("uniform sentence structure detected")
+                if lexical_density < 0.35:
+                    reasons.append("limited lexical variety; repetitive patterns found")
+                if boilerplate_hits > 1:
+                    reasons.append("synthetic transitional phrasing detected")
+                reasons.append("detected probability signature consistent with generative models")
 
         return {
             "origin": origin,
             "truth_score": round(truth_score, 4),
             "confidence": round(max(ai_likelihood, 1.0 - ai_likelihood), 4),
             "reasons": reasons,
-            "findings": [
-                f"Vocabulary distribution: {lexical_density:.2f} — {'high' if lexical_density > 0.45 else 'balanced'} lexical variety detected.",
-                f"Rhythmic signature: {avg_sentence_len:.1f} tokens/avg — {'variable' if abs(avg_sentence_len-18)>3 else 'structured'} cadence analysis.",
-                f"Linguistic entropy: {entropy:.2f} — {'complex' if entropy > 3.8 else 'repetitive'} information density profile.",
-                f"Burstiness index: {burstiness:.2f} — {'natural' if burstiness > 0.4 else 'systemic'} structural variance.",
-                f"Structural pattern score: {ai_likelihood:.2f} — {'minimal' if ai_likelihood < 0.4 else 'elevated'} procedural markers detected.",
-            ],
+            "findings": findings,
         }
 
     def _calculate_entropy(self, text: str) -> float:

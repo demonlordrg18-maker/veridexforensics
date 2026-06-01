@@ -82,3 +82,41 @@ def test_copyright_risk_increases_for_duplicate_proprietary_text() -> None:
     )
     assert report.classification == "proprietary"
     assert report.risk_score > 0.7
+
+
+def test_homoglyphs_detection() -> None:
+    text_with_homoglyph = "We h\u0430ve a special announcement for the team."
+    response = client.post("/audit/text", json={"content": text_with_homoglyph, "include_metadata": True})
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["origin"] == "ai"
+    assert payload["verity_index"] < 0.55
+    assert any("homoglyphs" in r for r in payload["reasons"])
+    assert any("homoglyphs" in f.lower() for f in payload["findings"])
+
+
+def test_invisible_chars_detection() -> None:
+    text_with_zwsp = "It is imp\u200bortant to follow instructions."
+    response = client.post("/audit/text", json={"content": text_with_zwsp, "include_metadata": True})
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["origin"] == "ai"
+    assert payload["verity_index"] < 0.55
+    assert any("invisible" in r or "zero-width" in r for r in payload["reasons"])
+    assert any("invisible" in f.lower() or "zero-width" in f.lower() for f in payload["findings"])
+
+
+def test_artificial_cadence_bimodal_detection() -> None:
+    text = (
+        "Short sentence one. "
+        "This is a very long sentence that has more than twenty words inside it to trigger the alternating short-long sentence cadence detection. "
+        "Short sentence two. "
+        "Here is another extremely long sentence containing multiple clauses and detailed descriptions to ensure we exceed the twenty word threshold. "
+        "Short sentence three. "
+        "And another long sentence that is structured specifically to alternate with the shorter sentences and trigger the cadence flags."
+    )
+    response = client.post("/audit/text", json={"content": text, "include_metadata": True})
+    assert response.status_code == 200
+    payload = response.json()
+    assert any("cadence" in r or "bimodal" in r for r in payload["reasons"])
+

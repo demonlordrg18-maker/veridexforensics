@@ -962,16 +962,22 @@ function Dashboard() {
             <h3 className="mb-8 text-xl font-bold">Verity Snapshot</h3>
             
             <div className="mb-10 flex flex-col items-center gap-2">
-              <div className="relative flex h-48 w-48 items-center justify-center rounded-full border-8 border-white/5">
-                <svg className="absolute h-full w-full rotate-[-90deg]">
-                  <circle
-                    cx="96" cy="96" r="88" fill="transparent"
-                    stroke="currentColor" strokeWidth="8"
-                    className="text-teal-500 transition-all duration-1000"
-                    strokeDasharray={552}
-                    strokeDashoffset={552 - (552 * (result?.verity_index || 0))}
-                    strokeLinecap="round"
-                  />
+              <div className="relative flex h-48 w-48 items-center justify-center rounded-full">
+                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 192 192">
+                  <g transform="rotate(-90 96 96)">
+                    <circle
+                      cx="96" cy="96" r="88" fill="transparent"
+                      stroke="rgba(255, 255, 255, 0.05)" strokeWidth="8"
+                    />
+                    <circle
+                      cx="96" cy="96" r="88" fill="transparent"
+                      stroke="currentColor" strokeWidth="8"
+                      className="text-teal-500 transition-all duration-1000"
+                      strokeDasharray={552}
+                      strokeDashoffset={552 - (552 * (result?.verity_index || 0))}
+                      strokeLinecap="round"
+                    />
+                  </g>
                 </svg>
                 <div className="text-center">
                   <p className="text-5xl font-black text-white">

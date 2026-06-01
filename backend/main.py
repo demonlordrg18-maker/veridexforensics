@@ -170,7 +170,7 @@ def _notify_lead_submission(lead: Lead, lead_id: str, created_at: str) -> None:
         if use_tls:
             smtp.starttls()
         if username:
-        smtp.login(username, password)
+            smtp.login(username, password)
         smtp.send_message(msg)
 
 
@@ -250,7 +250,7 @@ def _build_text_payload(content: str, include_metadata: bool = True) -> dict[str
     media_confidence = 0.5
     neutrality_score = bias["bias_scores"].get("neutral viewpoint", 0.5)
     verity = compute_verity_index(
-        origin_confidence=origin["confidence"],
+        origin_confidence=origin["truth_score"],
         bias_neutrality_score=neutrality_score,
         veracity_score=factuality["veracity_score"],
         media_confidence=media_confidence,
@@ -515,7 +515,7 @@ async def audit_audio(email: str | None = Query(default=None), file: UploadFile 
         transcript = forensic.get("transcript") or ""
         text_payload = _build_text_payload(transcript, include_metadata=True) if transcript else {}
         verity = compute_verity_index(
-            origin_confidence=text_payload.get("confidence", 0.5),
+            origin_confidence=text_payload.get("truth_score", 0.5),
             bias_neutrality_score=text_payload.get("bias_report", {}).get("bias_scores", {}).get("neutral viewpoint", 0.5),
             veracity_score=text_payload.get("factuality_report", {}).get("veracity_score", 0.5),
             media_confidence=0.55,

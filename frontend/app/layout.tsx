@@ -1,7 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Geist } from "next/font/google";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -13,6 +13,11 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-jetbrains-mono",
+});
+
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist-sans",
 });
 
 const bingVerification = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION;
@@ -87,7 +92,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const clarityId = process.env.NEXT_PUBLIC_CLARITY_ID;
 
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable} ${geist.variable}`}>
       <body className="antialiased">
         {gaId ? (
           <>

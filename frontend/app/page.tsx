@@ -4,68 +4,120 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { 
-  Shield, 
   Activity, 
   Database, 
   Lock, 
-  AlertTriangle, 
-  Gavel, 
   Clock, 
   ArrowRight, 
   ChevronDown, 
   Terminal, 
   Fingerprint, 
-  CheckCircle2, 
-  HelpCircle,
   Cpu,
-  Layers,
-  HardDrive
+  ShieldAlert,
+  Binary,
+  Check,
+  UserCheck
 } from "lucide-react";
 import { Navbar, Footer } from "../components/Navigation";
 import { useState, useEffect, useRef } from "react";
 
-// Mock data for scrolling ledger
-const INITIAL_LOGS = [
-  { time: "10:20:01", msg: "SYS_INIT // VERIDEX CORE ACTIVE" },
-  { time: "10:20:04", msg: "BLOCK_RESOLVED // HASH: 8f4e2c8a74c2e64259..." },
-  { time: "10:20:08", msg: "SPECTRAL_SCAN // AUDIO CHANNEL 01 - OK" },
-  { time: "10:20:12", msg: "ANOMALY_MONITOR // TRANSCRIPT SCANNED - 0 WARN" },
-  { time: "10:20:19", msg: "LEDGER_WRITE // REGISTERED PROOF #88910" },
-  { time: "10:20:25", msg: "BGV_PIPELINE // SECURE ENVELOPE INITIALIZED" },
-];
-
-const MOCK_MESSAGES = [
-  "DEEPFAKE_TRACE // FLUX RE-COMPRESSION DETECTED",
-  "SYS_INTEGRITY // EXIF METADATA VERIFIED",
-  "AUDIO_SYNTHESIS // PITCH FLUCTUATION OUT OF BOUNDS",
-  "LEDGER_WRITE // HASH REGISTERED: c3ab491f8021c3...",
-  "BLOCK_RESOLVED // REGISTERED PROOF #88911",
-  "ZKP_SCRUB // TRANSIENT STORAGE PURGED",
-  "BGV_FLOW // LATENCY MARKER: 240ms",
-  "FORENSIC_INDEX // VERITY RATING: 0.94",
-];
+// Mock data generator for ledger hashes
+const generateHash = () => {
+  const chars = "abcdef0123456789";
+  let hash1 = "";
+  let hash2 = "";
+  for (let i = 0; i < 12; i++) {
+    hash1 += chars[Math.floor(Math.random() * chars.length)];
+    hash2 += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return `${hash1}...${hash2}`;
+};
 
 export default function LandingPage() {
+  const [activeTab, setActiveTab] = useState<"spectral" | "biometric" | "ledger">("spectral");
+  const [spectralMode, setSpectralMode] = useState<"natural" | "synthetic">("natural");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [logs, setLogs] = useState(INITIAL_LOGS);
-  const logContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Real-time metrics
+  const [verityIndex, setVerityIndex] = useState(0.984);
+  const [spectralDev, setSpectralDev] = useState(0.02);
+  const [anomaliesDetected, setAnomaliesDetected] = useState(0);
+  
+  // Biometric status states
+  const [bioProgress, setBioProgress] = useState(0);
+  const [bioStatus, setBioStatus] = useState("ACQUIRING...");
+  
+  // Scrolling ledger logs
+  const [ledgerLogs, setLedgerLogs] = useState<Array<{ id: string; hash: string; status: string; timestamp: string }>>([]);
+  const ledgerEndRef = useRef<HTMLDivElement>(null);
 
-  // Dynamic log generator to simulate a scrolling SHA-256 ledger feed
+  // Initialize ledger items
   useEffect(() => {
-    const interval = setInterval(() => {
-      const time = new Date().toTimeString().split(" ")[0];
-      const randomMsg = MOCK_MESSAGES[Math.floor(Math.random() * MOCK_MESSAGES.length)];
-      setLogs((prev) => [...prev.slice(-15), { time, msg: randomMsg }]);
-    }, 3500);
-    return () => clearInterval(interval);
+    const initialLogs = Array.from({ length: 15 }).map((_, idx) => {
+      const date = new Date(Date.now() - (15 - idx) * 10000);
+      return {
+        id: `f${idx + 1}`,
+        hash: generateHash(),
+        status: "Registered",
+        timestamp: date.toISOString().replace("T", " ").substring(0, 19) + " UTC"
+      };
+    });
+    setLedgerLogs(initialLogs);
   }, []);
 
-  // Scroll to bottom of ledger terminal
+  // Live updates simulator
   useEffect(() => {
-    if (logContainerRef.current) {
-      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+    const interval = setInterval(() => {
+      // Dynamic updates for Spectral parameters
+      if (spectralMode === "natural") {
+        setVerityIndex(parseFloat((0.98 + Math.random() * 0.015).toFixed(3)));
+        setSpectralDev(parseFloat((0.01 + Math.random() * 0.02).toFixed(2)));
+        setAnomaliesDetected(0);
+      } else {
+        setVerityIndex(parseFloat((0.11 + Math.random() * 0.14).toFixed(3)));
+        setSpectralDev(parseFloat((84.2 + Math.random() * 10.5).toFixed(2)));
+        setAnomaliesDetected(Math.floor(Math.random() * 3) + 2);
+      }
+
+      // Dynamic updates for Ledger
+      const now = new Date();
+      setLedgerLogs(prev => [
+        ...prev.slice(1),
+        {
+          id: `f${Math.floor(Math.random() * 9) + 1}`,
+          hash: generateHash(),
+          status: "Registered",
+          timestamp: now.toISOString().replace("T", " ").substring(0, 19) + " UTC"
+        }
+      ]);
+
+      // Dynamic biometric scan simulation
+      setBioProgress(prev => {
+        if (prev >= 98) {
+          setBioStatus("PARTIAL MATCH");
+          return 98;
+        }
+        return prev + 14;
+      });
+
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [spectralMode]);
+
+  // Restart biometric simulation when tab switches
+  useEffect(() => {
+    if (activeTab === "biometric") {
+      setBioProgress(0);
+      setBioStatus("ACQUIRING...");
     }
-  }, [logs]);
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (ledgerEndRef.current) {
+      ledgerEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [ledgerLogs]);
 
   const faqs = [
     {
@@ -83,55 +135,66 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#050811] text-slate-100 selection:bg-amber-500 selection:text-black font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-obsidian text-slate-100 selection:bg-amber-signal selection:text-black font-sans overflow-x-hidden relative scanline-overlay">
       <Navbar />
 
-      {/* Parts 1-5. Hero Section (Above the fold - Split 60/40) */}
-      <section className="relative pt-32 pb-20 px-6 md:px-12 lg:pt-44 lg:pb-32 overflow-hidden border-b border-slate-900">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[800px] bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.03),transparent_70%)] -z-10" />
-        
-        {/* Decorative Grid Lines */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:40px_40px] opacity-20 -z-10" />
+      {/* Decorative vertical lines and technical grid */}
+      <div className="absolute inset-y-0 left-12 w-[1px] bg-slate-900/40 pointer-events-none" />
+      <div className="absolute inset-y-0 right-12 w-[1px] bg-slate-900/40 pointer-events-none" />
+      
+      {/* Background active grid overlay */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.01)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+      {/* Parts 1-5: Hero Section (Above the fold - Split 55/45) */}
+      <section className="relative pt-32 pb-20 px-6 md:px-12 lg:pt-44 lg:pb-32 overflow-hidden border-b border-deepslate">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.02),transparent_70%)] -z-10" />
+
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           
-          {/* Left Column - 60% Width */}
-          <div className="lg:col-span-7 flex flex-col items-start text-left space-y-8">
+          {/* Left Column - 55% Width */}
+          <div className="lg:col-span-7 flex flex-col items-start text-left space-y-8 relative z-20">
             
+            {/* Tagline Indicator */}
+            <div className="flex items-center gap-2 font-mono text-[9px] text-amber-signal uppercase tracking-[0.2em] border border-amber-signal/20 bg-[#0F172A] px-2.5 py-1">
+              <span className="h-1.5 w-1.5 rounded-none bg-amber-signal animate-pulse" />
+              Veridex Forensic Protocol v4.09
+            </div>
+
             {/* 1. Title/Headline */}
             <motion.h1 
-              initial={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-white leading-[1.08] font-sans"
+              transition={{ duration: 0.5 }}
+              className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-white leading-[1.05]"
             >
-              The Forensic Standard <br />
-              for <span className="text-gradient">Digital Trust.</span>
+              The Forensic <span className="font-mono font-normal tracking-wide text-amber-signal uppercase">[Standard]</span> <br />
+              for Digital Trust.
             </motion.h1>
 
             {/* 2. Subtitle */}
             <motion.p 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.15 }}
-              className="text-base sm:text-lg text-slate-400 leading-relaxed max-w-xl font-normal"
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="text-sm sm:text-base text-slate-400 leading-relaxed max-w-xl font-normal font-sans"
             >
               Eliminate Proxy Interview Fraud & Deepfake Risks. Decompose signals, verify document integrity, and register proof on an immutable ledger.
             </motion.p>
 
             {/* 3. Primary CTA */}
             <motion.div
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
               className="w-full sm:w-auto"
             >
               <Link 
                 href="/request-demo"
-                className="btn-primary inline-flex items-center justify-center gap-3 px-8 py-5 text-sm uppercase tracking-widest font-black transition-all hover:glow-amber-strong"
+                className="btn-switch-primary group px-8 py-4"
               >
+                <span className="led-indicator" />
                 <span>Request Forensic Walkthrough</span>
-                <ArrowRight size={16} />
+                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
               </Link>
             </motion.div>
 
@@ -139,133 +202,289 @@ export default function LandingPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.45 }}
-              className="pt-6 border-t border-slate-900 w-full"
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="pt-6 border-t border-deepslate w-full"
             >
-              <p className="mono text-xs uppercase tracking-widest text-slate-500 font-medium">
-                // <span className="text-amber-500 font-semibold">Trusted by 500+</span> OSINT Investigators & Leading Forensic Teams globally.
+              <p className="font-mono text-[9px] uppercase tracking-wider text-slate-500 font-medium">
+                // <span className="text-amber-signal font-semibold">Verification Node Active:</span> Trusted by 500+ OSINT Investigators & Leading Forensic Teams globally.
               </p>
             </motion.div>
           </div>
 
-          {/* Right Column - 40% Width - 5. Visual (Hero) */}
-          <div className="lg:col-span-5 w-full relative">
+          {/* Right Column - 45% Width - 5. Visual (Forensic Terminal) */}
+          <div className="lg:col-span-5 w-full relative z-20">
             <motion.div
-              initial={{ opacity: 0, scale: 0.97 }}
+              initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              transition={{ duration: 0.6 }}
               className="w-full text-left"
             >
-              {/* Defense-Grade Live Forensic Terminal */}
-              <div className="bg-[#0A0E17] border border-slate-800 shadow-2xl relative overflow-hidden glow-slate">
+              {/* Defense-Grade Forensic Terminal */}
+              <div className="terminal-panel border border-deepslate relative overflow-hidden">
                 
+                {/* Scan grid overlay inside terminal */}
+                <div className="absolute inset-0 bg-[#020617]/40 pointer-events-none z-0" />
+
                 {/* Terminal Header */}
-                <div className="px-4 py-3 bg-[#070A10] border-b border-slate-900 flex items-center justify-between">
+                <div className="px-4 py-3 bg-[#030712] border-b border-deepslate flex items-center justify-between relative z-10">
                   <div className="flex items-center gap-2">
-                    <Terminal size={14} className="text-amber-500" />
-                    <span className="mono text-[10px] font-bold text-slate-400 tracking-wider">LIVE FORENSIC MONITOR // VDX-889</span>
+                    <Terminal size={12} className="text-amber-signal" />
+                    <span className="font-mono text-[9px] font-bold text-slate-400 tracking-wider">VDX_SYS_MONITOR // TERMINAL_ACTIVE</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
-                    <span className="mono text-[8px] font-semibold text-amber-500 uppercase tracking-widest">ACTIVE_NODE</span>
+                    <span className="h-1.5 w-1.5 bg-verity-green shadow-[0_0_8px_#10B981] animate-pulse" />
+                    <span className="font-mono text-[8px] font-bold text-verity-green uppercase tracking-widest">LIVE_FEED</span>
                   </div>
                 </div>
 
-                {/* Dashboard Stats */}
-                <div className="grid grid-cols-3 divide-x divide-slate-900 border-b border-slate-900">
-                  <div className="p-3 text-center">
-                    <span className="mono block text-[8px] text-slate-500 uppercase tracking-widest">VERITY_INDEX</span>
-                    <span className="mono text-sm font-bold text-amber-500">0.984</span>
+                {/* Tactical Dashboard Stats */}
+                <div className="grid grid-cols-3 divide-x divide-deepslate border-b border-deepslate relative z-10">
+                  <div className="p-3 text-center bg-[#070b19]/30">
+                    <span className="font-mono block text-[8px] text-slate-500 uppercase tracking-widest">VERITY_INDEX</span>
+                    <span className={`font-mono text-xs font-bold transition-colors ${verityIndex > 0.8 ? 'text-verity-green' : 'text-red-500'}`}>
+                      {verityIndex}
+                    </span>
                   </div>
-                  <div className="p-3 text-center">
-                    <span className="mono block text-[8px] text-slate-500 uppercase tracking-widest">ANOMALIES</span>
-                    <span className="mono text-sm font-bold text-red-500">0</span>
+                  <div className="p-3 text-center bg-[#070b19]/30">
+                    <span className="font-mono block text-[8px] text-slate-500 uppercase tracking-widest">ANOMALIES</span>
+                    <span className={`font-mono text-xs font-bold transition-colors ${anomaliesDetected > 0 ? 'text-amber-signal' : 'text-slate-400'}`}>
+                      {anomaliesDetected}
+                    </span>
                   </div>
-                  <div className="p-3 text-center">
-                    <span className="mono block text-[8px] text-slate-500 uppercase tracking-widest">SPECTRAL_DEV</span>
-                    <span className="mono text-sm font-bold text-slate-300">0.02%</span>
-                  </div>
-                </div>
-
-                {/* Animated Waveform Display */}
-                <div className="p-4 bg-black/40 border-b border-slate-900 relative">
-                  <div className="absolute inset-0 bg-[linear-gradient(rgba(245,158,11,0.01)_1px,transparent_1px)] bg-[size:100%_8px] -z-10" />
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="mono text-[8px] text-slate-500 uppercase tracking-widest">SIGNAL SPECTROGRAM</span>
-                    <span className="mono text-[7px] text-amber-500/70 uppercase">FREQ_RESPONSE: 20Hz - 22kHz</span>
-                  </div>
-                  
-                  {/* SVG Waveforms with Framer Motion animations */}
-                  <div className="h-24 w-full flex items-center justify-center overflow-hidden">
-                    <svg className="w-full h-full" viewBox="0 0 400 100" preserveAspectRatio="none">
-                      {/* Grid overlay */}
-                      <line x1="0" y1="50" x2="400" y2="50" stroke="#0F172A" strokeWidth="1" strokeDasharray="4 4" />
-                      <line x1="100" y1="0" x2="100" y2="100" stroke="#0F172A" strokeWidth="1" strokeDasharray="4 4" />
-                      <line x1="200" y1="0" x2="200" y2="100" stroke="#0F172A" strokeWidth="1" strokeDasharray="4 4" />
-                      <line x1="300" y1="0" x2="300" y2="100" stroke="#0F172A" strokeWidth="1" strokeDasharray="4 4" />
-                      
-                      {/* Animated Path 1 (Low Frequency - Amber) */}
-                      <motion.path
-                        d="M0,50 Q40,10 80,50 T160,50 T240,50 T320,50 T400,50"
-                        fill="none"
-                        stroke="#F59E0B"
-                        strokeWidth="1.5"
-                        opacity="0.8"
-                        animate={{
-                          d: [
-                            "M0,50 Q40,10 80,50 T160,50 T240,50 T320,50 T400,50",
-                            "M0,50 Q40,80 80,50 T160,50 T240,10 T320,80 T400,50",
-                            "M0,50 Q40,10 80,50 T160,50 T240,50 T320,50 T400,50"
-                          ]
-                        }}
-                        transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                      />
-
-                      {/* Animated Path 2 (High Frequency Noise - Slate Muted) */}
-                      <motion.path
-                        d="M0,50 Q20,30 40,50 T80,50 T120,30 T160,50 T200,60 T240,50 T280,30 T320,50 T360,65 T400,50"
-                        fill="none"
-                        stroke="#475569"
-                        strokeWidth="1"
-                        opacity="0.5"
-                        animate={{
-                          d: [
-                            "M0,50 Q20,30 40,50 T80,50 T120,30 T160,50 T200,60 T240,50 T280,30 T320,50 T360,65 T400,50",
-                            "M0,50 Q20,60 40,50 T80,30 T120,60 T160,50 T200,40 T240,50 T280,65 T320,50 T360,30 T400,50",
-                            "M0,50 Q20,30 40,50 T80,50 T120,30 T160,50 T200,60 T240,50 T280,30 T320,50 T360,65 T400,50"
-                          ]
-                        }}
-                        transition={{ repeat: Infinity, duration: 2.5, ease: "linear" }}
-                      />
-                    </svg>
+                  <div className="p-3 text-center bg-[#070b19]/30">
+                    <span className="font-mono block text-[8px] text-slate-500 uppercase tracking-widest">SPECTRAL_DEV</span>
+                    <span className="font-mono text-xs font-bold text-slate-300">
+                      {spectralDev}%
+                    </span>
                   </div>
                 </div>
 
-                {/* scrolling SHA-256 ledger feed */}
-                <div className="p-4 bg-black/80">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="mono text-[8px] text-slate-500 uppercase tracking-widest">LEDGER CHAIN-OF-CUSTODY (SHA-256)</span>
-                    <span className="mono text-[7px] text-amber-500/80">SECURE LOGS</span>
-                  </div>
-                  
-                  <div 
-                    ref={logContainerRef}
-                    className="h-32 overflow-y-auto space-y-1.5 pr-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent text-left"
+                {/* Tab select buttons styled like physical toggles */}
+                <div className="flex bg-[#030712] border-b border-deepslate font-mono text-[8px] relative z-10">
+                  <button 
+                    onClick={() => setActiveTab("spectral")}
+                    className={`flex-1 py-2 px-3 flex items-center justify-center gap-1.5 border-r border-deepslate transition-all ${activeTab === "spectral" ? "bg-[#070b19] text-amber-signal" : "text-slate-500 hover:text-slate-300"}`}
                   >
-                    <AnimatePresence initial={false}>
-                      {logs.map((log, index) => (
-                        <motion.div 
-                          key={index + "-" + log.time}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          className="mono text-[9px] flex gap-2"
-                        >
-                          <span className="text-slate-600 font-semibold">[{log.time}]</span>
-                          <span className="text-slate-300">{log.msg}</span>
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-                  </div>
+                    <span className={`h-1.5 w-1.5 rounded-none transition-all ${activeTab === "spectral" ? "bg-amber-signal shadow-[0_0_6px_#F59E0B]" : "bg-slate-700"}`} />
+                    [SPECTRAL_DECOMP]
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab("biometric")}
+                    className={`flex-1 py-2 px-3 flex items-center justify-center gap-1.5 border-r border-deepslate transition-all ${activeTab === "biometric" ? "bg-[#070b19] text-amber-signal" : "text-slate-500 hover:text-slate-300"}`}
+                  >
+                    <span className={`h-1.5 w-1.5 rounded-none transition-all ${activeTab === "biometric" ? "bg-amber-signal shadow-[0_0_6px_#F59E0B]" : "bg-slate-700"}`} />
+                    [BIOMETRICS]
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab("ledger")}
+                    className={`flex-1 py-2 px-3 flex items-center justify-center gap-1.5 transition-all ${activeTab === "ledger" ? "bg-[#070b19] text-amber-signal" : "text-slate-500 hover:text-slate-300"}`}
+                  >
+                    <span className={`h-1.5 w-1.5 rounded-none transition-all ${activeTab === "ledger" ? "bg-amber-signal shadow-[0_0_6px_#F59E0B]" : "bg-slate-700"}`} />
+                    [LEDGER_LOG]
+                  </button>
+                </div>
+
+                {/* Dashboard Screen */}
+                <div className="p-4 bg-black/40 min-h-[220px] relative z-10 flex flex-col justify-between">
+                  
+                  {/* Tab 1: Spectral Signal Decomposition */}
+                  {activeTab === "spectral" && (
+                    <div className="space-y-4 flex-1 flex flex-col justify-between">
+                      <div className="flex justify-between items-center">
+                        <div className="font-mono text-[8px] text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                          <Activity size={10} className="text-amber-signal" />
+                          SPECTRAL ANALYSIS: BATCH ID 739
+                        </div>
+                        <span className="font-mono text-[7px] text-slate-400">File: Evidence_Item_1A_Audio.flac</span>
+                      </div>
+
+                      {/* Waveform & Spectrogram Box */}
+                      <div className="relative h-28 w-full border border-slate-900 bg-black/80 flex flex-col justify-center overflow-hidden">
+                        {/* Vertical Laser Scanline */}
+                        <div className="laser-scanner" />
+                        
+                        {/* Audio Waveforms */}
+                        <svg className="w-full h-full absolute inset-0 opacity-80" viewBox="0 0 400 100" preserveAspectRatio="none">
+                          <line x1="0" y1="50" x2="400" y2="50" stroke="#0F172A" strokeWidth="1" strokeDasharray="3 3" />
+                          <line x1="100" y1="0" x2="100" y2="100" stroke="#0F172A" strokeWidth="1" strokeDasharray="3 3" />
+                          <line x1="200" y1="0" x2="200" y2="100" stroke="#0F172A" strokeWidth="1" strokeDasharray="3 3" />
+                          <line x1="300" y1="0" x2="300" y2="100" stroke="#0F172A" strokeWidth="1" strokeDasharray="3 3" />
+                          
+                          {spectralMode === "natural" ? (
+                            // Natural voice wave signature (Smooth Green Waves)
+                            <motion.path
+                              d="M0,50 Q20,30 40,55 T80,45 T120,60 T160,40 T200,55 T240,42 T280,58 T320,45 T360,55 T400,50"
+                              fill="none"
+                              stroke="#10B981"
+                              strokeWidth="1.5"
+                              animate={{
+                                d: [
+                                  "M0,50 Q20,30 40,55 T80,45 T120,60 T160,40 T200,55 T240,42 T280,58 T320,45 T360,55 T400,50",
+                                  "M0,50 Q20,65 40,40 T80,58 T120,40 T160,60 T200,45 T240,58 T280,40 T320,55 T360,45 T400,50",
+                                  "M0,50 Q20,30 40,55 T80,45 T120,60 T160,40 T200,55 T240,42 T280,58 T320,45 T360,55 T400,50"
+                                ]
+                              }}
+                              transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                            />
+                          ) : (
+                            // Synthetic Voice wave signature (Fractured/Jagged Red Waves - Voxel like)
+                            <motion.path
+                              d="M0,50 L20,50 L20,20 L40,20 L40,80 L60,80 L60,30 L80,30 L80,70 L100,70 L100,40 L120,40 L120,65 L140,65 L140,35 L160,35 L160,60 L180,60 L180,50 L200,50 L200,25 L220,25 L220,75 L240,75 L240,30 L260,30 L260,68 L280,68 L280,45 L300,45 L300,55 L320,55 L320,30 L340,30 L340,70 L360,70 L360,50 L400,50"
+                              fill="none"
+                              stroke="#EF4444"
+                              strokeWidth="1.5"
+                              animate={{
+                                d: [
+                                  "M0,50 L20,50 L20,20 L40,20 L40,80 L60,80 L60,30 L80,30 L80,70 L100,70 L100,40 L120,40 L120,65 L140,65 L140,35 L160,35 L160,60 L180,60 L180,50 L200,50 L200,25 L220,25 L220,75 L240,75 L240,30 L260,30 L260,68 L280,68 L280,45 L300,45 L300,55 L320,55 L320,30 L340,30 L340,70 L360,70 L360,50 L400,50",
+                                  "M0,50 L20,50 L20,75 L40,75 L40,30 L60,30 L60,80 L80,80 L80,25 L100,25 L100,60 L120,60 L120,40 L140,40 L140,70 L160,70 L160,35 L180,35 L180,50 L200,50 L200,65 L220,65 L220,20 L240,20 L240,75 L260,75 L260,30 L280,30 L280,60 L300,60 L300,45 L320,45 L320,65 L340,65 L340,30 L360,30 L360,50 L400,50",
+                                  "M0,50 L20,50 L20,20 L40,20 L40,80 L60,80 L60,30 L80,30 L80,70 L100,70 L100,40 L120,40 L120,65 L140,65 L140,35 L160,35 L160,60 L180,60 L180,50 L200,50 L200,25 L220,25 L220,75 L240,75 L240,30 L260,30 L260,68 L280,68 L280,45 L300,45 L300,55 L320,55 L320,30 L340,30 L340,70 L360,70 L360,50 L400,50"
+                                ]
+                              }}
+                              transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                            />
+                          )}
+                        </svg>
+
+                        {/* Interactive HUD labels */}
+                        {spectralMode === "synthetic" && (
+                          <div className="absolute top-2 right-2 bg-red-950/60 border border-red-500/30 px-2 py-0.5 font-mono text-[7px] text-red-400 uppercase tracking-widest animate-pulse">
+                            ANOMALY DETECTED (12.4kHz)
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Active Mode switch triggers */}
+                      <div className="flex justify-between items-center pt-2 border-t border-slate-900">
+                        <span className="font-mono text-[8px] text-slate-500">TOGGLE COMPILATION MODULE</span>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setSpectralMode("natural")}
+                            className={`px-3 py-1 font-mono text-[8px] uppercase tracking-wider transition-all border ${
+                              spectralMode === "natural"
+                                ? "bg-verity-green/10 border-verity-green text-verity-green shadow-[0_0_8px_rgba(16,185,129,0.2)]"
+                                : "bg-transparent border-slate-800 text-slate-500 hover:text-slate-400"
+                            }`}
+                          >
+                            Natural Signature
+                          </button>
+                          <button
+                            onClick={() => setSpectralMode("synthetic")}
+                            className={`px-3 py-1 font-mono text-[8px] uppercase tracking-wider transition-all border ${
+                              spectralMode === "synthetic"
+                                ? "bg-red-500/10 border-red-500 text-red-400 shadow-[0_0_8px_rgba(239,68,68,0.2)]"
+                                : "bg-transparent border-slate-800 text-slate-500 hover:text-slate-400"
+                            }`}
+                          >
+                            Synthetic Clone
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tab 2: Biometric Identity Manifest */}
+                  {activeTab === "biometric" && (
+                    <div className="space-y-4 flex-1 flex flex-col justify-between">
+                      <div className="flex justify-between items-center">
+                        <div className="font-mono text-[8px] text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                          <Fingerprint size={10} className="text-amber-signal" />
+                          IDENTITY MANIFEST: AUDIT_ACTIVE
+                        </div>
+                        <span className="font-mono text-[7px] text-slate-400">Subject: UNKNOWN // TARGET-READ</span>
+                      </div>
+
+                      {/* Biometric Scanning Panel */}
+                      <div className="grid grid-cols-12 gap-4 items-center py-1">
+                        
+                        {/* Facial scan geometry overlay */}
+                        <div className="col-span-4 relative h-20 border border-slate-900 bg-black/60 flex items-center justify-center overflow-hidden">
+                          <div className="absolute inset-x-0 h-[1px] bg-amber-signal shadow-[0_0_5px_#F59E0B] animate-bounce" />
+                          {/* Face contour simulation svg */}
+                          <svg className="w-12 h-12 text-slate-600 opacity-60" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1">
+                            <path d="M50,15 C30,15 20,30 20,50 C20,70 30,85 50,85 C70,85 80,70 80,50 C80,30 70,15 50,15 Z" />
+                            <path d="M35,45 C40,45 42,40 42,40 C42,40 44,45 49,45" />
+                            <path d="M65,45 C60,45 58,40 58,40 C58,40 56,45 51,45" />
+                            <path d="M45,65 C48,68 52,68 55,65" />
+                            <line x1="50" y1="15" x2="50" y2="85" strokeWidth="0.5" strokeDasharray="2 2" />
+                            <line x1="20" y1="50" x2="80" y2="50" strokeWidth="0.5" strokeDasharray="2 2" />
+                          </svg>
+                        </div>
+
+                        {/* Scan metrics */}
+                        <div className="col-span-8 space-y-1.5 text-left font-mono text-[8px]">
+                          <div className="flex justify-between border-b border-slate-900 pb-1">
+                            <span className="text-slate-500">FACIAL GEOMETRY:</span>
+                            <span className="text-slate-200">{bioProgress}% ACQUISITION</span>
+                          </div>
+                          <div className="flex justify-between border-b border-slate-900 pb-1">
+                            <span className="text-slate-500">IRIS PATTERN:</span>
+                            <span className="text-amber-signal font-semibold">WAITING</span>
+                          </div>
+                          <div className="flex justify-between border-b border-slate-900 pb-1">
+                            <span className="text-slate-500">ACOUSTIC MATCH:</span>
+                            <span className="text-amber-signal font-semibold">12% (SIGNAL AMBER GLOWING)</span>
+                          </div>
+                          <div className="flex justify-between pb-0.5">
+                            <span className="text-slate-500">SYNTHETIC MARKER:</span>
+                            <span className="text-amber-signal font-semibold">HIGH (SIGNAL AMBER GLOWING)</span>
+                          </div>
+                        </div>
+
+                      </div>
+
+                      {/* Overall biometric analysis status */}
+                      <div className="pt-2 border-t border-slate-900 flex justify-between items-center">
+                        <span className="font-mono text-[8px] text-slate-500">BIOMETRIC ANALYSIS STATUS</span>
+                        <span className={`font-mono text-[9px] font-black px-2 py-0.5 border ${
+                          bioStatus === "PARTIAL MATCH"
+                            ? "bg-amber-signal/10 border-amber-signal text-amber-signal animate-pulse"
+                            : "bg-slate-950 border-slate-800 text-slate-400"
+                        }`}>
+                          {bioStatus}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tab 3: Ledger Provenance log registry */}
+                  {activeTab === "ledger" && (
+                    <div className="space-y-4 flex-1 flex flex-col justify-between">
+                      <div className="flex justify-between items-center">
+                        <div className="font-mono text-[8px] text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                          <Database size={10} className="text-amber-signal" />
+                          LEDGER CHAIN-OF-CUSTODY (SHA-256)
+                        </div>
+                        <span className="font-mono text-[7px] text-verity-green">STATUS: IMMUTABLE_BLOCK_TRUE</span>
+                      </div>
+
+                      {/* Scrolling log container */}
+                      <div className="h-28 overflow-y-auto border border-slate-900/60 bg-black/80 p-2 font-mono text-[8px] space-y-1.5 custom-scrollbar text-left">
+                        {ledgerLogs.map((log, index) => (
+                          <div key={index} className="flex items-center justify-between opacity-80 hover:opacity-100 hover:bg-slate-900/20 px-1 py-0.5">
+                            <div className="flex gap-2 text-slate-400">
+                              <span className="text-slate-600 font-bold">{log.id}...</span>
+                              <span className="text-slate-300 font-medium">{log.hash}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[7px] text-slate-500 font-normal">{log.timestamp}</span>
+                              <span className="text-[7px] text-verity-green font-semibold flex items-center gap-0.5 bg-verity-green/5 border border-verity-green/20 px-1">
+                                <Check size={8} />
+                                REG
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                        <div ref={ledgerEndRef} />
+                      </div>
+
+                      {/* Block validator info */}
+                      <div className="pt-2 border-t border-slate-900 flex justify-between items-center text-slate-500 font-mono text-[8px]">
+                        <span>VALIDATION PROOF: COURT_ADMISSIBLE</span>
+                        <span>HASH_PIPELINE: SHA-256</span>
+                      </div>
+                    </div>
+                  )}
+
                 </div>
               </div>
             </motion.div>
@@ -274,96 +493,108 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 6. Features & Objections Section (Below the fold) */}
-      <section className="py-24 px-6 md:px-12 bg-[#02050b] border-b border-slate-900">
-        <div className="max-w-7xl mx-auto">
+      {/* 6. Features & Objections Section (4-Card Grid) */}
+      <section className="py-24 px-6 md:px-12 bg-[#02050b] border-b border-deepslate">
+        <div className="max-w-7xl mx-auto space-y-16">
           
-          <div className="mb-16 text-center md:text-left">
-            <span className="mono text-[10px] font-bold text-amber-500 uppercase tracking-[0.3em] block mb-3">// RIGOROUS SCANNERS</span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-white">Forensic Features & Objection Handling</h2>
-            <p className="text-slate-400 mt-2 max-w-xl">Deep audits built with mathematical boundaries to secure trust under strict investigations.</p>
+          <div className="text-center md:text-left space-y-4">
+            <span className="font-mono text-[9px] font-bold text-amber-signal uppercase tracking-[0.3em] block">// INVESTIGATIVE SCANNERS</span>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Forensic Auditing & Verification Engines</h2>
+            <p className="text-slate-400 text-sm max-w-xl">Robust verification pipelines built to establish mathematical proof under strict legal examinations.</p>
           </div>
 
-          {/* 4-card grid using 1px Hard Borders */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-slate-900 border border-slate-900">
+          {/* 4-card grid using 1px Hard Borders, no rounded corners, and glows */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-deepslate border border-deepslate shadow-[0_0_30px_rgba(0,0,0,0.3)]">
             
-            {/* Card 1 - Feature */}
-            <div className="bg-[#050811] p-8 md:p-10 space-y-6 flex flex-col justify-between hover:bg-slate-900/40 transition-colors">
+            {/* Card 1: Signal Decomposition */}
+            <div className="bg-obsidian p-8 md:p-10 space-y-6 flex flex-col justify-between hover:bg-deepslate/30 transition-all border-hard-slate hover:border-hard-amber">
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-6 w-6 rounded-none border border-amber-500/20 bg-amber-500/5 flex items-center justify-center">
-                    <Activity size={12} className="text-amber-500" />
+                  <div className="h-6 w-6 border border-amber-signal/20 bg-amber-signal/5 flex items-center justify-center rounded-none shadow-[0_0_6px_rgba(245,158,11,0.05)]">
+                    <Activity size={12} className="text-amber-signal" />
                   </div>
-                  <span className="mono text-[9px] font-bold text-amber-500 uppercase tracking-widest">SYSTEM FEATURE // SPECTRAL</span>
+                  <span className="font-mono text-[9px] font-bold text-amber-signal uppercase tracking-widest">DETECTION // AUDIO_VOICE</span>
                 </div>
-                <h3 className="text-xl font-bold text-white tracking-tight">Signal Decomposition</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">
-                  Decompose incoming audio signals to identify synthetic voice clones and artificial patterns. Detect audio artifacts, spectral anomalies, and generated acoustic fingerprints that bypass standard human perception.
+                <h3 className="text-lg font-bold text-white tracking-tight">Signal Decomposition</h3>
+                <p className="text-xs text-slate-400 leading-relaxed font-sans">
+                  Decompose voice signatures down to primary acoustic signals to isolate and expose voice clones, synthesizers, and vocoder remnants. Expose sub-perceptual patterns that bypass traditional biometric authentication.
                 </p>
               </div>
-              <div className="pt-6 border-t border-slate-900/50 flex justify-between items-center text-[10px] text-slate-500 mono">
-                <span>PARAM: SCAN_RATE_96KHZ</span>
-                <span className="text-slate-600">STATE: VERIFIED</span>
+              <div className="pt-6 border-t border-slate-900/60 flex justify-between items-center text-[9px] text-slate-500 font-mono">
+                <span>SAMPLE: 96KHZ / 24BIT</span>
+                <span className="text-verity-green flex items-center gap-1 font-semibold">
+                  <span className="h-1 w-1 bg-verity-green rounded-none" />
+                  VERIFIED
+                </span>
               </div>
             </div>
 
-            {/* Card 2 - Objection Handling */}
-            <div className="bg-[#050811] p-8 md:p-10 space-y-6 flex flex-col justify-between hover:bg-slate-900/40 transition-colors">
+            {/* Card 2: Zero-Storage Privacy */}
+            <div className="bg-obsidian p-8 md:p-10 space-y-6 flex flex-col justify-between hover:bg-deepslate/30 transition-all border-hard-slate hover:border-hard-amber">
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-6 w-6 rounded-none border border-slate-800 bg-slate-950 flex items-center justify-center">
+                  <div className="h-6 w-6 border border-slate-800 bg-slate-950 flex items-center justify-center rounded-none">
                     <Lock size={12} className="text-slate-400" />
                   </div>
-                  <span className="mono text-[9px] font-bold text-slate-400 uppercase tracking-widest">SECURITY PROTOCOL // ZERO_TRUST</span>
+                  <span className="font-mono text-[9px] font-bold text-slate-400 uppercase tracking-widest">PRIVACY PROTOCOL // SECURE</span>
                 </div>
-                <h3 className="text-xl font-bold text-white tracking-tight">Zero-Knowledge Privacy</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">
-                  Concerned about data leakage? Veridex implements strict secure, in-memory processing with zero local file storage. All payloads are processed inside volatile secure memory cells and instantly wiped post-scan.
+                <h3 className="text-lg font-bold text-white tracking-tight">Zero-Storage Privacy</h3>
+                <p className="text-xs text-slate-400 leading-relaxed font-sans">
+                  All digital signals are processed volatilely in secure, transient memory chambers. We enforce a zero-storage protocol: no documents, signatures, or metadata payloads ever touch local persistent filesystems. Post-scan, RAM segments are immediately wiped.
                 </p>
               </div>
-              <div className="pt-6 border-t border-slate-900/50 flex justify-between items-center text-[10px] text-slate-500 mono">
-                <span>RETENTION: 0.00ms</span>
-                <span className="text-slate-600">STATE: ENCRYPTED</span>
+              <div className="pt-6 border-t border-slate-900/60 flex justify-between items-center text-[9px] text-slate-500 font-mono">
+                <span>STORAGE_RETENTION: 0.00ms</span>
+                <span className="text-slate-400 flex items-center gap-1 font-semibold">
+                  <span className="h-1 w-1 bg-slate-400 rounded-none" />
+                  ENCRYPTED
+                </span>
               </div>
             </div>
 
-            {/* Card 3 - Feature */}
-            <div className="bg-[#050811] p-8 md:p-10 space-y-6 flex flex-col justify-between hover:bg-slate-900/40 transition-colors">
+            {/* Card 3: Ledger Provenance */}
+            <div className="bg-obsidian p-8 md:p-10 space-y-6 flex flex-col justify-between hover:bg-deepslate/30 transition-all border-hard-slate hover:border-hard-amber">
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-6 w-6 rounded-none border border-amber-500/20 bg-amber-500/5 flex items-center justify-center">
-                    <Database size={12} className="text-amber-500" />
+                  <div className="h-6 w-6 border border-amber-signal/20 bg-amber-signal/5 flex items-center justify-center rounded-none">
+                    <Database size={12} className="text-amber-signal" />
                   </div>
-                  <span className="mono text-[9px] font-bold text-amber-500 uppercase tracking-widest">PROVENANCE RECORD // LEDGER</span>
+                  <span className="font-mono text-[9px] font-bold text-amber-signal uppercase tracking-widest">COURT_COMPLIANCE // LEDGER</span>
                 </div>
-                <h3 className="text-xl font-bold text-white tracking-tight">Ledger Provenance</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">
-                  Establish an airtight chain-of-custody. Every completed audit registers an immutable cryptographic SHA-256 proof to a distributed ledger. Providing verification hashes that guarantee reports are untampered.
+                <h3 className="text-lg font-bold text-white tracking-tight">Ledger Provenance</h3>
+                <p className="text-xs text-slate-400 leading-relaxed font-sans">
+                  Register a cryptographically verifiable proof of digital assets. Every finished audit appends a SHA-256 hash stamp to an immutable, decentralized ledger. Secure a courtroom-admissible, tamper-evident chain of custody.
                 </p>
               </div>
-              <div className="pt-6 border-t border-slate-900/50 flex justify-between items-center text-[10px] text-slate-500 mono">
+              <div className="pt-6 border-t border-slate-900/60 flex justify-between items-center text-[9px] text-slate-500 font-mono">
                 <span>HASHING: SHA-256</span>
-                <span className="text-slate-600">STATE: MUTABLE_BLOCK_FALSE</span>
+                <span className="text-verity-green flex items-center gap-1 font-semibold">
+                  <span className="h-1 w-1 bg-verity-green rounded-none" />
+                  IMMUTABLE
+                </span>
               </div>
             </div>
 
-            {/* Card 4 - Objection Handling */}
-            <div className="bg-[#050811] p-8 md:p-10 space-y-6 flex flex-col justify-between hover:bg-slate-900/40 transition-colors">
+            {/* Card 4: Rapid BGV Audit */}
+            <div className="bg-obsidian p-8 md:p-10 space-y-6 flex flex-col justify-between hover:bg-deepslate/30 transition-all border-hard-slate hover:border-hard-amber">
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-6 w-6 rounded-none border border-slate-800 bg-slate-950 flex items-center justify-center">
+                  <div className="h-6 w-6 border border-slate-800 bg-slate-950 flex items-center justify-center rounded-none">
                     <Clock size={12} className="text-slate-400" />
                   </div>
-                  <span className="mono text-[9px] font-bold text-slate-400 uppercase tracking-widest">OPERATIONS // SCALABILITY</span>
+                  <span className="font-mono text-[9px] font-bold text-slate-400 uppercase tracking-widest">OPERATIONS // TURNAROUND</span>
                 </div>
-                <h3 className="text-xl font-bold text-white tracking-tight">Rapid Turnaround</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">
-                  Need to audit hundreds of media claims daily? Our parallelized computing nodes ensure a 4-minute average turnaround for high-volume background verification (BGV) and candidate checks, without sacrificing accuracy.
+                <h3 className="text-lg font-bold text-white tracking-tight">Rapid BGV Audit</h3>
+                <p className="text-xs text-slate-400 leading-relaxed font-sans">
+                  Audit high-volume applicant pipelines with speed. The Veridex distributed parallel processing network delivers a 4-minute average turnaround for comprehensive identity and voice verification checkouts.
                 </p>
               </div>
-              <div className="pt-6 border-t border-slate-900/50 flex justify-between items-center text-[10px] text-slate-500 mono">
-                <span>LATENCY: &lt; 240s</span>
-                <span className="text-slate-600">STATE: PIPELINE_AUTO</span>
+              <div className="pt-6 border-t border-slate-900/60 flex justify-between items-center text-[9px] text-slate-500 font-mono">
+                <span>LATENCY: &lt; 240.0s</span>
+                <span className="text-verity-green flex items-center gap-1 font-semibold">
+                  <span className="h-1 w-1 bg-verity-green rounded-none" />
+                  AUTOMATED
+                </span>
               </div>
             </div>
 
@@ -372,43 +603,44 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 7. More Social Proof Section */}
-      <section className="py-24 px-6 md:px-12 bg-[#050811] border-b border-slate-900">
+      {/* 7. More Social Proof: Logo Wall + Testimonial */}
+      <section className="py-24 px-6 md:px-12 bg-obsidian border-b border-deepslate">
         <div className="max-w-7xl mx-auto space-y-20">
           
-          {/* Industry Partner Logos */}
+          {/* Partners Wall */}
           <div className="space-y-8 text-center">
-            <span className="mono text-[9px] font-bold text-slate-500 uppercase tracking-[0.4em] block">// INTEGRATED INVESTIGATIONS DESKS</span>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-              {["OSINT_NETWORK", "LEX_FORENSIC", "AP_EVIDENTIARY", "DEFENSE_MEDIA_LABS"].map((partner) => (
+            <span className="font-mono text-[9px] font-bold text-slate-500 uppercase tracking-[0.3em] block">// INTEGRATED OSINT DESKS</span>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+              {["OSINT_NETWORK", "LEX_FORENSICS", "DEPT_EVIDENTIARY", "DEFENSE_MEDIA_LABS"].map((partner) => (
                 <div 
                   key={partner}
-                  className="py-4 px-6 bg-[#070A10] border border-slate-900 hover:border-slate-800 transition-colors flex items-center justify-center"
+                  className="py-4 px-6 bg-[#030712] border border-deepslate flex items-center justify-center hover:border-slate-800 transition-colors"
                 >
-                  <span className="mono text-[10px] font-bold text-slate-500 tracking-widest">[{partner}]</span>
+                  <span className="font-mono text-[9px] font-bold text-slate-500 tracking-widest">[{partner}]</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Prominent Testimonial */}
+          {/* Testimonial */}
           <div className="max-w-4xl mx-auto">
-            <div className="bg-[#0A0E17] border border-slate-800 p-8 md:p-12 relative glow-slate text-left">
-              <div className="absolute top-0 right-0 p-6 opacity-[0.03]">
-                <Fingerprint size={120} className="text-white" />
+            <div className="bg-[#030712] border border-deepslate p-8 md:p-12 relative text-left">
+              {/* Subtle tech grid background watermark */}
+              <div className="absolute top-0 right-0 p-6 opacity-[0.03] pointer-events-none select-none">
+                <Binary size={120} className="text-white" />
               </div>
-              <div className="space-y-6">
-                <span className="mono text-[9px] font-bold text-amber-500 uppercase tracking-[0.2em] block">// FIELD VALIDATION REPORT</span>
-                <p className="text-lg md:text-xl text-slate-200 leading-relaxed font-normal italic">
-                  "Veridex has fundamentally altered our evidentiary pipeline. The ledger-based provenance logs and spectral signal decomposition provide our examiners with a scientific standard of verification that holds up under the most demanding OSINT and discovery requirements."
+              <div className="space-y-6 relative z-10">
+                <span className="font-mono text-[9px] font-bold text-amber-signal uppercase tracking-[0.2em] block">// FIELD VALIDATION DATA</span>
+                <p className="text-lg md:text-xl text-slate-200 leading-relaxed italic font-normal">
+                  "Veridex has fundamentally altered our digital media pipeline. The ledger-based provenance logs and spectral signal decomposition provide our examiners with a scientific standard of verification that holds up under the most demanding OSINT and discovery requirements."
                 </p>
-                <div className="pt-6 border-t border-slate-900 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="pt-6 border-t border-deepslate flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
-                    <h4 className="font-bold text-white text-sm">Digital Evidence Consortium</h4>
-                    <span className="mono text-[9px] text-slate-500 uppercase tracking-wider">BOARD OF FORENSIC DIRECTORS // OSINT SPECIALIZATION</span>
+                    <h4 className="font-mono text-xs font-bold text-white">DIGITAL EVIDENCE CONSORTIUM</h4>
+                    <span className="font-mono text-[8px] text-slate-500 uppercase tracking-wider block mt-0.5">BOARD OF FORENSIC DIRECTORS // AUDIT BRANCH</span>
                   </div>
-                  <span className="mono text-[9px] text-amber-500 font-bold px-3 py-1.5 border border-amber-500/20 bg-amber-500/5">
-                    RATING: GRADE_A_COMPLIANT
+                  <span className="font-mono text-[9px] text-amber-signal font-bold px-3 py-1 bg-amber-signal/5 border border-amber-signal/20">
+                    GRADE_A_COMPLIANT
                   </span>
                 </div>
               </div>
@@ -418,47 +650,47 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 8. FAQ Section */}
-      <section className="py-24 px-6 md:px-12 bg-[#02050b] border-b border-slate-900">
-        <div className="max-w-3xl mx-auto">
+      {/* 8. FAQ Accordion */}
+      <section className="py-24 px-6 md:px-12 bg-[#02050b] border-b border-deepslate">
+        <div className="max-w-3xl mx-auto space-y-16">
           
-          <div className="text-center mb-16">
-            <span className="mono text-[10px] font-bold text-amber-500 uppercase tracking-[0.3em] block mb-3">// FAQ SYSTEM</span>
-            <h2 className="text-3xl font-extrabold text-white">Verification Intel</h2>
-            <p className="text-slate-400 mt-2">Find critical answers regarding our verification scoring pipelines and integrations.</p>
+          <div className="text-center space-y-4">
+            <span className="font-mono text-[9px] font-bold text-amber-signal uppercase tracking-[0.3em] block">// VALIDATION FAQ</span>
+            <h2 className="text-3xl font-extrabold text-white tracking-tight">System FAQ & Methodology</h2>
+            <p className="text-slate-400 text-sm max-w-md mx-auto">Find answers regarding the forensic verification pipelines and admissibility standards.</p>
           </div>
 
-          {/* Minimalist Accordion */}
-          <div className="space-y-4">
+          {/* Minimal Accordion */}
+          <div className="space-y-2">
             {faqs.map((faq, index) => {
               const isOpen = openFaq === index;
               return (
                 <div 
                   key={index} 
-                  className="bg-[#050811] border border-slate-800 transition-colors"
+                  className="bg-[#030712] border border-deepslate"
                 >
                   <button
                     onClick={() => setOpenFaq(isOpen ? null : index)}
-                    className="w-full p-6 flex items-center justify-between text-left hover:bg-slate-900/30 transition-all"
+                    className="w-full p-5 flex items-center justify-between text-left hover:bg-[#070b19]/40 transition-all"
                   >
-                    <h4 className="text-sm font-bold text-white flex items-center gap-3 pr-4">
-                      <span className="mono text-xs text-amber-500">0{index + 1} //</span>
+                    <h4 className="text-xs font-mono font-bold text-white flex items-center gap-3">
+                      <span className="text-amber-signal">0{index + 1} //</span>
                       {faq.question}
                     </h4>
-                    <span className="text-slate-500 shrink-0">
+                    <span className="text-slate-500">
                       <ChevronDown 
-                        size={16} 
-                        className={`transform transition-transform duration-300 ${isOpen ? "rotate-180 text-amber-500" : ""}`} 
+                        size={12} 
+                        className={`transform transition-transform duration-250 ${isOpen ? "rotate-180 text-amber-signal" : ""}`} 
                       />
                     </span>
                   </button>
 
                   <div
                     className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                      isOpen ? "max-h-[200px] border-t border-slate-900" : "max-h-0"
+                      isOpen ? "max-h-[220px] border-t border-slate-900/50" : "max-h-0"
                     }`}
                   >
-                    <p className="p-6 text-xs text-slate-400 leading-relaxed">
+                    <p className="p-5 font-sans text-xs text-slate-400 leading-relaxed">
                       {faq.answer}
                     </p>
                   </div>
@@ -470,38 +702,39 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 9. 2nd CTA Section */}
-      <section className="py-24 px-6 md:px-12 bg-[#050811] relative overflow-hidden border-b border-slate-900 text-center">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.02),transparent_60%)] -z-10" />
+      {/* 9. 2nd CTA Section (Full-Width Deep Slate) */}
+      <section className="py-24 px-6 md:px-12 bg-deepslate relative overflow-hidden border-b border-slate-900 text-center">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.01),transparent_60%)] -z-10" />
         
-        <div className="max-w-4xl mx-auto space-y-8">
-          <span className="mono text-[10px] font-bold text-amber-500 uppercase tracking-[0.3em] block">// AUTOMATED INTEGRATION</span>
-          <h2 className="text-3xl md:text-5xl font-black text-white leading-tight">
+        <div className="max-w-4xl mx-auto space-y-8 relative z-10">
+          <span className="font-mono text-[9px] font-bold text-amber-signal uppercase tracking-[0.3em] block">// AUTOMATED INTEGRATION</span>
+          <h2 className="text-3xl md:text-5xl font-black text-white leading-tight tracking-tight">
             Integrate Forensic Assurance <br />
             into Your Workflow.
           </h2>
-          <p className="text-slate-400 text-sm max-w-xl mx-auto leading-relaxed">
+          <p className="text-slate-400 text-xs max-w-lg mx-auto leading-relaxed font-sans">
             Protect your background verification systems, media assets, and legal pipelines. Deploy our high-throughput REST API for scalable content auditing.
           </p>
           <div className="pt-4">
             <Link 
               href="/request-demo"
-              className="btn-primary inline-flex items-center gap-3 px-8 py-5 text-sm uppercase tracking-widest font-black transition-all hover:glow-amber-strong"
+              className="btn-switch-primary py-4 px-8"
             >
+              <span className="led-indicator" />
               <span>Get API Access Now</span>
-              <ArrowRight size={16} />
+              <ArrowRight size={14} />
             </Link>
           </div>
         </div>
       </section>
 
       {/* 10. Founder's Note Section */}
-      <section className="py-24 px-6 md:px-12 bg-[#02050b]">
+      <section className="py-24 px-6 md:px-12 bg-obsidian">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-[#0A0E17] border border-slate-800 p-8 md:p-12 relative overflow-hidden text-left">
+          <div className="bg-[#030712] border border-deepslate p-8 md:p-12 relative overflow-hidden">
             
             {/* Watermark Logo */}
-            <div className="absolute top-0 right-0 p-8 opacity-[0.02] -z-10">
+            <div className="absolute top-0 right-0 p-8 opacity-[0.015] pointer-events-none select-none">
               <Cpu size={140} className="text-white" />
             </div>
 
@@ -509,8 +742,8 @@ export default function LandingPage() {
               
               {/* Headshot Column */}
               <div className="shrink-0 flex flex-col items-center md:items-start text-center md:text-left space-y-4">
-                <div className="relative h-28 w-28 border border-slate-800 overflow-hidden bg-slate-950 p-1">
-                  <div className="absolute inset-0 border border-amber-500/20 z-20 pointer-events-none" />
+                <div className="relative h-28 w-28 border border-slate-900 bg-slate-950 p-1">
+                  <div className="absolute inset-0 border border-amber-signal/20 z-20 pointer-events-none" />
                   <Image 
                     src="/images/dr_elena.png"
                     alt="Dr. Elena Vance"
@@ -520,27 +753,27 @@ export default function LandingPage() {
                   />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-white text-sm">Dr. Elena Vance</h4>
-                  <span className="mono text-[8px] text-amber-500 uppercase tracking-widest block mt-0.5">FOUNDER // PRINCIPAL SCIENTIST</span>
-                  <span className="mono text-[7px] text-slate-500 uppercase tracking-widest block">DEPT OF COMPUTATIONAL SIGNAL ANALYSIS</span>
+                  <h4 className="font-mono text-xs font-bold text-white">Dr. Elena Vance</h4>
+                  <span className="font-mono text-[8px] text-amber-signal uppercase tracking-widest block mt-0.5">FOUNDER // PRINCIPAL SCIENTIST</span>
+                  <span className="font-mono text-[7px] text-slate-500 uppercase tracking-widest block">DEPT OF COMPUTATIONAL SIGNAL ANALYSIS</span>
                 </div>
               </div>
 
               {/* Note Content Column */}
-              <div className="flex-grow space-y-6">
-                <span className="mono text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] block">// INTEL_DIRECTIVE // MISSIONS_STATEMENT</span>
-                <h3 className="text-xl font-bold text-white tracking-tight">Scientific Mission Directive</h3>
-                <p className="text-xs text-slate-300 leading-relaxed italic border-l-2 border-amber-500/40 pl-4">
+              <div className="flex-grow space-y-6 text-left">
+                <span className="font-mono text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] block">// FOUNDERS_DIRECTIVE // TRUTH_STANDARD</span>
+                <h3 className="text-xl font-bold text-white tracking-tight">Probabilistic Evidence, Not Poetry.</h3>
+                <p className="text-xs text-slate-300 leading-relaxed italic border-l border-amber-signal/30 pl-4 font-sans">
                   "We started Veridex Forensics because generic detectors fail to provide the absolute transparency required by investigators. The current internet is flooded with synthetic clones and manipulated media, yet legacy tools expect you to trust their binary ratings without proof."
                 </p>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <p className="text-xs text-slate-400 leading-relaxed font-sans">
                   "Our system decomposes signals into primary mathematical indicators, leaving an immutable, auditable fingerprint. We stand committed to providing raw metrics, detailed anomaly graphs, and cryptographic proof of verification."
                 </p>
                 
-                <div className="pt-4 border-t border-slate-900 flex items-center justify-between">
-                  <span className="font-serif text-sm font-bold text-amber-500 italic">Elena Vance</span>
-                  <span className="mono text-[8px] text-slate-500 uppercase tracking-widest">
-                    PROBABILISTIC EVIDENCE, NOT POETRY.
+                <div className="pt-4 border-t border-slate-900/60 flex items-center justify-between">
+                  <span className="font-serif text-sm font-bold text-amber-signal italic">Elena Vance</span>
+                  <span className="font-mono text-[8px] text-slate-500 uppercase tracking-widest">
+                    THE SCIENCE OF COGNITIVE VERITY
                   </span>
                 </div>
               </div>

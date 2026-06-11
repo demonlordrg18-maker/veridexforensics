@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Footer, Navbar } from "../../../components/Navigation";
 import {
   ArrowRight,
   ChevronRight,
@@ -12,8 +13,6 @@ import {
   Workflow,
 } from "lucide-react";
 import Link from "next/link";
-
-import { Footer, Navbar } from "../../../components/Navigation";
 
 const signalRows = [
   "Breaks long narratives into discrete factual units",
@@ -31,35 +30,32 @@ const outputRows = [
 
 export default function ClaimDecompositionFeature() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-obsidian text-slate-300 font-sans selection:bg-amber-signal/20 selection:text-amber-signal">
       <Navbar />
 
-      <section className="bg-slate-950 px-4 pb-20 pt-32 md:px-12">
-        <div className="mx-auto max-w-7xl">
+      <section className="pt-32 pb-20 px-6 md:px-12 bg-gradient-to-b from-[#030712] to-obsidian border-b border-deepslate relative overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(245,158,11,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(245,158,11,0.015)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+        <div className="mx-auto max-w-7xl relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="max-w-3xl"
+            className="max-w-3xl space-y-6"
           >
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-teal-500/20 bg-teal-500/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.3em] text-teal-400">
-              Feature Spotlight
+            <div className="inline-flex items-center gap-2 border border-amber-signal/30 bg-amber-signal/5 px-4 py-1.5 text-[9px] font-mono font-bold text-amber-signal uppercase tracking-[0.3em] rounded-none">
+              // FEATURE SPOTLIGHT // CLAIM DECOMPOSITION
             </div>
-            <h1 className="mb-6 text-4xl font-black tracking-tight text-white md:text-7xl">
-              Claim <span className="text-gradient">Decomposition.</span>
+            <h1 className="text-4xl md:text-7xl font-black tracking-tight text-white font-geist uppercase">
+              Claim <span className="text-amber-signal">Decomposition.</span>
             </h1>
-            <p className="mb-10 text-xl leading-relaxed text-slate-400">
-              Turn dense articles, transcripts, and reports into a structured
-              map of verifiable claims before you spend analyst time proving or
-              disproving them.
+            <p className="text-base md:text-lg text-slate-400 font-sans leading-relaxed">
+              Turn dense articles, transcripts, and reports into a structured map of verifiable claims before you spend analyst time proving or disproving them.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <Link href="/audit" className="btn-primary flex items-center gap-2">
-                Launch Auditor <ArrowRight size={18} />
+            <div className="flex flex-wrap gap-4 font-mono">
+              <Link href="/audit" className="btn-switch-primary">
+                <span className="led-indicator-amber" />
+                Launch Auditor
               </Link>
-              <Link
-                href="/methodology"
-                className="rounded-xl border border-white/10 px-8 py-3 font-bold text-white transition-all hover:bg-white/5"
-              >
+              <Link href="/methodology" className="btn-switch-secondary">
                 Review Methodology
               </Link>
             </div>
@@ -67,65 +63,91 @@ export default function ClaimDecompositionFeature() {
         </div>
       </section>
 
-      <section className="border-y border-white/5 px-4 py-24 md:px-12">
+      <section className="border-b border-deepslate bg-obsidian px-6 py-24 md:px-12">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-3">
-          <div className="glass rounded-3xl border border-white/5 p-8 lg:col-span-2">
-            <h2 className="mb-6 text-2xl font-black uppercase tracking-tight text-white">
+          <div className="border border-deepslate bg-[#030712] p-8 rounded-none lg:col-span-2 space-y-6 relative">
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-deepslate" />
+            <span className="font-mono text-[9px] font-bold text-amber-signal uppercase tracking-[0.3em] block">// PICTORIAL ANALYSIS FLOW</span>
+            <h2 className="text-2xl font-black uppercase tracking-tight text-white font-geist">
               What this feature does
             </h2>
-            <p className="leading-relaxed text-slate-400">
-              Claim Decomposition parses a piece of content into atomic units of
-              meaning. Instead of treating an article or statement as one block,
-              it isolates each checkable assertion, labels it by type, and
-              preserves the surrounding context. That gives editorial, legal,
-              and research teams a cleaner handoff into evidence review.
+            <p className="leading-relaxed text-slate-400 font-sans text-sm">
+              Claim Decomposition parses a piece of content into atomic units of meaning. Instead of treating an article or statement as one block, it isolates each checkable assertion, labels it by type, and preserves the surrounding context. That gives editorial, legal, and research teams a cleaner handoff into evidence review.
             </p>
           </div>
-          <div className="glass rounded-3xl border border-white/5 p-8">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-500/10 text-teal-400">
-              <Workflow size={24} />
+          
+          <div className="border border-deepslate bg-[#030712] p-8 rounded-none relative flex flex-col justify-between">
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-deepslate" />
+            <div>
+              <Workflow className="mb-4 text-amber-signal" size={24} />
+              <h3 className="mb-3 text-sm font-bold text-white uppercase font-mono tracking-wider">
+                // Triage Pipeline
+              </h3>
+              <p className="text-xs leading-relaxed text-slate-500 font-sans">
+                Best used when your team needs to sort dozens of assertions quickly and decide what deserves deeper human review.
+              </p>
             </div>
-            <h3 className="mb-3 text-lg font-bold text-white">
-              Built for triage
-            </h3>
-            <p className="text-sm leading-relaxed text-slate-500">
-              Best used when your team needs to sort dozens of assertions
-              quickly and decide what deserves deeper human review.
-            </p>
           </div>
         </div>
       </section>
 
-      <section className="bg-slate-900/20 px-4 py-24 md:px-12">
-        <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-2">
-          <div className="glass rounded-3xl border border-white/5 p-8">
-            <div className="mb-5 flex items-center gap-3">
-              <Search className="text-teal-400" size={20} />
-              <h3 className="text-sm font-black uppercase tracking-[0.3em] text-teal-500">
-                Reads Inputs
+      {/* Visual Component Section */}
+      <section className="py-24 px-6 md:px-12 bg-obsidian border-b border-deepslate scanner-grid">
+        <div className="max-w-4xl mx-auto border border-deepslate bg-[#030712] p-6 rounded-none relative z-10 space-y-6">
+          <div className="absolute top-0 left-0 right-0 h-[1px] bg-amber-signal/30" />
+          <div className="flex justify-between items-center border-b border-deepslate pb-3">
+            <div className="flex items-center gap-2">
+              <div className="h-1.5 w-1.5 bg-amber-signal rounded-none shadow-[0_0_5px_#F59E0B]" />
+              <span className="font-mono text-[9px] font-bold text-slate-300 tracking-widest uppercase">// TOPOGRAPHIC COMPARISON PLOT</span>
+            </div>
+            <span className="font-mono text-[8px] px-2 py-0.5 border border-verity-green/30 text-verity-green bg-verity-green/5">ORGANIC_BASELINE</span>
+          </div>
+          <div className="relative h-64 w-full bg-black border border-deepslate overflow-hidden">
+            <div className="laser-scanner" />
+            <img 
+              src="/images/signature_comparison.jpg" 
+              alt="Signature Comparison" 
+              className="w-full h-full object-cover opacity-80"
+            />
+          </div>
+          <p className="text-xs text-slate-500 font-mono text-center uppercase tracking-widest">
+            Figure 2.1: Signal density analysis showing organic baseline noise alignment.
+          </p>
+        </div>
+      </section>
+
+      <section className="bg-obsidian border-b border-deepslate px-6 py-24 md:px-12">
+        <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-2 font-mono text-[11px]">
+          <div className="border border-deepslate bg-[#030712] p-8 rounded-none relative">
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-deepslate" />
+            <div className="mb-5 flex items-center gap-3 border-b border-deepslate pb-3">
+              <Search className="text-amber-signal" size={16} />
+              <h3 className="font-bold uppercase tracking-[0.2em] text-white">
+                // READS INPUTS
               </h3>
             </div>
-            <ul className="space-y-3 text-sm text-slate-400">
+            <ul className="space-y-4 text-slate-400">
               {signalRows.map((item) => (
                 <li key={item} className="flex gap-3">
-                  <ChevronRight className="mt-0.5 shrink-0 text-teal-500" size={16} />
-                  <span>{item}</span>
+                  <span className="text-amber-signal font-bold">[+]</span>
+                  <span className="font-sans text-xs">{item}</span>
                 </li>
               ))}
             </ul>
           </div>
-          <div className="glass rounded-3xl border border-white/5 p-8">
-            <div className="mb-5 flex items-center gap-3">
-              <GitBranch className="text-teal-400" size={20} />
-              <h3 className="text-sm font-black uppercase tracking-[0.3em] text-teal-500">
-                Produces Outputs
+          <div className="border border-deepslate bg-[#030712] p-8 rounded-none relative">
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-deepslate" />
+            <div className="mb-5 flex items-center gap-3 border-b border-deepslate pb-3">
+              <GitBranch className="text-amber-signal" size={16} />
+              <h3 className="font-bold uppercase tracking-[0.2em] text-white">
+                // PRODUCES OUTPUTS
               </h3>
             </div>
-            <ul className="space-y-3 text-sm text-slate-400">
+            <ul className="space-y-4 text-slate-400">
               {outputRows.map((item) => (
                 <li key={item} className="flex gap-3">
-                  <ChevronRight className="mt-0.5 shrink-0 text-teal-500" size={16} />
-                  <span>{item}</span>
+                  <span className="text-amber-signal font-bold">[+]</span>
+                  <span className="font-sans text-xs">{item}</span>
                 </li>
               ))}
             </ul>
@@ -133,32 +155,28 @@ export default function ClaimDecompositionFeature() {
         </div>
       </section>
 
-      <section className="px-4 py-24 md:px-12">
+      <section className="px-6 py-24 md:px-12 bg-obsidian">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-2">
-          <div className="glass rounded-3xl border border-white/5 p-8">
-            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-teal-500/10 text-teal-400">
-              <FileSearch size={20} />
-            </div>
-            <h3 className="mb-4 text-xl font-bold text-white">
-              How to interpret results
+          <div className="border border-deepslate bg-[#030712] p-8 rounded-none relative">
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-deepslate" />
+            <FileSearch className="mb-4 text-amber-signal" size={22} />
+            <h3 className="mb-3 text-lg font-bold text-white uppercase font-geist tracking-wide">
+              // How to interpret results
             </h3>
-            <p className="leading-relaxed text-slate-400">
-              A larger claim count does not automatically mean higher risk. The
-              more important signal is claim density without supporting evidence,
-              or a large number of claims grouped around one weak source.
+            <p className="text-xs leading-relaxed text-slate-400 font-sans">
+              A larger claim count does not automatically mean higher risk. The more important signal is claim density without supporting evidence, or a large number of claims grouped around one weak source.
             </p>
           </div>
-          <div className="rounded-[2.5rem] border border-amber-500/20 bg-amber-500/[0.02] p-8">
+          <div className="border border-amber-signal/20 bg-[#070b19]/30 p-8 rounded-none relative">
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-amber-signal/20" />
             <div className="flex gap-4">
-              <Info className="shrink-0 text-amber-500" size={22} />
-              <div>
-                <h4 className="mb-3 text-sm font-bold uppercase tracking-tight text-white">
-                  What it cannot guarantee
+              <Info className="shrink-0 text-amber-signal" size={20} />
+              <div className="space-y-2">
+                <h4 className="text-xs font-bold uppercase tracking-tight text-white font-geist">
+                  // Assurance Thresholds
                 </h4>
-                <p className="text-sm leading-relaxed text-slate-500">
-                  Decomposition can expose ambiguous or unsupported statements,
-                  but it cannot independently prove truth. Human reviewers still
-                  need to assess source quality, context, and intent.
+                <p className="text-xs leading-relaxed text-slate-500 font-sans text-justify">
+                  Decomposition can expose ambiguous or unsupported statements, but it cannot independently prove truth. Human reviewers still need to assess source quality, context, and intent.
                 </p>
               </div>
             </div>
@@ -166,19 +184,21 @@ export default function ClaimDecompositionFeature() {
         </div>
       </section>
 
-      <section className="px-4 pb-24 md:px-12">
-        <div className="mx-auto max-w-5xl rounded-[2.5rem] border border-white/5 bg-white/[0.03] p-10 text-center">
-          <Scale className="mx-auto mb-5 text-teal-400" size={28} />
-          <h3 className="mb-4 text-3xl font-black text-white">
+      <section className="px-6 pb-24 md:px-12 bg-obsidian">
+        <div className="mx-auto max-w-5xl border border-deepslate bg-[#030712] p-10 text-center rounded-none relative">
+          <div className="absolute top-0 left-0 right-0 h-[1px] bg-deepslate" />
+          <Scale className="mx-auto mb-5 text-amber-signal" size={24} />
+          <h3 className="text-2xl md:text-3xl font-black text-white font-geist uppercase mb-4">
             Start with structure before fact-checking.
           </h3>
-          <p className="mx-auto mb-8 max-w-2xl text-slate-400">
-            This feature is designed to reduce analyst fatigue by making the
-            review queue smaller, sharper, and easier to defend.
+          <p className="mx-auto mb-8 max-w-2xl text-xs text-slate-400 font-sans leading-relaxed">
+            This feature is designed to reduce analyst fatigue by making the review queue smaller, sharper, and easier to defend.
           </p>
-          <Link href="/request-demo" className="btn-primary inline-flex items-center gap-2">
-            Request Demo <ArrowRight size={18} />
-          </Link>
+          <div className="font-mono">
+            <Link href="/request-demo" className="btn-switch-primary">
+              Request Demo
+            </Link>
+          </div>
         </div>
       </section>
 

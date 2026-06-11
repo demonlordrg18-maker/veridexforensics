@@ -15,29 +15,55 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-const MethodologySection = ({ title, description, technicalDetails }: any) => (
-  <div className="py-16 border-b border-white/5 last:border-0">
-    <div className="grid lg:grid-cols-[1fr,1.5fr] gap-12">
-      <div>
-        <h3 className="text-2xl font-black text-white mb-6 uppercase tracking-tight">{title}</h3>
-        <p className="text-slate-400 text-sm leading-relaxed mb-6">{description}</p>
-        <Link href="/limitations" className="text-xs font-bold text-slate-500 hover:text-white uppercase tracking-widest flex items-center gap-2">
-          View Limitations <ArrowRight size={14} />
+const MethodologySection = ({ title, description, technicalDetails, imageUrl, imageAlt, imageTitle }: any) => (
+  <div className="py-20 border-b border-deepslate last:border-0">
+    <div className="grid lg:grid-cols-[1.2fr,1.8fr] gap-12 items-start">
+      <div className="space-y-6">
+        <span className="font-mono text-[9px] font-bold text-amber-signal uppercase tracking-[0.3em]">// ANALYTICAL FRAMEWORK</span>
+        <h3 className="text-2xl font-black text-white uppercase tracking-tight font-geist">{title}</h3>
+        <p className="text-slate-400 text-sm leading-relaxed font-sans">{description}</p>
+        <Link href="/limitations" className="text-[10px] font-bold text-slate-400 hover:text-white font-mono uppercase tracking-widest flex items-center gap-2">
+          View Limitations <ArrowRight size={12} className="text-amber-signal" />
         </Link>
       </div>
-      <div className="bg-slate-900/50 p-8 rounded-3xl border border-white/5 font-mono text-xs">
-        <div className="flex items-center gap-2 mb-6 text-teal-400">
-          <Code size={16} />
-          <span className="uppercase tracking-widest font-black">Technical Logic</span>
+      
+      <div className="space-y-6">
+        {imageUrl && (
+          <div className="border border-deepslate bg-[#030712] p-4 rounded-none relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-amber-signal/30" />
+            <div className="flex justify-between items-center border-b border-deepslate pb-3 mb-4">
+              <div className="flex items-center gap-2">
+                <div className="h-1.5 w-1.5 bg-amber-signal rounded-none shadow-[0_0_5px_#F59E0B]" />
+                <span className="font-mono text-[9px] font-bold text-slate-300 tracking-widest uppercase">{imageTitle || "FORENSIC SIGNAL PLOT"}</span>
+              </div>
+              <span className="font-mono text-[8px] px-2 py-0.5 border border-deepslate text-slate-400 bg-slate-900/30">AUDIT_ACTIVE</span>
+            </div>
+            <div className="relative h-64 w-full bg-black border border-deepslate overflow-hidden">
+              <div className="laser-scanner" />
+              <img 
+                src={imageUrl} 
+                alt={imageAlt || title} 
+                className="w-full h-full object-cover opacity-80"
+              />
+            </div>
+          </div>
+        )}
+
+        <div className="bg-[#030712] p-8 rounded-none border border-deepslate font-mono text-[11px] relative">
+          <div className="absolute top-0 left-0 right-0 h-[1px] bg-deepslate" />
+          <div className="flex items-center gap-2 mb-6 text-amber-signal">
+            <Code size={14} />
+            <span className="uppercase tracking-widest font-black">// Technical Heuristics</span>
+          </div>
+          <ul className="space-y-4">
+            {technicalDetails.map((detail: string, i: number) => (
+              <li key={i} className="flex gap-4 text-slate-400">
+                <span className="text-amber-signal font-bold">[0{i+1}]</span>
+                <span className="leading-relaxed">{detail}</span>
+              </li>
+            ))}
+          </ul>
         </div>
-        <ul className="space-y-4">
-          {technicalDetails.map((detail: string, i: number) => (
-            <li key={i} className="flex gap-4 text-slate-500">
-              <span className="text-teal-600">0{i+1}</span>
-              <span className="leading-relaxed">{detail}</span>
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   </div>
@@ -45,43 +71,45 @@ const MethodologySection = ({ title, description, technicalDetails }: any) => (
 
 export default function MethodologyPage() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-obsidian text-slate-300 font-sans selection:bg-amber-signal/20 selection:text-amber-signal">
       <Navbar />
       
       {/* Header */}
-      <section className="pt-32 pb-20 px-4 md:px-12 bg-slate-950">
-        <div className="max-w-7xl mx-auto text-center">
+      <section className="pt-32 pb-20 px-6 md:px-12 bg-gradient-to-b from-[#030712] to-obsidian border-b border-deepslate relative overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(245,158,11,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(245,158,11,0.015)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+        <div className="max-w-7xl mx-auto text-center relative z-10">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 rounded-full bg-teal-500/10 px-4 py-1.5 text-[10px] font-black text-teal-400 border border-teal-500/20 mb-8 uppercase tracking-[0.3em]"
+            className="inline-flex items-center gap-2 border border-amber-signal/30 bg-amber-signal/5 px-4 py-1.5 text-[9px] font-mono font-bold text-amber-signal uppercase tracking-[0.3em] rounded-none mb-8"
           >
-            Sober & Transparent
+            // DEFENSIVE ASSURANCES & TRANSPARENCY
           </motion.div>
-          <h1 className="text-4xl md:text-7xl font-black text-white mb-8 tracking-tight">
-            Our <span className="text-gradient">Forensic Logic.</span>
+          <h1 className="text-4xl md:text-7xl font-black text-white mb-8 tracking-tight font-geist uppercase">
+            Our <span className="text-amber-signal">Forensic Logic.</span>
           </h1>
-          <p className="text-xl text-slate-400 leading-relaxed max-w-3xl mx-auto">
+          <p className="text-base md:text-lg text-slate-400 leading-relaxed max-w-3xl mx-auto font-sans">
             Veridex does not provide "truth" as a binary service. We provide a rigorous framework for decomposing digital assets into probabilistic forensic markers.
           </p>
         </div>
       </section>
 
       {/* Philosophy Box */}
-      <section className="py-24 px-4 md:px-12">
-        <div className="max-w-5xl mx-auto glass p-12 rounded-[3rem] border border-amber-500/20 relative overflow-hidden bg-amber-500/[0.02]">
+      <section className="py-24 px-6 md:px-12 bg-obsidian">
+        <div className="max-w-5xl mx-auto border border-amber-signal/20 bg-[#070b19]/30 p-10 rounded-none relative overflow-hidden">
+           <div className="absolute top-0 left-0 w-1 h-full bg-amber-signal" />
            <div className="flex flex-col md:flex-row gap-12 items-center">
-             <div className="md:w-1/4">
-                <Info className="text-amber-500 mx-auto" size={80} />
+             <div className="md:w-1/5 flex justify-center">
+                <Info className="text-amber-signal" size={64} />
              </div>
-             <div className="md:w-3/4">
-                <h4 className="text-xl font-bold text-white mb-4">The Veridex Stance: Assistive, Not Final.</h4>
-                <p className="text-slate-400 text-sm mb-6 leading-relaxed">
+             <div className="md:w-4/5 space-y-4">
+                <h4 className="text-lg font-bold text-white uppercase font-geist tracking-wide">// The Veridex Stance: Assistive, Not Final</h4>
+                <p className="text-slate-400 text-xs leading-relaxed font-sans text-justify">
                   In a high-stakes legal, journalistic, or research environment, automated tools should be used for screening and signal detection, not final adjudication. Our methodology is designed to augment expert human judgment by surfacing anomalies that are invisible to the naked eye/ear.
                 </p>
-                <div className="flex gap-6">
-                   <Link href="/limitations" className="text-xs font-black text-amber-500 uppercase tracking-widest hover:underline">Read the Limitations Doc</Link>
-                   <Link href="/request-demo" className="text-xs font-black text-slate-500 uppercase tracking-widest hover:text-white">Request a Technical Walkthrough</Link>
+                <div className="flex flex-wrap gap-6 pt-2 font-mono text-[9px]">
+                   <Link href="/limitations" className="font-bold text-amber-signal uppercase tracking-widest hover:underline">[ Read the Limitations Doc ]</Link>
+                   <Link href="/request-demo" className="font-bold text-slate-400 uppercase tracking-widest hover:text-white">[ Request a Technical Walkthrough ]</Link>
                 </div>
              </div>
            </div>
@@ -89,33 +117,33 @@ export default function MethodologyPage() {
       </section>
 
       {/* Concrete pipeline breakdown (defensible > marketing) */}
-      <section className="py-24 px-4 md:px-12 bg-slate-950/40 border-y border-white/5">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-14">
-            <div className="max-w-2xl">
-              <h2 className="text-sm font-black text-teal-500 uppercase tracking-[0.4em] mb-6 flex items-center gap-3">
-                <Cpu size={18} />
-                The pipeline (what actually happens)
+      <section className="py-24 px-6 md:px-12 bg-obsidian border-y border-deepslate relative scanner-grid">
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-16">
+            <div className="max-w-2xl space-y-4">
+              <h2 className="text-[10px] font-mono font-bold text-amber-signal uppercase tracking-[0.4em] flex items-center gap-3">
+                <Cpu size={14} />
+                // The pipeline flow
               </h2>
-              <h3 className="text-4xl font-black text-white leading-tight">
+              <h3 className="text-3xl font-black text-white font-geist uppercase leading-tight">
                 Concrete steps, observable artifacts.
               </h3>
-              <p className="text-slate-400 mt-6 text-sm leading-relaxed">
+              <p className="text-slate-400 text-sm font-sans leading-relaxed">
                 Each audit produces intermediate artifacts (claims, sources, bias triggers, hashes) so the final score is explainable and reviewable.
               </p>
             </div>
-            <div className="glass px-5 py-3 rounded-2xl border border-white/10 text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 flex items-center gap-2">
-              <Database size={14} className="text-teal-400" />
+            <div className="border border-deepslate bg-[#030712] px-5 py-3 rounded-none text-[9px] font-mono uppercase tracking-[0.25em] text-slate-400 flex items-center gap-2">
+              <Database size={12} className="text-amber-signal" />
               Output: report + evidence trail
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-4 gap-6">
+          <div className="grid lg:grid-cols-4 gap-6 font-mono text-[11px]">
             {[
               {
                 icon: FileText,
                 title: "Step 1 — Input parsing",
-                body: "Normalize text/URL/file, extract metadata, and (if file) compute SHA-256 fingerprint for chain-of-custody.",
+                body: "Normalize text/URL/file, extract metadata, and compute SHA-256 fingerprint for chain-of-custody.",
               },
               {
                 icon: Layers,
@@ -125,7 +153,7 @@ export default function MethodologyPage() {
               {
                 icon: Activity,
                 title: "Step 3 — Signal scoring",
-                body: "Run modality-specific checks (synthetic artifacts, rhetorical bias, provenance/copyright signals) and produce measurable sub-scores.",
+                body: "Run modality-specific checks (synthetic artifacts, rhetorical bias, provenance/copyright signals) and produce sub-scores.",
               },
               {
                 icon: ShieldCheck,
@@ -133,71 +161,78 @@ export default function MethodologyPage() {
                 body: "Aggregate sub-signals into Verity Index + confidence. Surface contradictions/unverified claims instead of hiding them.",
               },
             ].map((s, i) => (
-              <div key={i} className="glass p-7 rounded-3xl border border-white/5 hover:border-teal-500/30 transition-all">
-                <div className="h-12 w-12 rounded-2xl bg-teal-500/10 flex items-center justify-center text-teal-400 mb-6">
-                  <s.icon size={22} />
+              <div key={i} className="border border-deepslate bg-[#030712] p-8 rounded-none flex flex-col justify-between hover:border-amber-signal/30 transition-all group">
+                <div>
+                  <div className="h-10 w-10 border border-deepslate bg-deepslate/30 flex items-center justify-center text-amber-signal mb-6 rounded-none group-hover:border-amber-signal/30 transition-colors">
+                    <s.icon size={18} />
+                  </div>
+                  <div className="text-xs font-bold text-white uppercase tracking-tight mb-3 font-geist">{s.title}</div>
+                  <div className="text-[11px] text-slate-400 leading-relaxed font-sans">{s.body}</div>
                 </div>
-                <div className="text-sm font-black text-white uppercase tracking-tight mb-3">{s.title}</div>
-                <div className="text-xs text-slate-500 leading-relaxed">{s.body}</div>
               </div>
             ))}
           </div>
 
           <div className="mt-10 grid lg:grid-cols-2 gap-6">
-            <div className="glass p-8 rounded-3xl border border-white/5">
-              <h4 className="text-sm font-black text-white uppercase tracking-widest mb-4">
-                Who this is designed for
+            <div className="border border-deepslate bg-[#030712] p-8 rounded-none space-y-4">
+              <h4 className="text-xs font-mono font-bold text-white uppercase tracking-widest border-b border-deepslate pb-3">
+                // Target Environments
               </h4>
-              <ul className="space-y-3 text-xs text-slate-400 leading-relaxed">
+              <ul className="space-y-3 font-mono text-[11px] text-slate-400">
                 <li className="flex gap-3">
-                  <span className="text-teal-400 font-black">—</span>
+                  <span className="text-amber-signal font-bold">[+]</span>
                   Designed for newsroom verification workflows (pre-publication screening + attribution checks).
                 </li>
                 <li className="flex gap-3">
-                  <span className="text-teal-400 font-black">—</span>
+                  <span className="text-amber-signal font-bold">[+]</span>
                   Built to support legal review checklists (exhibit screening + chain-of-custody hygiene).
                 </li>
                 <li className="flex gap-3">
-                  <span className="text-teal-400 font-black">—</span>
+                  <span className="text-amber-signal font-bold">[+]</span>
                   Inspired by OSINT and forensic audit practices: evidence trails, not magic answers.
                 </li>
               </ul>
             </div>
 
-            <div className="glass p-8 rounded-3xl border border-amber-500/20 bg-amber-500/[0.02]">
-              <h4 className="text-sm font-black text-white uppercase tracking-widest mb-4">
-                Where Veridex should not be used
+            <div className="border border-amber-signal/20 bg-[#070b19]/30 p-8 rounded-none space-y-4">
+              <h4 className="text-xs font-mono font-bold text-white uppercase tracking-widest border-b border-amber-signal/20 pb-3">
+                // Where Veridex Should Not Be Used
               </h4>
-              <ul className="space-y-3 text-xs text-slate-400 leading-relaxed">
+              <ul className="space-y-3 font-mono text-[11px] text-slate-400">
                 <li className="flex gap-3">
-                  <span className="text-amber-400 font-black">—</span>
+                  <span className="text-red-500 font-bold">[-]</span>
                   Not a legal verdict system (it does not determine guilt/innocence or admissibility).
                 </li>
                 <li className="flex gap-3">
-                  <span className="text-amber-400 font-black">—</span>
+                  <span className="text-red-500 font-bold">[-]</span>
                   Not a real-time fact database (sources change; human corroboration is required).
                 </li>
                 <li className="flex gap-3">
-                  <span className="text-amber-400 font-black">—</span>
+                  <span className="text-red-500 font-bold">[-]</span>
                   Not safe for fully-automated enforcement; always keep a human in the loop.
                 </li>
               </ul>
-              <Link href="/limitations" className="inline-flex mt-6 text-xs font-black uppercase tracking-[0.2em] text-amber-400 hover:underline">
-                Read full limitations disclosure
-              </Link>
+              <div className="pt-2 font-mono text-[9px]">
+                <Link href="/limitations" className="inline-flex font-bold uppercase tracking-[0.2em] text-amber-signal hover:underline">
+                  [ READ LIMITATIONS DISCLOSURE ]
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Core Heuristics Section */}
-      <section className="py-24 px-4 md:px-12 bg-slate-950/50">
+      <section className="py-24 px-6 md:px-12 bg-obsidian">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-sm font-black text-teal-500 uppercase tracking-[0.4em] mb-16">Forensic Domains</h2>
+          <h2 className="text-xs font-mono font-bold text-amber-signal uppercase tracking-[0.4em] mb-16">// Forensic Domains & Reference Plots</h2>
           
           <MethodologySection 
             title="Multimodal Synthetic Analysis"
-            description="Our primary detection layer focuses on identifying artifacts unique to generative models across frequency and spatial domains."
+            description="Our primary detection layer focuses on identifying artifacts unique to generative models across frequency and spatial domains. We look for the minute mathematical artifacts left behind by GANs and diffusion-based architectures."
+            imageUrl="/images/spectral_analysis.jpg"
+            imageAlt="Spectral decomposition"
+            imageTitle="SPECTRAL SIGNAL COMPOSITION SCAN"
             technicalDetails={[
               "Spectral anomaly detection in audio (e.g., GAN voice artifacts).",
               "Error Level Analysis (ELA) for image compression inconsistencies.",
@@ -207,59 +242,71 @@ export default function MethodologyPage() {
           />
 
           <MethodologySection 
-            title="Claim Decomposition Heuristics"
-            description="Content is broken into 'Atomic Truth Claims' using NLP models to assess the factual density and source correlation."
+            title="Topographic Signature Comparison"
+            description="Isolates and models continuous signal traces to contrast natural, organic capture noise against model-generated signal voids."
+            imageUrl="/images/signature_comparison.jpg"
+            imageAlt="Signature comparison"
+            imageTitle="TOPOGRAPHIC FREQUENCY COMPARISON"
+            technicalDetails={[
+              "Topographic contour mapping of signal density.",
+              "Waveform alignment algorithms checking organic phase drift.",
+              "Fourier transform frequency boundary validation.",
+              "Correlation analysis of ambient baseline noise."
+            ]}
+          />
+
+          <MethodologySection 
+            title="Claim Decomposition & Biometrics"
+            description="Content is broken into factual units, and speaker signals are cross-referenced with acquired facial geometry vectors to identify discrepancies."
+            imageUrl="/images/biometric_manifest.jpg"
+            imageAlt="Biometric Scan"
+            imageTitle="BIOMETRIC CORROBORATION MATRIX"
             technicalDetails={[
               "Named Entity Recognition (NER) to isolate actors and events.",
-              "Cross-referencing against primary news agency archives (AP/Reuters).",
-              "Temporal consistency audits (Checking dates vs event histories).",
+              "Facial geometry acquisition vector alignment checks (98% threshold).",
+              "Acoustic phase tracking vs lip vector alignment validation.",
               "Source-citation validation through automated web-provenance."
             ]}
           />
 
           <MethodologySection 
-            title="Rhetorical Bias Mapping"
-            description="We identify manipulation mechanisms by analyzing the linguistic structure and emotional variance of the text."
+            title="Cryptographic Chain-of-Custody"
+            description="Registers SHA-256 hashes of every audit run on an append-only distributed ledger to verify tamper resistance and generate defensible audit trails."
+            imageUrl="/images/immutable_ledger.jpg"
+            imageAlt="Blockchain Ledger"
+            imageTitle="IMMUTABLE LEDGER HASH REGISTRY"
             technicalDetails={[
-              "Mapping of 'Propaganda Heuristics' (e.g., loaded language, fear appeals).",
-              "Sentiment variance analysis for synthetic text detection.",
-              "Correlation of rhetorical patterns with known disinformation playbooks.",
-              "Complexity scoring to flag machine-generated repetitive structures."
-            ]}
-          />
-
-          <MethodologySection 
-            title="Copyright & Origin Logic"
-            description="We assess the risk of training-data leakage and verbatim overlap with known copyrighted or trademarked materials."
-            technicalDetails={[
-              "Embedding-based similarity threshold checks against open data sets.",
-              "Fragmented match evidence for LLM 'leakage' identification.",
-              "SHA-256 ledger registration for every audit artifact.",
-              "Source-correlating copyright risks to specific platform training sets."
+              "SHA-256 fingerprinting for every uploaded file.",
+              "UTC-timestamped record on an immutable blockchain ledger.",
+              "Tamper-evident verification API interfaces.",
+              "Court-admissible PDF document signature hashing."
             ]}
           />
         </div>
       </section>
 
       {/* Confidence Scoring Logic */}
-      <section className="py-24 px-4 md:px-12">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-2xl font-black text-white mb-8">Understanding the "Verity Index"</h2>
-          <p className="text-slate-400 mb-12 leading-relaxed">
-            The Verity Index (0.0 to 1.0) is a weighted probabilistic score. It aggregated signals from all active modules. A low score (e.g., 0.2) does not definitively prove "falsehood," but indicates a high density of synthetic artifacts, factual inconsistencies, or rhetorical manipulation markers that require investigation.
+      <section className="py-24 px-6 md:px-12 bg-obsidian border-t border-deepslate">
+        <div className="max-w-4xl mx-auto text-center space-y-8">
+          <h2 className="text-2xl font-black text-white font-geist uppercase tracking-wide">Understanding the "Verity Index"</h2>
+          <p className="text-slate-400 text-sm leading-relaxed max-w-2xl mx-auto font-sans">
+            The Verity Index (0.000 to 1.000) is a weighted probabilistic score that aggregates signals from all active modules. A low score indicates a high density of synthetic artifacts, factual inconsistencies, or rhetorical manipulation markers that require human oversight.
           </p>
-          <div className="grid md:grid-cols-3 gap-8">
-             <div className="p-6 rounded-2xl bg-white/5 border border-white/5">
-                <div className="text-xl font-black text-rose-500 mb-2">0.0 - 0.4</div>
-                <div className="text-[10px] font-black uppercase text-slate-500 tracking-widest">High Forensic Risk</div>
+          <div className="grid md:grid-cols-3 gap-6 font-mono text-left">
+             <div className="border border-red-900/30 bg-red-950/10 p-6 rounded-none relative">
+                <div className="absolute top-0 left-0 w-full h-[1px] bg-red-500/20" />
+                <div className="text-xl font-bold text-red-500 mb-2">0.000 - 0.400</div>
+                <div className="text-[9px] font-bold uppercase text-slate-500 tracking-widest">// High Forensic Risk</div>
              </div>
-             <div className="p-6 rounded-2xl bg-white/5 border border-white/5">
-                <div className="text-xl font-black text-amber-500 mb-2">0.4 - 0.7</div>
-                <div className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Intermediate Warning</div>
+             <div className="border border-amber-signal/20 bg-amber-signal/5 p-6 rounded-none relative">
+                <div className="absolute top-0 left-0 w-full h-[1px] bg-amber-signal/20" />
+                <div className="text-xl font-bold text-amber-signal mb-2">0.400 - 0.700</div>
+                <div className="text-[9px] font-bold uppercase text-slate-500 tracking-widest">// Warning Indicator</div>
              </div>
-             <div className="p-6 rounded-2xl bg-white/5 border border-white/5">
-                <div className="text-xl font-black text-teal-500 mb-2">0.7 - 1.0</div>
-                <div className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Procedural Verity</div>
+             <div className="border border-verity-green/20 bg-verity-green/5 p-6 rounded-none relative">
+                <div className="absolute top-0 left-0 w-full h-[1px] bg-verity-green/20" />
+                <div className="text-xl font-bold text-verity-green mb-2">0.700 - 1.000</div>
+                <div className="text-[9px] font-bold uppercase text-slate-500 tracking-widest">// Procedural Verity</div>
              </div>
           </div>
         </div>

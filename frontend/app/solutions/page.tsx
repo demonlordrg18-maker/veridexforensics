@@ -18,7 +18,7 @@ const solutions = [
   {
     title: "Legal Teams",
     description:
-      "Screen exhibits, document chain of custody, and support high-trust review workflows.",
+      "Screen digital exhibits, document chain of custody, and support high-trust review workflows.",
     href: "/solutions/legal-teams" as Route,
     icon: Gavel,
   },
@@ -33,47 +33,50 @@ const solutions = [
 
 export default function SolutionsPage() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-obsidian text-slate-300 font-sans selection:bg-amber-signal/20 selection:text-amber-signal">
       <Navbar />
 
-      <section className="bg-slate-950 px-4 pb-20 pt-32 md:px-12">
-        <div className="mx-auto max-w-7xl">
+      <section className="pt-32 pb-20 px-6 md:px-12 bg-gradient-to-b from-[#030712] to-obsidian border-b border-deepslate relative overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(245,158,11,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(245,158,11,0.015)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+        <div className="mx-auto max-w-7xl relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="max-w-3xl"
+            className="max-w-3xl space-y-6"
           >
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-teal-500/20 bg-teal-500/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.3em] text-teal-400">
-              Workflow Library
+            <div className="inline-flex items-center gap-2 border border-amber-signal/30 bg-amber-signal/5 px-4 py-1.5 text-[9px] font-mono font-bold text-amber-signal uppercase tracking-[0.3em] rounded-none">
+              // WORKFLOW OPERATIONAL LIBRARY
             </div>
-            <h1 className="mb-6 text-4xl font-black tracking-tight text-white md:text-7xl">
-              Solutions for <span className="text-gradient">High-Stakes Teams.</span>
+            <h1 className="text-4xl md:text-7xl font-black tracking-tight text-white font-geist uppercase">
+              Solutions for <span className="text-amber-signal">High-Stakes Teams.</span>
             </h1>
-            <p className="text-xl leading-relaxed text-slate-400">
-              Choose the workflow closest to your review environment and see how
-              Veridex fits into evidence, editorial, and research operations.
+            <p className="text-base text-slate-400 font-sans leading-relaxed">
+              Choose the workflow closest to your review environment and see how Veridex fits into evidence, editorial, and research operations.
             </p>
           </motion.div>
         </div>
       </section>
 
-      <section className="px-4 py-24 md:px-12">
-        <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-3">
+      <section className="px-6 py-24 md:px-12 bg-obsidian">
+        <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-3 font-mono text-[11px]">
           {solutions.map(({ title, description, href, icon: Icon }) => (
             <Link
               key={href}
               href={href}
-              className="glass rounded-3xl border border-white/5 p-8 transition-all hover:border-teal-500/30 hover:bg-white/[0.04]"
+              className="border border-deepslate bg-[#030712] p-8 rounded-none transition-all hover:border-amber-signal/30 flex flex-col justify-between group relative"
             >
-              <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-500/10 text-teal-400">
-                <Icon size={24} />
+              <div className="absolute top-0 left-0 right-0 h-[1px] bg-deepslate group-hover:bg-amber-signal/30" />
+              <div>
+                <div className="mb-6 flex h-10 w-10 items-center justify-center border border-deepslate bg-deepslate/30 text-amber-signal rounded-none">
+                  <Icon size={18} />
+                </div>
+                <h2 className="mb-4 text-xl font-bold text-white font-geist uppercase">{title}</h2>
+                <p className="mb-8 text-xs leading-relaxed text-slate-400 font-sans">
+                  {description}
+                </p>
               </div>
-              <h2 className="mb-4 text-2xl font-bold text-white">{title}</h2>
-              <p className="mb-8 text-sm leading-relaxed text-slate-400">
-                {description}
-              </p>
-              <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-teal-500">
-                Explore Workflow <ArrowRight size={14} />
+              <div className="inline-flex items-center gap-2 font-mono text-[9px] font-bold uppercase tracking-widest text-amber-signal mt-4">
+                [ Explore Workflow ] <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
           ))}

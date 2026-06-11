@@ -13,81 +13,84 @@ import Link from "next/link";
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-obsidian text-slate-300 font-sans selection:bg-amber-signal/20 selection:text-amber-signal">
       <Navbar />
       
-      <section className="pt-32 pb-20 px-4 md:px-12 bg-slate-950">
-        <div className="max-w-7xl mx-auto">
+      <section className="pt-32 pb-20 px-6 md:px-12 bg-gradient-to-b from-[#030712] to-obsidian border-b border-deepslate relative overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(245,158,11,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(245,158,11,0.015)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+        <div className="max-w-7xl mx-auto relative z-10">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            className="space-y-4"
           >
-            <div className="inline-flex items-center gap-2 rounded-full bg-teal-500/10 px-4 py-1.5 text-[10px] font-black text-teal-400 border border-teal-500/20 mb-8 uppercase tracking-[0.3em]">
-              Usage Framework
+            <div className="inline-flex items-center gap-2 border border-amber-signal/30 bg-amber-signal/5 px-4 py-1.5 text-[9px] font-mono font-bold text-amber-signal uppercase tracking-[0.3em] rounded-none">
+              // USAGE REGULATORY FRAMEWORK
             </div>
-            <h1 className="text-4xl md:text-6xl font-black text-white mb-8 tracking-tight leading-tight">
-              Terms of Forensic <br /><span className="text-gradient">Professional Use.</span>
+            <h1 className="text-4xl md:text-6xl font-black text-white mb-8 tracking-tight font-geist uppercase">
+              Terms of Forensic <br /><span className="text-amber-signal">Professional Use.</span>
             </h1>
-            <p className="text-xl text-slate-400 leading-relaxed max-w-2xl">
+            <p className="text-base md:text-lg text-slate-400 leading-relaxed font-sans max-w-2xl">
               By using the Veridex platform, you agree to our framework for professional forensic auditing.
             </p>
           </motion.div>
         </div>
       </section>
 
-      <section className="py-24 px-4 md:px-12">
+      <section className="py-24 px-6 md:px-12 bg-obsidian">
         <div className="max-w-4xl mx-auto space-y-16">
           
-          <div className="glass p-8 rounded-[2rem] border border-amber-500/20 bg-amber-500/[0.02] flex flex-col md:flex-row gap-8 items-center">
-            <Info className="text-amber-500 shrink-0" size={32} />
-            <p className="text-sm text-slate-300 font-medium leading-relaxed">
+          <div className="border border-amber-signal/20 bg-[#070b19]/30 p-8 rounded-none flex flex-col md:flex-row gap-8 items-center relative">
+            <div className="absolute top-0 left-0 w-1 h-full bg-amber-signal" />
+            <Info className="text-amber-signal shrink-0" size={32} />
+            <p className="text-xs text-slate-300 font-medium leading-relaxed font-sans text-justify">
               Veridex is an assistive forensic tool. Our terms emphasize that you, the user, retain final responsibility for the interpretation and publication of any media audited through our platform.
             </p>
           </div>
 
           <div className="space-y-12">
-            <div className="space-y-6">
-              <h4 className="text-2xl font-black text-white uppercase tracking-tight">1. Acceptable Use</h4>
-              <p className="text-sm text-slate-400 leading-relaxed">
+            <div className="space-y-4">
+              <h4 className="text-xl font-bold text-white uppercase font-geist tracking-wide">// 1. Acceptable Use</h4>
+              <p className="text-sm text-slate-400 leading-relaxed font-sans text-justify">
                 You agree not to use Veridex for malicious purposes, including the reverse-engineering of our detection heuristics or the intentional testing of synthetic media for the purpose of evading detection.
               </p>
             </div>
 
-            <div className="space-y-6">
-              <h4 className="text-2xl font-black text-white uppercase tracking-tight">2. Assistive Nature of Tools</h4>
-              <p className="text-sm text-slate-400 leading-relaxed">
+            <div className="space-y-4">
+              <h4 className="text-xl font-bold text-white uppercase font-geist tracking-wide">// 2. Assistive Nature of Tools</h4>
+              <p className="text-sm text-slate-400 leading-relaxed font-sans text-justify">
                 Veridex provides probabilistic forensic markers. You acknowledge that our outputs are not absolute truths and do not constitute legal advice or final evidentiary judgment.
               </p>
             </div>
 
-            <div className="space-y-6">
-              <h4 className="text-2xl font-black text-white uppercase tracking-tight">3. User Responsibility</h4>
-              <p className="text-sm text-slate-400 leading-relaxed">
+            <div className="space-y-4">
+              <h4 className="text-xl font-bold text-white uppercase font-geist tracking-wide">// 3. User Responsibility</h4>
+              <p className="text-sm text-slate-400 leading-relaxed font-sans text-justify">
                 Users are solely responsible for compliance with jurisdictional laws regarding the use of AI detection and digital evidence, including the EU AI Act and local courtroom standards.
               </p>
             </div>
 
-            <div className="space-y-6">
-              <h4 className="text-2xl font-black text-white uppercase tracking-tight">4. Intellectual Property</h4>
-              <p className="text-sm text-slate-400 leading-relaxed">
+            <div className="space-y-4">
+              <h4 className="text-xl font-bold text-white uppercase font-geist tracking-wide">// 4. Intellectual Property</h4>
+              <p className="text-sm text-slate-400 leading-relaxed font-sans text-justify">
                 You retain all rights to the media you upload for auditing. Veridex retains all rights to the forensic algorithms and reporting formats generated by our engine.
               </p>
             </div>
 
-            <div className="space-y-6">
-              <h4 className="text-2xl font-black text-white uppercase tracking-tight">5. Limitation of Liability</h4>
-              <p className="text-sm text-slate-400 leading-relaxed">
+            <div className="space-y-4">
+              <h4 className="text-xl font-bold text-white uppercase font-geist tracking-wide">// 5. Limitation of Liability</h4>
+              <p className="text-sm text-slate-400 leading-relaxed font-sans text-justify">
                 Veridex Forensic Systems shall not be liable for any editorial mistakes, legal losses, or brand damage resulting from the interpretation of our probabilistic signals. High-stakes conclusions require expert human verification.
               </p>
-              <Link href="/limitations" className="text-xs font-bold text-teal-500 flex items-center gap-2 hover:underline">
-                Read Full Limitations Disclosure <ExternalLink size={14} />
-              </Link>
+              <div className="pt-2 font-mono text-[9px]">
+                <Link href="/limitations" className="font-bold text-amber-signal flex items-center gap-2 hover:underline">
+                  [ Read Full Limitations Disclosure ] <ExternalLink size={12} />
+                </Link>
+              </div>
             </div>
 
-            <div className="pt-12 border-t border-white/5">
-              <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
-                Last Updated: March 2026. For terms inquiries, contact legal@veridex.internal
-              </p>
+            <div className="pt-12 border-t border-deepslate font-mono text-[9px] text-slate-500 uppercase tracking-widest">
+              Last Updated: March 2026. For terms inquiries, contact legal@veridex.internal
             </div>
           </div>
 

@@ -154,38 +154,35 @@ export default function PricingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50 selection:bg-teal-500 selection:text-black">
+    <div className="min-h-screen bg-obsidian text-slate-300 font-sans selection:bg-amber-signal/20 selection:text-amber-signal">
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative pt-36 pb-16 px-4 md:px-12 overflow-hidden text-center">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-[radial-gradient(circle_at_center,rgba(13,148,136,0.12),transparent_70%)] -z-10" />
+      <section className="relative pt-36 pb-16 px-6 md:px-12 text-center overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(245,158,11,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(245,158,11,0.015)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
         
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto space-y-6 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 rounded-full bg-teal-500/10 px-4 py-1.5 text-[10px] font-black text-teal-400 border border-teal-500/20 mb-6 uppercase tracking-[0.25em]"
+            className="inline-flex items-center gap-2 border border-amber-signal/30 bg-amber-signal/5 px-4 py-1.5 text-[9px] font-mono font-bold text-amber-signal uppercase tracking-[0.25em]"
           >
             <Scale size={12} className="animate-pulse" />
-            Flexible Monetization Options
+            // FORENSIC AUDITING ACQUISITION PLANS
           </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-4xl md:text-7xl font-black tracking-tight text-white mb-6 leading-none"
+            className="text-4xl md:text-7xl font-black tracking-tight text-white mb-6 font-geist uppercase"
           >
-            Sleek & Scalable <span className="bg-gradient-to-r from-teal-400 via-emerald-400 to-teal-300 bg-clip-text text-transparent">Forensic Plans</span>
+            Sleek & Scalable <span className="text-amber-signal">Forensic Plans</span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed"
+            className="text-base md:text-lg text-slate-400 max-w-2xl mx-auto font-sans leading-relaxed"
           >
             Unlock self-serve high-assurance verification. Instantly upgrade to verify digital evidence, media outputs, and corporate assets without sales friction.
           </motion.p>
@@ -194,14 +191,14 @@ export default function PricingPage() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.25 }}
-            className="max-w-md mx-auto mb-16 p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md text-left"
+            className="max-w-md mx-auto p-6 border border-deepslate bg-[#030712] text-left rounded-none font-mono text-[11px] relative"
           >
-            <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">
-              Step 1: Enter your professional email
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-amber-signal/30" />
+            <label className="block text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">
+              [ STEP 1 ] Enter your professional email
             </label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={18} />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={16} />
               <input
                 type="email"
                 value={email}
@@ -210,10 +207,10 @@ export default function PricingPage() {
                   setEmailErrors({});
                 }}
                 placeholder="you@yourcompany.com"
-                className="w-full bg-slate-950/80 border border-white/10 focus:border-teal-500 rounded-xl py-3.5 pl-12 pr-4 text-sm text-white placeholder:text-slate-700 outline-none transition-all focus:ring-1 focus:ring-teal-500/50"
+                className="w-full bg-[#020617] border border-deepslate focus:border-amber-signal/60 rounded-none py-3.5 pl-12 pr-4 text-xs text-white placeholder:text-slate-800 outline-none transition-all"
               />
             </div>
-            <p className="text-[10px] text-slate-500 mt-2 italic leading-relaxed">
+            <p className="text-[10px] text-slate-500 mt-3 italic leading-relaxed font-sans">
               We require your professional email to instantly link purchased credits and plans to your audit sessions.
             </p>
           </motion.div>
@@ -221,62 +218,58 @@ export default function PricingPage() {
       </section>
 
       {/* Tiers Grid */}
-      <section className="pb-24 px-4 md:px-12 max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-4 gap-6 items-stretch">
+      <section className="pb-24 px-6 md:px-12 max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-4 gap-6 items-stretch font-mono text-[11px]">
           
           {/* FREE TIER */}
-          <motion.div
-            onMouseEnter={() => setHoveredTier("free")}
-            onMouseLeave={() => setHoveredTier(null)}
-            className="glass-dark p-8 rounded-[2.5rem] border border-white/5 flex flex-col justify-between transition-all duration-300 hover:scale-[1.02]"
+          <div
+            className="border border-deepslate bg-[#030712] p-8 rounded-none flex flex-col justify-between hover:border-slate-800 transition-all relative"
           >
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-deepslate" />
             <div>
-              <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-4">Community Test</div>
-              <div className="text-4xl font-black text-white mb-6">FREE</div>
-              <p className="text-xs text-slate-400 leading-relaxed mb-6">
+              <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-4">// Community Test</div>
+              <div className="text-3xl font-bold text-white mb-6 font-geist">FREE</div>
+              <p className="text-slate-400 font-sans leading-relaxed mb-6 text-xs">
                 Evaluate basic verification capabilities. Perfect for students and curious professionals.
               </p>
               <ul className="space-y-4 mb-8">
-                <li className="text-[10px] text-slate-500 flex items-center gap-2">
-                  <CheckCircle2 size={12} className="text-teal-500" /> 3 Audits per Month
+                <li className="text-slate-500 flex items-center gap-2">
+                  <CheckCircle2 size={12} className="text-amber-signal" /> 3 Audits per Month
                 </li>
-                <li className="text-[10px] text-slate-500 flex items-center gap-2">
-                  <CheckCircle2 size={12} className="text-teal-500" /> Text & URL Analysis
+                <li className="text-slate-500 flex items-center gap-2">
+                  <CheckCircle2 size={12} className="text-amber-signal" /> Text & URL Analysis
                 </li>
-                <li className="text-[10px] text-slate-500 flex items-center gap-2">
-                  <CheckCircle2 size={12} className="text-teal-500" /> Standard Forensic Report
+                <li className="text-slate-500 flex items-center gap-2">
+                  <CheckCircle2 size={12} className="text-amber-signal" /> Standard Report
                 </li>
-                <li className="text-[10px] text-slate-600 flex items-center gap-2 line-through">
-                  ❌ Multi-modal File Uploads
+                <li className="text-slate-600 flex items-center gap-2 line-through">
+                  [-] Multi-modal Files
                 </li>
               </ul>
             </div>
             <Link 
               href="/audit" 
-              className="w-full py-4 rounded-xl border border-white/10 text-white text-center font-black uppercase tracking-widest text-[9px] hover:bg-white/5 transition-all"
+              className="btn-switch-secondary py-2"
             >
-              Start Free Auditor
+              Start Free
             </Link>
-          </motion.div>
+          </div>
 
           {/* STARTER TIER (Self-serve payment) */}
-          <motion.div
-            onMouseEnter={() => setHoveredTier("starter")}
-            onMouseLeave={() => setHoveredTier(null)}
-            className={`glass p-8 rounded-[2.5rem] flex flex-col justify-between transition-all duration-300 hover:scale-[1.02] border relative ${
-              hoveredTier === "starter" ? "border-teal-500/40 bg-teal-500/[0.02]" : "border-teal-500/20"
-            }`}
+          <div
+            className="border border-deepslate bg-[#030712] p-8 rounded-none flex flex-col justify-between hover:border-amber-signal/30 transition-all relative"
           >
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-deepslate" />
             <div>
-              <div className="text-[9px] font-black text-teal-400 uppercase tracking-widest mb-4">Starter Investigator</div>
-              <div className="text-4xl font-black text-white mb-6">
-                $49<span className="text-xs text-slate-500 font-bold ml-1 italic">/ one-time</span>
+              <div className="text-[9px] font-bold text-amber-signal uppercase tracking-widest mb-4">// Starter Investigator</div>
+              <div className="text-3xl font-bold text-white mb-6 font-geist">
+                $49<span className="text-[10px] text-slate-500 font-bold ml-1 italic font-mono uppercase">/ one-time</span>
               </div>
-              <p className="text-xs text-slate-300 leading-relaxed mb-6">
-                Self-serve package for small assignments and trials. Includes full file modality uploads.
+              <p className="text-slate-300 font-sans leading-relaxed mb-6 text-xs">
+                Self-serve package for small assignments and trials. Includes full file uploads.
               </p>
               
-              <div className="mb-6">
+              <div className="mb-6 font-mono">
                 <input
                   type="email"
                   id="email-input-starter"
@@ -286,51 +279,49 @@ export default function PricingPage() {
                     setEmailErrors({});
                   }}
                   placeholder="Enter email to checkout..."
-                  className="w-full bg-slate-950/60 border border-white/10 focus:border-teal-500 rounded-xl px-3 py-2 text-[10px] text-white placeholder:text-slate-700 outline-none"
+                  className="w-full bg-[#020617] border border-deepslate focus:border-amber-signal/60 rounded-none px-3 py-2 text-[10px] text-white placeholder:text-slate-800 outline-none"
                 />
                 {emailErrors["starter"] && (
-                  <p className="text-[9px] text-rose-400 mt-1 font-bold">{emailErrors["starter"]}</p>
+                  <p className="text-[9px] text-red-500 mt-1 font-bold">{emailErrors["starter"]}</p>
                 )}
               </div>
 
               <ul className="space-y-4 mb-8">
-                <li className="text-[10px] text-slate-300 flex items-center gap-2">
-                  <CheckCircle2 size={12} className="text-teal-500" /> 20 Audits (No expiration)
+                <li className="text-slate-300 flex items-center gap-2">
+                  <CheckCircle2 size={12} className="text-amber-signal" /> 20 Audits (Lifetime)
                 </li>
-                <li className="text-[10px] text-slate-300 flex items-center gap-2">
-                  <CheckCircle2 size={12} className="text-teal-500" /> Image, Audio & Video Forensic
+                <li className="text-slate-300 flex items-center gap-2">
+                  <CheckCircle2 size={12} className="text-amber-signal" /> Image, Audio & Video
                 </li>
-                <li className="text-[10px] text-slate-300 flex items-center gap-2">
-                  <CheckCircle2 size={12} className="text-teal-500" /> SHA-256 Ledger Recording
+                <li className="text-slate-300 flex items-center gap-2">
+                  <CheckCircle2 size={12} className="text-amber-signal" /> Ledger Recording
                 </li>
-                <li className="text-[10px] text-slate-300 flex items-center gap-2">
-                  <CheckCircle2 size={12} className="text-teal-500" /> Zero-Storage Compliance
+                <li className="text-slate-300 flex items-center gap-2">
+                  <CheckCircle2 size={12} className="text-amber-signal" /> Zero-Storage Compliance
                 </li>
               </ul>
             </div>
             <button 
               onClick={() => handleCheckout('starter', 'payment')}
-              className="w-full py-4 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-400 text-center font-black uppercase tracking-widest text-[9px] hover:bg-teal-500/20 transition-all flex items-center justify-center gap-2"
+              className="btn-switch-primary py-2"
             >
-              Buy Starter Batch <ArrowRight size={12} />
+              Buy Starter Batch
             </button>
-          </motion.div>
+          </div>
 
           {/* PRO TIER (Self-serve subscription) */}
-          <motion.div
-            onMouseEnter={() => setHoveredTier("pro")}
-            onMouseLeave={() => setHoveredTier(null)}
-            className="glass p-8 rounded-[2.5rem] border-teal-500/40 relative flex flex-col justify-between shadow-2xl transition-all duration-300 hover:scale-[1.02] bg-teal-500/[0.04] z-10"
+          <div
+            className="border border-amber-signal/40 bg-[#070b19]/40 p-8 rounded-none relative flex flex-col justify-between shadow-xl z-10"
           >
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-teal-500 px-4 py-1 text-[7px] font-black text-white uppercase tracking-[0.25em]">
-              MOST POPULAR
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 border border-amber-signal bg-amber-signal px-4 py-0.5 text-[8px] font-bold text-black uppercase tracking-[0.25em]">
+              RECOMMENDED
             </div>
             <div>
-              <div className="text-[9px] font-black text-teal-300 uppercase tracking-widest mb-4">Editorial Pro</div>
-              <div className="text-4xl font-black text-white mb-6">
-                $299<span className="text-xs text-slate-600 font-bold ml-1 italic">/ mo</span>
+              <div className="text-[9px] font-bold text-amber-signal uppercase tracking-widest mb-4">// Editorial Pro</div>
+              <div className="text-3xl font-bold text-white mb-6 font-geist">
+                $299<span className="text-[10px] text-slate-500 font-bold ml-1 italic font-mono uppercase">/ mo</span>
               </div>
-              <p className="text-xs text-slate-200 leading-relaxed mb-6 font-medium">
+              <p className="text-slate-200 font-sans leading-relaxed mb-6 font-medium text-xs">
                 Full-scale verification capability for newsrooms, legal cases, and media organizations.
               </p>
 
@@ -344,133 +335,135 @@ export default function PricingPage() {
                     setEmailErrors({});
                   }}
                   placeholder="Enter email to checkout..."
-                  className="w-full bg-slate-950/60 border border-white/10 focus:border-teal-500 rounded-xl px-3 py-2 text-[10px] text-white placeholder:text-slate-700 outline-none"
+                  className="w-full bg-[#020617] border border-deepslate focus:border-amber-signal/60 rounded-none px-3 py-2 text-[10px] text-white placeholder:text-slate-800 outline-none"
                 />
                 {emailErrors["pro"] && (
-                  <p className="text-[9px] text-rose-400 mt-1 font-bold">{emailErrors["pro"]}</p>
+                  <p className="text-[9px] text-red-500 mt-1 font-bold">{emailErrors["pro"]}</p>
                 )}
               </div>
 
               <ul className="space-y-4 mb-8">
-                <li className="text-[10px] text-white flex items-center gap-2">
-                  <CheckCircle2 size={12} className="text-teal-400" /> Unlimited Audits
+                <li className="text-white flex items-center gap-2">
+                  <CheckCircle2 size={12} className="text-amber-signal" /> Unlimited Audits
                 </li>
-                <li className="text-[10px] text-white flex items-center gap-2">
-                  <CheckCircle2 size={12} className="text-teal-400" /> Priority Forensic Queue
+                <li className="text-white flex items-center gap-2">
+                  <CheckCircle2 size={12} className="text-amber-signal" /> Priority Queue (&lt;2s)
                 </li>
-                <li className="text-[10px] text-white flex items-center gap-2">
-                  <CheckCircle2 size={12} className="text-teal-400" /> Bias Fingerprinting
+                <li className="text-white flex items-center gap-2">
+                  <CheckCircle2 size={12} className="text-amber-signal" /> Bias Fingerprinting
                 </li>
-                <li className="text-[10px] text-white flex items-center gap-2">
-                  <CheckCircle2 size={12} className="text-teal-400" /> Cryptographic signed PDFs
+                <li className="text-white flex items-center gap-2">
+                  <CheckCircle2 size={12} className="text-amber-signal" /> Cryptographic signed PDFs
                 </li>
-                <li className="text-[10px] text-white flex items-center gap-2">
-                  <CheckCircle2 size={12} className="text-teal-400" /> Basic API Integration
+                <li className="text-white flex items-center gap-2">
+                  <CheckCircle2 size={12} className="text-amber-signal" /> Basic API Integration
                 </li>
               </ul>
             </div>
             <button 
               onClick={() => handleCheckout('pro', 'subscription')}
-              className="w-full py-4 rounded-xl bg-teal-500 text-black text-center font-black uppercase tracking-widest text-[9px] hover:bg-teal-400 transition-all flex items-center justify-center gap-2 hover:scale-[1.01]"
+              className="btn-switch-primary py-2"
             >
-              Get Full Assurance <Zap size={10} fill="currentColor" />
+              Get Full Assurance
             </button>
-          </motion.div>
+          </div>
 
           {/* ENTERPRISE TIER */}
-          <motion.div
-            onMouseEnter={() => setHoveredTier("enterprise")}
-            onMouseLeave={() => setHoveredTier(null)}
-            className="glass-dark p-8 rounded-[2.5rem] border border-white/5 flex flex-col justify-between transition-all duration-300 hover:scale-[1.02]"
+          <div
+            className="border border-deepslate bg-[#030712] p-8 rounded-none flex flex-col justify-between hover:border-slate-800 transition-all relative"
           >
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-deepslate" />
             <div>
-              <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-4">Enterprise Tiers</div>
-              <div className="text-3xl font-black text-white mb-6 italic">Custom / SLAs</div>
-              <p className="text-xs text-slate-400 leading-relaxed mb-6">
+              <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-4">// Enterprise Tiers</div>
+              <div className="text-3xl font-bold text-white mb-6 font-geist">CUSTOM</div>
+              <p className="text-slate-400 font-sans leading-relaxed mb-6 text-xs">
                 On-prem, dedicated models, and compliance configurations for global corporations.
               </p>
               <ul className="space-y-4 mb-8">
-                <li className="text-[10px] text-slate-500 flex items-center gap-2">
-                  <CheckCircle2 size={12} className="text-teal-500" /> Custom Fine-tuned Models
+                <li className="text-slate-500 flex items-center gap-2">
+                  <CheckCircle2 size={12} className="text-amber-signal" /> Custom Host Nodes
                 </li>
-                <li className="text-[10px] text-slate-500 flex items-center gap-2">
-                  <CheckCircle2 size={12} className="text-teal-500" /> Dedicated Host Nodes
+                <li className="text-slate-500 flex items-center gap-2">
+                  <CheckCircle2 size={12} className="text-amber-signal" /> Dedicated APIs
                 </li>
-                <li className="text-[10px] text-slate-500 flex items-center gap-2">
-                  <CheckCircle2 size={12} className="text-teal-500" /> 99.9% Uptime Guarantee (SLA)
+                <li className="text-slate-500 flex items-center gap-2">
+                  <CheckCircle2 size={12} className="text-amber-signal" /> 99.9% Uptime SLAs
                 </li>
-                <li className="text-[10px] text-slate-500 flex items-center gap-2">
-                  <CheckCircle2 size={12} className="text-teal-500" /> SSO & Team Administration
+                <li className="text-slate-500 flex items-center gap-2">
+                  <CheckCircle2 size={12} className="text-amber-signal" /> SSO / Team Auditing
                 </li>
               </ul>
             </div>
             <Link 
               href="/request-demo" 
-              className="w-full py-4 rounded-xl border border-white/10 text-white text-center font-black uppercase tracking-widest text-[9px] hover:bg-white/5 transition-all"
+              className="btn-switch-secondary py-2"
             >
               Contact Sales
             </Link>
-          </motion.div>
+          </div>
 
         </div>
         
-        <p className="mt-12 text-center text-[10px] text-slate-500 font-bold uppercase tracking-widest italic flex items-center justify-center gap-3">
-          <Info size={12} className="text-teal-500 shrink-0" /> 
-          Stripe secure self-serve payments are fully supported. No waiting for sales consultation.
+        <p className="mt-12 text-center text-[9px] text-slate-500 font-mono font-bold uppercase tracking-widest italic flex items-center justify-center gap-3">
+          <Info size={12} className="text-amber-signal shrink-0" /> 
+          Stripe secure self-serve payments are fully supported. No sales friction.
         </p>
       </section>
 
       {/* Feature Comparison Table - Answering "Why Pay?" value proposition */}
-      <section className="py-20 px-4 md:px-12 bg-white/[0.01] border-y border-white/5">
+      <section className="py-20 px-6 md:px-12 bg-obsidian border-y border-deepslate">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-sm font-black text-teal-500 uppercase tracking-[0.4em] mb-4">Complete Spec Breakdown</h2>
-            <h3 className="text-3xl md:text-4xl font-black text-white">Compare Plan Offerings</h3>
-            <p className="text-slate-400 mt-3 text-sm">See exactly why professionals trust our paid forensic tiers over generic AI detection markers.</p>
+          <div className="text-center mb-16 space-y-4">
+            <h2 className="text-[10px] font-mono font-bold text-amber-signal uppercase tracking-[0.4em]">// COMPLETE SPEC BREAKDOWN</h2>
+            <h3 className="text-3xl md:text-4xl font-black text-white font-geist uppercase">Compare Plan Offerings</h3>
+            <p className="text-slate-400 text-sm font-sans max-w-xl mx-auto">See exactly why professionals trust our paid forensic tiers over generic AI detection markers.</p>
           </div>
 
-          <div className="overflow-x-auto rounded-3xl border border-white/10 shadow-2xl glass-dark">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-white/10 bg-white/5 text-slate-400 font-black uppercase tracking-widest">
-                  <th className="p-6">Feature / Capability</th>
-                  <th className="p-6">Free</th>
-                  <th className="p-6 text-teal-400">Starter</th>
-                  <th className="p-6 text-teal-300">Editorial Pro</th>
-                  <th className="p-6">Enterprise</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5 text-slate-300">
-                {planComparison.map((row, index) => (
-                  <tr key={index} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="p-6 font-bold text-slate-100">{row.feature}</td>
-                    <td className="p-6 text-slate-500">{row.free}</td>
-                    <td className="p-6 font-medium text-teal-200/90">{row.starter}</td>
-                    <td className="p-6 font-semibold text-teal-100">{row.pro}</td>
-                    <td className="p-6 text-slate-400">{row.enterprise}</td>
+          <div className="border border-deepslate bg-[#030712] rounded-none overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse font-mono text-[11px]">
+                <thead>
+                  <tr className="border-b border-deepslate bg-[#070b19]/30 text-slate-400 uppercase tracking-widest text-[9px] font-bold">
+                    <th className="p-6">Feature / Capability</th>
+                    <th className="p-6">Free</th>
+                    <th className="p-6 text-amber-signal">Starter</th>
+                    <th className="p-6 text-amber-signal">Pro</th>
+                    <th className="p-6">Enterprise</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-deepslate text-slate-300">
+                  {planComparison.map((row, index) => (
+                    <tr key={index} className="hover:bg-[#070b19]/25 transition-colors">
+                      <td className="p-6 font-bold text-white uppercase text-[10px]">{row.feature}</td>
+                      <td className="p-6 text-slate-500">{row.free}</td>
+                      <td className="p-6 font-medium text-amber-signal/80">{row.starter}</td>
+                      <td className="p-6 font-bold text-white">{row.pro}</td>
+                      <td className="p-6 text-slate-400">{row.enterprise}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>
 
       {/* FAQ Section */}
-      <section className="py-24 px-4 md:px-12 max-w-4xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-sm font-black text-teal-500 uppercase tracking-[0.4em] mb-4">Billing Intelligence</h2>
-          <h3 className="text-3xl font-black text-white">Frequently Answered Questions</h3>
+      <section className="py-24 px-6 md:px-12 max-w-4xl mx-auto bg-obsidian">
+        <div className="text-center mb-16 space-y-4">
+          <h2 className="text-[10px] font-mono font-bold text-amber-signal uppercase tracking-[0.4em]">// BILLING INTELLIGENCE</h2>
+          <h3 className="text-3xl font-black text-white font-geist uppercase">Frequently Answered Questions</h3>
         </div>
 
         <div className="space-y-6">
           {faqs.map((faq, index) => (
-            <div key={index} className="glass p-8 rounded-3xl border border-white/5 hover:border-white/10 transition-colors">
-              <h4 className="text-base font-bold text-white mb-3 flex items-start gap-3">
-                <HelpCircle size={18} className="text-teal-500 shrink-0 mt-0.5" />
+            <div key={index} className="border border-deepslate bg-[#030712] p-8 rounded-none relative">
+              <div className="absolute top-0 left-0 right-0 h-[1px] bg-deepslate" />
+              <h4 className="text-base font-bold text-white mb-3 flex items-start gap-3 uppercase font-geist">
+                <HelpCircle size={16} className="text-amber-signal shrink-0 mt-0.5" />
                 {faq.question}
               </h4>
-              <p className="text-sm text-slate-400 leading-relaxed pl-7">
+              <p className="text-xs text-slate-400 leading-relaxed pl-7 font-sans text-justify">
                 {faq.answer}
               </p>
             </div>

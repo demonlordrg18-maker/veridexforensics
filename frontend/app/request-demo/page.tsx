@@ -26,12 +26,12 @@ const FORMSPREE_ENDPOINT = "https://formspree.io/f/meevnewj";
 
 const ValueProp = ({ icon: Icon, title, desc }: any) => (
   <div className="flex gap-4">
-    <div className="h-10 w-10 shrink-0 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-400">
-      <Icon size={20} />
+    <div className="h-10 w-10 shrink-0 border border-deepslate bg-[#030712] flex items-center justify-center text-amber-signal rounded-none">
+      <Icon size={18} />
     </div>
     <div>
-      <h4 className="font-bold text-white text-sm mb-1">{title}</h4>
-      <p className="text-xs text-slate-500 leading-relaxed">{desc}</p>
+      <h4 className="font-bold text-white text-xs uppercase font-geist tracking-wide">{title}</h4>
+      <p className="text-[11px] text-slate-500 font-sans leading-relaxed">{desc}</p>
     </div>
   </div>
 );
@@ -149,60 +149,63 @@ export default function RequestDemoPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-obsidian text-slate-300 font-sans selection:bg-amber-signal/20 selection:text-amber-signal">
         <Navbar />
-        <section className="pt-56 pb-32 px-4 flex flex-col items-center text-center">
+        <section className="pt-56 pb-32 px-6 flex flex-col items-center text-center max-w-4xl mx-auto">
            <motion.div 
              initial={{ scale: 0.8, opacity: 0 }}
              animate={{ scale: 1, opacity: 1 }}
-             className="h-24 w-24 rounded-full bg-teal-500/10 flex items-center justify-center text-teal-500 mb-8 border border-teal-500/20 shadow-2xl shadow-teal-500/10"
+             className="h-20 w-20 border border-amber-signal/30 bg-amber-signal/5 flex items-center justify-center text-amber-signal mb-8 rounded-none shadow-[0_0_15px_rgba(245,158,11,0.2)]"
            >
-              <CheckCircle size={48} />
+              <CheckCircle size={36} />
            </motion.div>
-           <h1 className="text-4xl md:text-5xl font-black text-white mb-6">Demo Requested.</h1>
-           <p className="text-xl text-slate-400 max-w-xl mb-12">
-             Thank you, <span className="text-white font-bold">{submitted.first_name}</span>. A forensic specialist will review your request and contact you at <span className="text-teal-400 font-mono">{submitted.email}</span> {submitted.response_time} to schedule your walkthrough.
+           <h1 className="text-4xl md:text-5xl font-black text-white font-geist uppercase mb-6">Demo Requested.</h1>
+           <p className="text-base text-slate-400 max-w-xl mb-12">
+             Thank you, <span className="text-white font-bold">{submitted.first_name}</span>. A forensic specialist will review your request and contact you at <span className="text-amber-signal font-mono">{submitted.email}</span> {submitted.response_time} to schedule your walkthrough.
            </p>
 
-           <div className="glass rounded-3xl border border-white/5 p-6 w-full max-w-2xl mb-6 text-left">
-             <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500 mb-3">Request Receipt</p>
-             <p className="text-sm text-white mb-2">Reference ID: {submitted.id}</p>
-             <p className="text-sm text-slate-400">Submitted: {new Date(submitted.created_at).toLocaleString()}</p>
+           <div className="border border-deepslate bg-[#030712] p-6 w-full max-w-2xl mb-6 text-left rounded-none relative font-mono text-[11px]">
+             <div className="absolute top-0 left-0 right-0 h-[1px] bg-amber-signal/30" />
+             <p className="text-[9px] uppercase tracking-[0.3em] text-slate-500 mb-3">// REQUEST RECEIPT MANIFEST</p>
+             <p className="text-sm text-white mb-2 font-bold">Reference ID: {submitted.id}</p>
+             <p className="text-slate-400">Submitted: {new Date(submitted.created_at).toLocaleString()}</p>
            </div>
            
-           <div className="grid md:grid-cols-3 gap-4 w-full max-w-3xl mb-12">
-              <Link href="/audit" className="group flex flex-col items-center gap-3 p-6 bg-teal-500/5 border border-teal-500/20 rounded-2xl hover:bg-teal-500/10 transition-all text-center">
-                <div className="h-12 w-12 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-400 group-hover:scale-110 transition-transform">
-                  <Zap size={24} />
+           <div className="grid md:grid-cols-3 gap-4 w-full max-w-3xl mb-12 font-mono text-[11px]">
+              <Link href="/audit" className="group flex flex-col items-center gap-3 p-6 bg-[#030712] border border-deepslate rounded-none hover:border-amber-signal/30 transition-all text-center">
+                <div className="h-10 w-10 border border-deepslate bg-deepslate/30 flex items-center justify-center text-amber-signal group-hover:border-amber-signal/40 transition-colors">
+                  <Zap size={18} />
                 </div>
                 <div>
-                  <h4 className="text-white font-bold text-sm">Try Live Audit</h4>
-                  <p className="text-[10px] text-slate-500">Run a test while you wait.</p>
+                  <h4 className="text-white font-bold text-xs uppercase font-geist">Try Live Audit</h4>
+                  <p className="text-[9px] text-slate-500 mt-1 font-sans">Run a test while you wait.</p>
                 </div>
               </Link>
 
-              <Link href="/sample-audit" className="group flex flex-col items-center gap-3 p-6 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.04] transition-all text-center">
-                <div className="h-12 w-12 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-400 group-hover:scale-110 transition-transform">
-                  <FileText size={24} />
+              <Link href="/sample-audit" className="group flex flex-col items-center gap-3 p-6 bg-[#030712] border border-deepslate rounded-none hover:border-amber-signal/30 transition-all text-center">
+                <div className="h-10 w-10 border border-deepslate bg-deepslate/30 flex items-center justify-center text-amber-signal group-hover:border-amber-signal/40 transition-colors">
+                  <FileText size={18} />
                 </div>
                 <div>
-                  <h4 className="text-white font-bold text-sm">Sample Report</h4>
-                  <p className="text-[10px] text-slate-500">See a forensic output.</p>
+                  <h4 className="text-white font-bold text-xs uppercase font-geist">Sample Report</h4>
+                  <p className="text-[9px] text-slate-500 mt-1 font-sans">See a forensic output.</p>
                 </div>
               </Link>
               
-              <a href="mailto:forensics@veridex.ai" className="group flex flex-col items-center gap-3 p-6 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.04] transition-all text-center">
-                <div className="h-12 w-12 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-400 group-hover:scale-110 transition-transform">
-                  <Mail size={24} />
+              <a href="mailto:forensics@veridex.ai" className="group flex flex-col items-center gap-3 p-6 bg-[#030712] border border-deepslate rounded-none hover:border-amber-signal/30 transition-all text-center">
+                <div className="h-10 w-10 border border-deepslate bg-deepslate/30 flex items-center justify-center text-amber-signal group-hover:border-amber-signal/40 transition-colors">
+                  <Mail size={18} />
                 </div>
                 <div>
-                  <h4 className="text-white font-bold text-sm">Direct Contact</h4>
-                  <p className="text-[10px] text-slate-500">Need urgent access?</p>
+                  <h4 className="text-white font-bold text-xs uppercase font-geist">Direct Contact</h4>
+                  <p className="text-[9px] text-slate-500 mt-1 font-sans">Need urgent access?</p>
                 </div>
               </a>
            </div>
 
-           <Link href="/" className="btn-primary px-12 py-4">Return Home</Link>
+           <div className="font-mono">
+             <Link href="/" className="btn-switch-primary">Return Home</Link>
+           </div>
         </section>
         <Footer />
       </div>
@@ -210,40 +213,42 @@ export default function RequestDemoPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-obsidian text-slate-300 font-sans selection:bg-amber-signal/20 selection:text-amber-signal">
       <Navbar />
       
-      <section className="pt-32 pb-20 px-4 md:px-12 bg-slate-950">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
+      <section className="pt-32 pb-20 px-6 md:px-12 bg-gradient-to-b from-[#030712] to-obsidian border-b border-deepslate relative overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(245,158,11,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(245,158,11,0.015)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center relative z-10">
           
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
+            className="space-y-6"
           >
-            <div className="inline-flex items-center gap-2 rounded-full bg-teal-500/10 px-4 py-1.5 text-[10px] font-black text-teal-400 border border-teal-500/20 mb-8 uppercase tracking-[0.3em]">
-              Request Platform Access
+            <div className="inline-flex items-center gap-2 border border-amber-signal/30 bg-amber-signal/5 px-4 py-1.5 text-[9px] font-mono font-bold text-amber-signal uppercase tracking-[0.3em] rounded-none">
+              // ACQUIRE FORENSIC PLATFORM ACCESS
             </div>
-            <h1 className="text-4xl md:text-7xl font-black text-white mb-8 tracking-tight leading-tight">
-              Get a Forensic <br /><span className="text-gradient">Walkthrough.</span>
+            <h1 className="text-4xl md:text-7xl font-black text-white leading-tight font-geist uppercase">
+              Get a Forensic <br /><span className="text-amber-signal">Walkthrough.</span>
             </h1>
-            <p className="text-xl text-slate-400 leading-relaxed mb-12">
+            <p className="text-base text-slate-400 leading-relaxed font-sans">
               See the Veridex engine in action. We'll walk you through a live audit, explain our signal methodology, and discuss integration into your specific workflow.
             </p>
             
-            <div className="space-y-8">
+            <div className="space-y-8 pt-4">
               <ValueProp 
                 icon={ShieldCheck} 
-                title="Sober Methodology" 
+                title="Sober Heuristics" 
                 desc="Understand the science behind our forensic signal detection and verity indexing." 
               />
               <ValueProp 
                 icon={Lock} 
-                title="Enterprise Security" 
+                title="Court-Ready Security" 
                 desc="Learn about our private deployment options and immutable ledger architecture." 
               />
               <ValueProp 
                 icon={Zap} 
-                title="API Integration" 
+                title="API Access" 
                 desc="Review technical documentation for integrating Veridex into your newsroom or legal CMS." 
               />
             </div>
@@ -252,12 +257,13 @@ export default function RequestDemoPage() {
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="glass-dark p-10 rounded-[3rem] border border-white/5 relative bg-white/[0.02]"
+            className="border border-deepslate bg-[#030712] p-10 rounded-none relative"
           >
-            <h3 className="text-2xl font-black text-white mb-8">Request Walkthrough</h3>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-amber-signal/30" />
+            <h3 className="text-2xl font-black text-white font-geist uppercase mb-8">// Request Walkthrough</h3>
+            <form onSubmit={handleSubmit} className="space-y-6 font-mono text-[11px]">
                {error && (
-                 <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-xl text-xs font-bold mb-6">
+                 <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-none text-xs font-bold mb-6 font-mono">
                    {error}
                  </div>
                )}
@@ -269,7 +275,7 @@ export default function RequestDemoPage() {
 
                <div className="grid grid-cols-2 gap-6">
                  <div className="space-y-2">
-                   <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest ml-1">Full Name</label>
+                   <label className="text-[9px] font-bold uppercase text-slate-500 tracking-widest ml-1">// Full Name</label>
                    <input 
                      required 
                      type="text" 
@@ -277,11 +283,11 @@ export default function RequestDemoPage() {
                      value={formData.full_name}
                      onChange={handleChange}
                      placeholder="Jane Doe" 
-                     className="w-full bg-slate-900 border border-white/10 rounded-xl px-5 py-4 text-white placeholder:text-slate-600 focus:border-teal-500 transition-all focus:outline-none" 
+                     className="w-full bg-[#020617] border border-deepslate rounded-none px-4 py-3 text-white placeholder:text-slate-800 focus:border-amber-signal/60 focus:outline-none transition-all" 
                    />
                  </div>
                  <div className="space-y-2">
-                   <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest ml-1">Professional Email</label>
+                   <label className="text-[9px] font-bold uppercase text-slate-500 tracking-widest ml-1">// Prof. Email</label>
                    <input 
                      required 
                      type="email" 
@@ -289,87 +295,90 @@ export default function RequestDemoPage() {
                      value={formData.email}
                      onChange={handleChange}
                      placeholder="jane@company.com" 
-                     className="w-full bg-slate-900 border border-white/10 rounded-xl px-5 py-4 text-white placeholder:text-slate-600 focus:border-teal-500 transition-all focus:outline-none" 
+                     className="w-full bg-[#020617] border border-deepslate rounded-none px-4 py-3 text-white placeholder:text-slate-800 focus:border-amber-signal/60 focus:outline-none transition-all" 
                    />
                  </div>
                </div>
                
                <div className="space-y-2">
-                 <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest ml-1">Organization</label>
+                 <label className="text-[9px] font-bold uppercase text-slate-500 tracking-widest ml-1">// Organization</label>
                  <input 
                    required 
                    type="text" 
                    name="organization"
                    value={formData.organization}
                    onChange={handleChange}
-                   placeholder="Newsroom, Law Firm, or Research Inst." 
-                   className="w-full bg-slate-900 border border-white/10 rounded-xl px-5 py-4 text-white placeholder:text-slate-600 focus:border-teal-500 transition-all focus:outline-none" 
+                   placeholder="Newsroom, Law Firm, or Agency" 
+                   className="w-full bg-[#020617] border border-deepslate rounded-none px-4 py-3 text-white placeholder:text-slate-800 focus:border-amber-signal/60 focus:outline-none transition-all" 
                  />
                </div>
 
                <div className="grid grid-cols-2 gap-6">
                  <div className="space-y-2">
-                   <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest ml-1">Your Role</label>
-                   <select 
-                     required 
-                     name="role"
-                     value={formData.role}
-                     onChange={handleChange}
-                     className="w-full bg-slate-900 border border-white/10 rounded-xl px-5 py-4 text-white focus:border-teal-500 transition-all focus:outline-none appearance-none cursor-pointer"
-                   >
-                      <option value="">Select role...</option>
-                      <option value="journalist">Journalist / Editor</option>
-                      <option value="legal">Legal Counsel</option>
-                      <option value="research">Researcher</option>
-                      <option value="risk">Risk / Trust & Safety</option>
-                      <option value="eng">Engineering / Product</option>
-                   </select>
+                   <label className="text-[9px] font-bold uppercase text-slate-500 tracking-widest ml-1">// Your Role</label>
+                   <div className="relative">
+                     <select 
+                       required 
+                       name="role"
+                       value={formData.role}
+                       onChange={handleChange}
+                       className="w-full bg-[#020617] border border-deepslate rounded-none px-4 py-3 text-white focus:border-amber-signal/60 focus:outline-none appearance-none cursor-pointer"
+                     >
+                        <option value="">Select role...</option>
+                        <option value="journalist">Journalist / Editor</option>
+                        <option value="legal">Legal Counsel</option>
+                        <option value="research">Researcher</option>
+                        <option value="risk">Risk / Trust & Safety</option>
+                        <option value="eng">Engineering / Product</option>
+                     </select>
+                   </div>
                  </div>
                  <div className="space-y-2">
-                   <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest ml-1">Primary Use Case</label>
-                   <select 
-                     required 
-                     name="use_case"
-                     value={formData.use_case}
-                     onChange={handleChange}
-                     className="w-full bg-slate-900 border border-white/10 rounded-xl px-5 py-4 text-white focus:border-teal-500 transition-all focus:outline-none appearance-none cursor-pointer"
-                   >
-                      <option value="">Select use case...</option>
-                      <option value="evidence">Evaluating Evidence</option>
-                      <option value="newsroom">Newsroom Verification</option>
-                      <option value="archive">Archival Research</option>
-                      <option value="enterprise">Enterprise/API Access</option>
-                   </select>
+                   <label className="text-[9px] font-bold uppercase text-slate-500 tracking-widest ml-1">// Use Case</label>
+                   <div className="relative">
+                     <select 
+                       required 
+                       name="use_case"
+                       value={formData.use_case}
+                       onChange={handleChange}
+                       className="w-full bg-[#020617] border border-deepslate rounded-none px-4 py-3 text-white focus:border-amber-signal/60 focus:outline-none appearance-none cursor-pointer"
+                     >
+                        <option value="">Select use case...</option>
+                        <option value="evidence">Evaluating Evidence</option>
+                        <option value="newsroom">Newsroom Verification</option>
+                        <option value="archive">Archival Research</option>
+                        <option value="enterprise">Enterprise/API Access</option>
+                     </select>
+                   </div>
                  </div>
                </div>
 
                <div className="space-y-2">
-                 <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest ml-1">Specific Needs / Sample Notes</label>
+                 <label className="text-[9px] font-bold uppercase text-slate-500 tracking-widest ml-1">// Specific Needs / Notes</label>
                  <textarea 
-                   rows={4} 
+                   rows={3} 
                    name="notes"
                    value={formData.notes}
                    onChange={handleChange}
-                   placeholder="Tell us about the content types you verify most often..." 
-                   className="w-full bg-slate-900 border border-white/10 rounded-xl px-5 py-4 text-white placeholder:text-slate-600 focus:border-teal-500 transition-all focus:outline-none" 
+                   placeholder="Describe what media types you verify most frequently..." 
+                   className="w-full bg-[#020617] border border-deepslate rounded-none px-4 py-3 text-white placeholder:text-slate-800 focus:border-amber-signal/60 focus:outline-none transition-all" 
                  />
                </div>
 
                <button 
-                type="submit" 
-                disabled={loading}
-                className={`w-full btn-primary py-5 text-lg font-black flex items-center justify-center gap-3 transition-all ${loading ? 'opacity-70 cursor-not-allowed scale-[0.98]' : 'hover:scale-[1.02]'}`}
+                 type="submit" 
+                 disabled={loading}
+                 className="w-full btn-switch-primary py-3 text-xs uppercase"
                >
                  {loading ? "Processing..." : "Request Forensic Walkthrough"}
-                 {!loading && <ArrowRight size={20} />}
                </button>
                
-               <p className="text-center text-[10px] text-slate-600 uppercase tracking-widest mt-6">
-                 We respect your privacy. Requests are validated and reviewed by a human.
+               <p className="text-center text-[9px] text-slate-600 uppercase tracking-widest mt-6">
+                 We respect your privacy. All requests are subject to verification check.
                </p>
             </form>
           </motion.div>
-
+ 
         </div>
       </section>
 
@@ -377,4 +386,3 @@ export default function RequestDemoPage() {
     </div>
   );
 }
-

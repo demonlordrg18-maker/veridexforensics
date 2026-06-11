@@ -14,34 +14,36 @@ import {
 import Link from "next/link";
 
 const LimitationCard = ({ icon: Icon, title, description }: any) => (
-  <div className="glass p-8 rounded-3xl border border-white/5 bg-white/[0.01]">
-    <div className="h-10 w-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500 mb-6">
-      <Icon size={20} />
+  <div className="border border-deepslate bg-[#030712] p-8 rounded-none relative">
+    <div className="absolute top-0 left-0 right-0 h-[1px] bg-deepslate" />
+    <div className="h-10 w-10 border border-deepslate bg-deepslate/30 flex items-center justify-center text-amber-signal mb-6 rounded-none">
+      <Icon size={18} />
     </div>
-    <h3 className="text-xl font-bold text-white mb-4">{title}</h3>
-    <p className="text-slate-400 text-sm leading-relaxed">{description}</p>
+    <h3 className="text-lg font-bold text-white mb-4 font-geist uppercase">{title}</h3>
+    <p className="text-slate-400 text-xs leading-relaxed font-sans">{description}</p>
   </div>
 );
 
 export default function LimitationsPage() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-obsidian text-slate-300 font-sans selection:bg-amber-signal/20 selection:text-amber-signal">
       <Navbar />
       
-      <section className="pt-32 pb-20 px-4 md:px-12 bg-slate-950">
-        <div className="max-w-7xl mx-auto">
+      <section className="pt-32 pb-20 px-6 md:px-12 bg-gradient-to-b from-[#030712] to-obsidian border-b border-deepslate relative overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(245,158,11,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(245,158,11,0.015)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+        <div className="max-w-7xl mx-auto relative z-10">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="max-w-3xl"
+            className="max-w-3xl space-y-4"
           >
-            <div className="inline-flex items-center gap-2 rounded-full bg-orange-500/10 px-4 py-1.5 text-[10px] font-black text-orange-500 border border-orange-500/20 mb-8 uppercase tracking-[0.3em]">
-              Disclosure of Limitations
+            <div className="inline-flex items-center gap-2 border border-amber-signal/30 bg-amber-signal/5 px-4 py-1.5 text-[9px] font-mono font-bold text-amber-signal uppercase tracking-[0.3em] rounded-none">
+              // DISCLOSURE OF TECHNICAL LIMITATIONS
             </div>
-            <h1 className="text-4xl md:text-7xl font-black text-white mb-8 tracking-tight">
-              Bridging the <span className="text-gradient">Gap.</span>
+            <h1 className="text-4xl md:text-7xl font-black text-white mb-8 tracking-tight font-geist uppercase">
+              Bridging the <span className="text-amber-signal">Gap.</span>
             </h1>
-            <p className="text-xl text-slate-400 leading-relaxed max-w-2xl">
+            <p className="text-base md:text-lg text-slate-400 leading-relaxed font-sans max-w-2xl">
               Veridex is an adaptive forensic platform. We are continuously engineering around traditional detection limits through multi-model consensus and deep-pixel analysis.
             </p>
           </motion.div>
@@ -49,17 +51,18 @@ export default function LimitationsPage() {
       </section>
 
       {/* Philosophy Banner */}
-      <section className="py-12 px-4 md:px-12">
-        <div className="max-w-7xl mx-auto glass border-orange-500/20 p-8 rounded-[2rem] bg-orange-500/[0.02] flex flex-col md:flex-row gap-8 items-center">
-            <ShieldAlert className="text-orange-500 shrink-0" size={48} />
-            <p className="text-slate-300 font-medium">
+      <section className="py-12 px-6 md:px-12 bg-obsidian">
+        <div className="max-w-7xl mx-auto border border-amber-signal/20 bg-[#070b19]/30 p-8 rounded-none flex flex-col md:flex-row gap-8 items-center relative">
+            <div className="absolute top-0 left-0 w-1 h-full bg-amber-signal" />
+            <ShieldAlert className="text-amber-signal shrink-0" size={36} />
+            <p className="text-slate-300 text-xs font-sans leading-relaxed text-justify">
               Veridex provides probabilistic and heuristic signals. We do not provide absolute legal or factual certainty. Our outputs are intended to support, not replace, the judgment of qualified experts.
             </p>
         </div>
       </section>
 
       {/* Main Limitations Grid */}
-      <section className="py-24 px-4 md:px-12">
+      <section className="py-24 px-6 md:px-12 bg-obsidian">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <LimitationCard 
               icon={EyeOff}
@@ -95,25 +98,28 @@ export default function LimitationsPage() {
       </section>
 
       {/* Specific Domain Notes */}
-      <section className="py-24 px-4 md:px-12 bg-slate-900/30">
-        <div className="max-w-4xl mx-auto space-y-16">
-           <div>
-             <h4 className="text-2xl font-black text-white mb-6 uppercase tracking-tight">Audio & Video Limitations</h4>
-             <p className="text-slate-400 text-sm leading-relaxed">
+      <section className="py-24 px-6 md:px-12 bg-obsidian border-t border-deepslate scanner-grid">
+        <div className="max-w-4xl mx-auto space-y-16 relative z-10 font-mono text-[11px]">
+           <div className="space-y-4">
+             <span className="text-[9px] font-bold text-amber-signal uppercase tracking-[0.3em] block">// AUDIO & VIDEO CORE HEURISTICS</span>
+             <h4 className="text-xl font-bold text-white uppercase font-geist tracking-wide">Audio & Video Limitations</h4>
+             <p className="text-slate-400 text-xs font-sans leading-relaxed text-justify">
                As generative audio (voice cloning) becomes more sophisticated, the 'gap' between synthetic and organic signals continues to narrow. Veridex detects current-generation artifacts, but no tool can claim 100% detection rates against future, evolving generative models.
              </p>
            </div>
            
-           <div className="pt-16 border-t border-white/5">
-              <h4 className="text-2xl font-black text-white mb-6 uppercase tracking-tight">Copyright Audit Scope</h4>
-              <p className="text-slate-400 text-sm leading-relaxed">
+           <div className="pt-16 border-t border-deepslate space-y-4">
+              <span className="text-[9px] font-bold text-amber-signal uppercase tracking-[0.3em] block">// COPYRIGHT REGISTRY SCOPE</span>
+              <h4 className="text-xl font-bold text-white uppercase font-geist tracking-wide">Copyright Audit Scope</h4>
+              <p className="text-slate-400 text-xs font-sans leading-relaxed text-justify">
                 Our copyright analysis identifies verbatim overlap and significant training-set similarity. It does not assess 'fair use,' licensing status, or jurisdictional legality. It identifies *risk* by showing *where* the content matches existing data.
               </p>
            </div>
 
-           <div className="pt-16 border-t border-white/5">
-              <h4 className="text-2xl font-black text-white mb-6 uppercase tracking-tight">Jurisdictional Warnings</h4>
-              <p className="text-slate-400 text-sm leading-relaxed">
+           <div className="pt-16 border-t border-deepslate space-y-4">
+              <span className="text-[9px] font-bold text-amber-signal uppercase tracking-[0.3em] block">// GLOBAL JURISDICTIONAL COMPLIANCE</span>
+              <h4 className="text-xl font-bold text-white uppercase font-geist tracking-wide">Jurisdictional Warnings</h4>
+              <p className="text-slate-400 text-xs font-sans leading-relaxed text-justify">
                 Legislation regarding AI-generated evidence and content labeling varies globally (e.g., EU AI Act vs. US State laws). Veridex is a technical audit tool, not a compliance platform. Users are responsible for local legal adherence.
               </p>
            </div>
@@ -121,9 +127,13 @@ export default function LimitationsPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-32 px-4 md:px-12 text-center">
-        <h3 className="text-xl font-bold text-white mb-10">Questions about our forensic boundaries?</h3>
-        <Link href="/request-demo" className="text-teal-400 font-bold hover:underline py-5 block uppercase tracking-[0.2em] text-xs">Request a Technical Walkthrough</Link>
+      <section className="py-24 px-6 md:px-12 text-center bg-obsidian border-t border-deepslate">
+        <h3 className="text-lg font-bold text-white uppercase font-geist tracking-wide">Questions about our forensic boundaries?</h3>
+        <div className="mt-6 font-mono text-[10px]">
+          <Link href="/request-demo" className="btn-switch-primary">
+            Request Technical Walkthrough
+          </Link>
+        </div>
       </section>
 
       <Footer />

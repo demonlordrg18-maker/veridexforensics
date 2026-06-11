@@ -68,15 +68,27 @@ export default function LandingPage() {
   // Live updates simulator
   useEffect(() => {
     const interval = setInterval(() => {
-      // Dynamic updates for Spectral parameters
-      if (spectralMode === "natural") {
-        setVerityIndex(parseFloat((0.98 + Math.random() * 0.015).toFixed(3)));
-        setSpectralDev(parseFloat((0.01 + Math.random() * 0.02).toFixed(2)));
+      // Dynamic updates based on active tab
+      if (activeTab === "spectral") {
+        if (spectralMode === "natural") {
+          setVerityIndex(parseFloat((0.98 + Math.random() * 0.015).toFixed(3)));
+          setSpectralDev(parseFloat((0.01 + Math.random() * 0.02).toFixed(2)));
+          setAnomaliesDetected(0);
+        } else {
+          setVerityIndex(parseFloat((0.01 + Math.random() * 0.02).toFixed(3)));
+          setSpectralDev(parseFloat((84.2 + Math.random() * 10.5).toFixed(2)));
+          setAnomaliesDetected(1);
+        }
+      } else if (activeTab === "biometric") {
+        setVerityIndex(0.120);
+        setSpectralDev(64.20);
+        setAnomaliesDetected(1);
+        setBioProgress(98);
+        setBioStatus("PARTIAL MATCH");
+      } else if (activeTab === "ledger") {
+        setVerityIndex(1.000);
+        setSpectralDev(0.00);
         setAnomaliesDetected(0);
-      } else {
-        setVerityIndex(parseFloat((0.11 + Math.random() * 0.14).toFixed(3)));
-        setSpectralDev(parseFloat((84.2 + Math.random() * 10.5).toFixed(2)));
-        setAnomaliesDetected(Math.floor(Math.random() * 3) + 2);
       }
 
       // Dynamic updates for Ledger
@@ -91,25 +103,16 @@ export default function LandingPage() {
         }
       ]);
 
-      // Dynamic biometric scan simulation
-      setBioProgress(prev => {
-        if (prev >= 98) {
-          setBioStatus("PARTIAL MATCH");
-          return 98;
-        }
-        return prev + 14;
-      });
-
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [spectralMode]);
+  }, [activeTab, spectralMode]);
 
   // Restart biometric simulation when tab switches
   useEffect(() => {
     if (activeTab === "biometric") {
-      setBioProgress(0);
-      setBioStatus("ACQUIRING...");
+      setBioProgress(98);
+      setBioStatus("PARTIAL MATCH");
     }
   }, [activeTab]);
 
@@ -299,55 +302,23 @@ export default function LandingPage() {
                       </div>
 
                       {/* Waveform & Spectrogram Box */}
-                      <div className="relative h-28 w-full border border-slate-900 bg-black/80 flex flex-col justify-center overflow-hidden">
+                      <div className="relative h-44 md:h-52 w-full border border-slate-900 bg-black/80 flex flex-col justify-center overflow-hidden">
                         {/* Vertical Laser Scanline */}
                         <div className="laser-scanner" />
                         
-                        {/* Audio Waveforms */}
-                        <svg className="w-full h-full absolute inset-0 opacity-80" viewBox="0 0 400 100" preserveAspectRatio="none">
-                          <line x1="0" y1="50" x2="400" y2="50" stroke="#0F172A" strokeWidth="1" strokeDasharray="3 3" />
-                          <line x1="100" y1="0" x2="100" y2="100" stroke="#0F172A" strokeWidth="1" strokeDasharray="3 3" />
-                          <line x1="200" y1="0" x2="200" y2="100" stroke="#0F172A" strokeWidth="1" strokeDasharray="3 3" />
-                          <line x1="300" y1="0" x2="300" y2="100" stroke="#0F172A" strokeWidth="1" strokeDasharray="3 3" />
-                          
-                          {spectralMode === "natural" ? (
-                            // Natural voice wave signature (Smooth Green Waves)
-                            <motion.path
-                              d="M0,50 Q20,30 40,55 T80,45 T120,60 T160,40 T200,55 T240,42 T280,58 T320,45 T360,55 T400,50"
-                              fill="none"
-                              stroke="#10B981"
-                              strokeWidth="1.5"
-                              animate={{
-                                d: [
-                                  "M0,50 Q20,30 40,55 T80,45 T120,60 T160,40 T200,55 T240,42 T280,58 T320,45 T360,55 T400,50",
-                                  "M0,50 Q20,65 40,40 T80,58 T120,40 T160,60 T200,45 T240,58 T280,40 T320,55 T360,45 T400,50",
-                                  "M0,50 Q20,30 40,55 T80,45 T120,60 T160,40 T200,55 T240,42 T280,58 T320,45 T360,55 T400,50"
-                                ]
-                              }}
-                              transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                            />
-                          ) : (
-                            // Synthetic Voice wave signature (Fractured/Jagged Red Waves - Voxel like)
-                            <motion.path
-                              d="M0,50 L20,50 L20,20 L40,20 L40,80 L60,80 L60,30 L80,30 L80,70 L100,70 L100,40 L120,40 L120,65 L140,65 L140,35 L160,35 L160,60 L180,60 L180,50 L200,50 L200,25 L220,25 L220,75 L240,75 L240,30 L260,30 L260,68 L280,68 L280,45 L300,45 L300,55 L320,55 L320,30 L340,30 L340,70 L360,70 L360,50 L400,50"
-                              fill="none"
-                              stroke="#EF4444"
-                              strokeWidth="1.5"
-                              animate={{
-                                d: [
-                                  "M0,50 L20,50 L20,20 L40,20 L40,80 L60,80 L60,30 L80,30 L80,70 L100,70 L100,40 L120,40 L120,65 L140,65 L140,35 L160,35 L160,60 L180,60 L180,50 L200,50 L200,25 L220,25 L220,75 L240,75 L240,30 L260,30 L260,68 L280,68 L280,45 L300,45 L300,55 L320,55 L320,30 L340,30 L340,70 L360,70 L360,50 L400,50",
-                                  "M0,50 L20,50 L20,75 L40,75 L40,30 L60,30 L60,80 L80,80 L80,25 L100,25 L100,60 L120,60 L120,40 L140,40 L140,70 L160,70 L160,35 L180,35 L180,50 L200,50 L200,65 L220,65 L220,20 L240,20 L240,75 L260,75 L260,30 L280,30 L280,60 L300,60 L300,45 L320,45 L320,65 L340,65 L340,30 L360,30 L360,50 L400,50",
-                                  "M0,50 L20,50 L20,20 L40,20 L40,80 L60,80 L60,30 L80,30 L80,70 L100,70 L100,40 L120,40 L120,65 L140,65 L140,35 L160,35 L160,60 L180,60 L180,50 L200,50 L200,25 L220,25 L220,75 L240,75 L240,30 L260,30 L260,68 L280,68 L280,45 L300,45 L300,55 L320,55 L320,30 L340,30 L340,70 L360,70 L360,50 L400,50"
-                                ]
-                              }}
-                              transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
-                            />
-                          )}
-                        </svg>
+                        <motion.img
+                          key={spectralMode}
+                          src={spectralMode === "natural" ? "/images/signature_comparison.jpg" : "/images/spectral_analysis.jpg"}
+                          alt="Spectral Analysis Output"
+                          className="w-full h-full object-cover opacity-85"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 0.85 }}
+                          transition={{ duration: 0.4 }}
+                        />
 
                         {/* Interactive HUD labels */}
                         {spectralMode === "synthetic" && (
-                          <div className="absolute top-2 right-2 bg-red-950/60 border border-red-500/30 px-2 py-0.5 font-mono text-[7px] text-red-400 uppercase tracking-widest animate-pulse">
+                          <div className="absolute top-2 right-2 bg-red-950/60 border border-red-500/30 px-2 py-0.5 font-mono text-[7px] text-red-400 uppercase tracking-widest animate-pulse z-20">
                             ANOMALY DETECTED (12.4kHz)
                           </div>
                         )}
@@ -394,42 +365,18 @@ export default function LandingPage() {
                       </div>
 
                       {/* Biometric Scanning Panel */}
-                      <div className="grid grid-cols-12 gap-4 items-center py-1">
+                      <div className="relative h-44 md:h-52 w-full border border-slate-900 bg-black/80 flex flex-col justify-center overflow-hidden">
+                        {/* Vertical Laser Scanline */}
+                        <div className="laser-scanner" />
                         
-                        {/* Facial scan geometry overlay */}
-                        <div className="col-span-4 relative h-20 border border-slate-900 bg-black/60 flex items-center justify-center overflow-hidden">
-                          <div className="absolute inset-x-0 h-[1px] bg-amber-signal shadow-[0_0_5px_#F59E0B] animate-bounce" />
-                          {/* Face contour simulation svg */}
-                          <svg className="w-12 h-12 text-slate-600 opacity-60" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1">
-                            <path d="M50,15 C30,15 20,30 20,50 C20,70 30,85 50,85 C70,85 80,70 80,50 C80,30 70,15 50,15 Z" />
-                            <path d="M35,45 C40,45 42,40 42,40 C42,40 44,45 49,45" />
-                            <path d="M65,45 C60,45 58,40 58,40 C58,40 56,45 51,45" />
-                            <path d="M45,65 C48,68 52,68 55,65" />
-                            <line x1="50" y1="15" x2="50" y2="85" strokeWidth="0.5" strokeDasharray="2 2" />
-                            <line x1="20" y1="50" x2="80" y2="50" strokeWidth="0.5" strokeDasharray="2 2" />
-                          </svg>
-                        </div>
-
-                        {/* Scan metrics */}
-                        <div className="col-span-8 space-y-1.5 text-left font-mono text-[8px]">
-                          <div className="flex justify-between border-b border-slate-900 pb-1">
-                            <span className="text-slate-500">FACIAL GEOMETRY:</span>
-                            <span className="text-slate-200">{bioProgress}% ACQUISITION</span>
-                          </div>
-                          <div className="flex justify-between border-b border-slate-900 pb-1">
-                            <span className="text-slate-500">IRIS PATTERN:</span>
-                            <span className="text-amber-signal font-semibold">WAITING</span>
-                          </div>
-                          <div className="flex justify-between border-b border-slate-900 pb-1">
-                            <span className="text-slate-500">ACOUSTIC MATCH:</span>
-                            <span className="text-amber-signal font-semibold">12% (SIGNAL AMBER GLOWING)</span>
-                          </div>
-                          <div className="flex justify-between pb-0.5">
-                            <span className="text-slate-500">SYNTHETIC MARKER:</span>
-                            <span className="text-amber-signal font-semibold">HIGH (SIGNAL AMBER GLOWING)</span>
-                          </div>
-                        </div>
-
+                        <motion.img
+                          src="/images/biometric_manifest.jpg"
+                          alt="Biometric Manifest Output"
+                          className="w-full h-full object-cover opacity-85"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 0.85 }}
+                          transition={{ duration: 0.4 }}
+                        />
                       </div>
 
                       {/* Overall biometric analysis status */}
@@ -457,24 +404,19 @@ export default function LandingPage() {
                         <span className="font-mono text-[7px] text-verity-green">STATUS: IMMUTABLE_BLOCK_TRUE</span>
                       </div>
 
-                      {/* Scrolling log container */}
-                      <div className="h-28 overflow-y-auto border border-slate-900/60 bg-black/80 p-2 font-mono text-[8px] space-y-1.5 custom-scrollbar text-left">
-                        {ledgerLogs.map((log, index) => (
-                          <div key={index} className="flex items-center justify-between opacity-80 hover:opacity-100 hover:bg-slate-900/20 px-1 py-0.5">
-                            <div className="flex gap-2 text-slate-400">
-                              <span className="text-slate-600 font-bold">{log.id}...</span>
-                              <span className="text-slate-300 font-medium">{log.hash}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[7px] text-slate-500 font-normal">{log.timestamp}</span>
-                              <span className="text-[7px] text-verity-green font-semibold flex items-center gap-0.5 bg-verity-green/5 border border-verity-green/20 px-1">
-                                <Check size={8} />
-                                REG
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                        <div ref={ledgerEndRef} />
+                      {/* Immutable Ledger Panel */}
+                      <div className="relative h-44 md:h-52 w-full border border-slate-900 bg-black/80 flex flex-col justify-center overflow-hidden">
+                        {/* Vertical Laser Scanline */}
+                        <div className="laser-scanner" />
+                        
+                        <motion.img
+                          src="/images/immutable_ledger.jpg"
+                          alt="Immutable Ledger Output"
+                          className="w-full h-full object-cover opacity-85"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 0.85 }}
+                          transition={{ duration: 0.4 }}
+                        />
                       </div>
 
                       {/* Block validator info */}

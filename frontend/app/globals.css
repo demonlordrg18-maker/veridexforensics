@@ -14,83 +14,122 @@
 @tailwind utilities;
 
 :root {
-  --brand: #0d9488;
-  --brand-muted: rgba(13, 148, 136, 0.1);
-  --accent: #f43f5e;
-  --bg: #030712;
-  --panel: rgba(17, 24, 39, 0.7);
-  --border: rgba(255, 255, 255, 0.08);
-  --text-main: #f9fafb;
-  --text-muted: #9ca3af;
+  --brand: #F59E0B; /* Signal Amber */
+  --brand-muted: rgba(245, 158, 11, 0.1);
+  --accent: #F59E0B;
+  --bg: #050811; /* Obsidian Black */
+  --panel: #0F172A; /* Deep Slate */
+  --border: rgba(148, 163, 184, 0.15); /* Hard border slate */
+  --text-main: #F8FAFC; /* Slate 50 */
+  --text-muted: #94A3B8; /* Slate 400 */
 }
 
 @layer base {
   body {
-    @apply bg-slate-950;
-    @apply text-slate-50;
-    font-family: var(--font-outfit), sans-serif;
+    background-color: #050811; /* Obsidian Black */
+    @apply text-slate-100;
+    font-family: var(--font-inter), sans-serif;
     background-image: 
-      radial-gradient(circle at 0% 0%, rgba(13, 148, 136, 0.2), transparent 40%),
-      radial-gradient(circle at 100% 100%, rgba(244, 63, 94, 0.1), transparent 40%);
+      radial-gradient(circle at 10% 10%, rgba(15, 23, 42, 0.7), transparent 60%),
+      radial-gradient(circle at 90% 90%, rgba(245, 158, 11, 0.04), transparent 50%);
     min-height: 100vh;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-inter), sans-serif;
+    @apply tracking-tight;
   }
 }
 
 @layer components {
+  .border-hard {
+    border: 1px solid rgba(148, 163, 184, 0.12);
+  }
+
+  .border-hard-amber {
+    border: 1px solid rgba(245, 158, 11, 0.25);
+  }
+
+  .glow-amber {
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.12);
+  }
+
+  .glow-amber-strong {
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.25);
+  }
+
+  .glow-slate {
+    box-shadow: 0 0 20px rgba(15, 23, 42, 0.4);
+  }
+
   .glass {
-    @apply bg-white/5;
+    @apply bg-slate-900/60;
     @apply backdrop-blur-xl;
     @apply border;
-    @apply border-white/10;
+    @apply border-slate-800;
     @apply shadow-2xl;
   }
   
   .glass-dark {
-    @apply bg-slate-900/50;
+    @apply bg-black/60;
     @apply backdrop-blur-xl;
     @apply border;
-    @apply border-white/5;
+    @apply border-slate-900;
     @apply shadow-2xl;
   }
 
   .stat-card {
-    @apply rounded-2xl;
+    @apply rounded-none;
     @apply p-4;
     @apply transition-all;
     @apply duration-300;
-    @apply hover:transform;
-    @apply hover:-translate-y-1;
-    background: linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.6));
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    background: #0B0F19;
   }
 
   .btn-primary {
     @apply relative;
     @apply overflow-hidden;
-    @apply rounded-xl;
-    @apply bg-teal-600;
-    @apply px-6;
-    @apply py-3;
-    @apply font-semibold;
-    @apply text-white;
+    @apply bg-amber-500;
+    @apply text-black;
+    @apply font-black;
+    @apply uppercase;
+    @apply tracking-widest;
     @apply transition-all;
-    @apply hover:bg-teal-500;
+    @apply duration-200;
+    @apply hover:bg-amber-400;
     @apply active:scale-95;
-    @apply shadow-lg;
+    border: 1px solid #F59E0B;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+  }
+
+  .btn-secondary {
+    @apply relative;
+    @apply overflow-hidden;
+    @apply bg-slate-900/80;
+    @apply text-slate-100;
+    @apply font-bold;
+    @apply uppercase;
+    @apply tracking-widest;
+    @apply transition-all;
+    @apply duration-200;
+    @apply hover:bg-slate-800;
+    @apply active:scale-95;
+    border: 1px solid rgba(148, 163, 184, 0.15);
   }
 
   .input-field {
-    @apply rounded-xl;
+    @apply rounded-none;
     @apply border;
-    @apply border-white/10;
-    @apply bg-slate-900/50;
+    @apply border-slate-800;
+    @apply bg-black/40;
     @apply p-4;
     @apply text-slate-200;
     @apply outline-none;
     @apply transition-all;
-    @apply focus:border-teal-500;
+    @apply focus:border-amber-500;
     @apply focus:ring-1;
-    @apply focus:ring-teal-500/50;
+    @apply focus:ring-amber-500/30;
   }
 }
 
@@ -102,6 +141,7 @@
   @apply bg-clip-text;
   @apply text-transparent;
   @apply bg-gradient-to-r;
-  @apply from-teal-400;
-  @apply to-rose-400;
+  @apply from-white;
+  @apply via-slate-200;
+  @apply to-amber-400;
 }

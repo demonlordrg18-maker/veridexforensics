@@ -403,7 +403,7 @@ function Dashboard() {
         {loading && <LoadingOverlay isSample={isSample} />}
       </AnimatePresence>
       
-      <div className="pt-24 p-4 md:p-8 lg:p-12">
+      <div className="pt-32 pb-12 px-4 md:pt-36 md:px-8 lg:pt-40 lg:px-12">
         <header className="mb-12 flex flex-col items-start justify-between gap-6 md:flex-row">
           <div>
             <motion.p 

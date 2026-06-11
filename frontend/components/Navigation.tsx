@@ -47,7 +47,7 @@ export const Navbar = () => {
         </div>
 
         <Link href="/methodology" className="hover:text-amber-500 transition-colors">Methodology</Link>
-        <Link href="/pricing" className="hover:text-amber-500 transition-colors font-bold text-amber-500/95">Pricing</Link>
+        <Link href="/pricing" className="hover:text-amber-500 transition-colors">Pricing</Link>
         <Link href="/learn" className="hover:text-amber-500 transition-colors">Learn</Link>
       </div>
 
@@ -98,7 +98,7 @@ export const Footer = () => (
         <h5 className="text-white font-bold mb-6 text-sm uppercase tracking-widest">Platform</h5>
         <ul className="space-y-4 text-sm text-slate-500">
           <li><Link href="/platform" className="hover:text-amber-500 transition-colors">The Engine</Link></li>
-          <li><Link href="/pricing" className="hover:text-amber-500 transition-colors font-bold text-amber-500/90">Plans & Pricing</Link></li>
+          <li><Link href="/pricing" className="hover:text-amber-500 transition-colors">Plans & Pricing</Link></li>
           <li><Link href="/audit" className="hover:text-amber-500 transition-colors">Professional Auditor</Link></li>
           <li><Link href="/features/verity-index" className="hover:text-amber-500 transition-colors">Verity Index</Link></li>
           <li><Link href="/sample-audit" className="hover:text-amber-500 transition-colors">Sample Audit</Link></li>

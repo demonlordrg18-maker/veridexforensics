@@ -19,11 +19,11 @@ import {
 } from "@/components/dashboard";
 import { PageHeader, LoadingState, Skeleton } from "@/components/shared";
 import { useCases, useDashboardStats, useStorageSummary } from "@/lib/hooks";
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { user } = useAuth();
   const { cases, loading: casesLoading, listCases } = useCases();
   const { stats, loading: statsLoading } = useDashboardStats();
   const { storage, loading: storageLoading } = useStorageSummary();
@@ -51,7 +51,7 @@ export default function DashboardPage() {
         <Skeleton count={6} variant="card" />
       ) : (
         <DashboardGrid>
-          <WelcomeWidget userName={session?.user?.name || "User"} />
+          <WelcomeWidget userName={user?.name || "User"} />
           <CreditsWidget
             remaining={stats?.creditsRemaining || 0}
             monthly={50}

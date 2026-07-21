@@ -5,6 +5,8 @@
 
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PageHeader, Dialog, Button, LoadingState, EmptyState, Skeleton } from "@/components/shared";
@@ -75,7 +77,7 @@ export default function CasesPage() {
             <CaseCard
               key={caseItem.id}
               case={caseItem}
-              onSelect={(id) => router.push(`/cases/${id}`)}
+              onSelect={(id) => router.push(`/cases/${id}` as any)}
             />
           ))}
         </div>

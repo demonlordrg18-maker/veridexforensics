@@ -50,11 +50,17 @@ export function formatTime(date: Date | string): string {
   });
 }
 
-export function formatFileSize(bytes: number | BigInt): string {
-  const num = typeof bytes === "bigint" ? Number(bytes) : bytes;
+export function formatFileSize(bytes: number | bigint): string {
+  let num: number;
+  if (typeof bytes === "bigint") {
+    num = Number(bytes);
+  } else {
+    num = bytes as number;
+  }
+  
   const units = ["B", "KB", "MB", "GB", "TB"];
-  let size = num;
-  let unitIndex = 0;
+  let size: number = num;
+  let unitIndex: number = 0;
 
   while (size >= 1024 && unitIndex < units.length - 1) {
     size /= 1024;

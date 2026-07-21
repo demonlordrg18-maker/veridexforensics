@@ -52,6 +52,7 @@ export interface DashboardStats {
   analysisCompleted: number;
   reportsGenerated: number;
   creditsUsed: number;
+  creditsRemaining: number;
   storageUsed: BigInt;
   this_month?: {
     casesCreated: number;

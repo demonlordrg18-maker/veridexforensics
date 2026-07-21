@@ -5,6 +5,8 @@
 
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PageHeader, Dialog, Button, LoadingState, EmptyState, Skeleton } from "@/components/shared";
@@ -52,7 +54,7 @@ export default function EvidencePage() {
             <EvidenceCard
               key={item.id}
               evidence={item}
-              onSelect={(id) => router.push(`/evidence/${id}`)}
+              onSelect={(id) => router.push(`/evidence/${id}` as any)}
             />
           ))}
         </div>

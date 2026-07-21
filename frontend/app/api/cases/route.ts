@@ -25,7 +25,8 @@ export async function GET(req: NextRequest) {
     const sort = url.searchParams.get("sort") || "updatedAt";
     const order = url.searchParams.get("order") || "desc";
 
-    const where: any = { userId: session.user.id };
+    const userId = (session.user as any).id || session.user.email;
+    const where: any = { userId };
     if (status) {
       where.status = { in: status.split(",") };
     }
@@ -45,7 +46,7 @@ export async function GET(req: NextRequest) {
     const total = await prisma.case.count({ where });
 
     return NextResponse.json({
-      items: cases.map((c) => ({
+      items: cases.map((c: any) => ({
         ...c,
         evidenceCount: c._count.evidence,
         reportCount: c._count.reports,
@@ -68,12 +69,13 @@ export async function POST(req: NextRequest) {
 
     const data = await req.json();
 
+    const userId = (session.user as any).id || session.user.email;
     const caseNumber = `CASE-${Date.now()}`;
     const newCase = await prisma.case.create({
       data: {
         ...data,
         caseNumber,
-        userId: session.user.id,
+        userId,
       },
     });
 

@@ -23,7 +23,8 @@ export async function GET(req: NextRequest) {
     const sort = url.searchParams.get("sort") || "createdAt";
     const order = url.searchParams.get("order") || "desc";
 
-    const where: any = { userId: session.user.id };
+    const userId = (session.user as any).id || session.user.email;
+    const where: any = { userId };
     if (caseId) where.caseId = caseId;
     if (query) {
       where.OR = [
@@ -59,11 +60,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const userId = (session.user as any).id || session.user.email;
     const data = await req.json();
     const newEvidence = await prisma.evidence.create({
       data: {
         ...data,
-        userId: session.user.id,
+        userId,
       },
       include: { tags: true },
     });

@@ -20,18 +20,19 @@ export async function GET(req: NextRequest) {
 
     if (pathname.includes("/stats")) {
       // Get dashboard stats
+      const userId = (session.user as any).id || session.user.email;
       const [casesCount, evidenceCount, reportsCount, creditsUsed] = await Promise.all([
-        prisma.case.count({ where: { userId: session.user.id } }),
-        prisma.evidence.count({ where: { userId: session.user.id } }),
-        prisma.report.count({ where: { userId: session.user.id } }),
+        prisma.case.count({ where: { userId } }),
+        prisma.evidence.count({ where: { userId } }),
+        prisma.report.count({ where: { userId } }),
         prisma.creditTransaction.aggregate({
-          where: { userId: session.user.id },
+          where: { userId },
           _sum: { creditsUsed: true },
         }),
       ]);
 
       const credits = await prisma.creditBalance.findUnique({
-        where: { userId: session.user.id },
+        where: { userId },
       });
 
       return NextResponse.json({
@@ -47,8 +48,9 @@ export async function GET(req: NextRequest) {
       // Get recent activity
       const limit = parseInt(url.searchParams.get("limit") || "20");
       
+      const userId = (session.user as any).id || session.user.email;
       const activity = await prisma.activityLog.findMany({
-        where: { userId: session.user.id },
+        where: { userId },
         take: limit,
         orderBy: { createdAt: "desc" },
       });

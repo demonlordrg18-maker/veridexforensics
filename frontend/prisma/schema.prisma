@@ -178,8 +178,12 @@ model Case {
   caseNumber     String        @unique
   title          String
   description    String?
-  status         String        @default("OPEN") // OPEN, IN_REVIEW, CLOSED, ARCHIVED
+  status         String        @default("OPEN") // OPEN, IN_PROGRESS, WAITING, COMPLETED, ARCHIVED, CUSTOM
   priority       String        @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
+  category       String        @default("RESEARCH") // OSINT, ACADEMIC, HR, LEGAL, MEDIA, GOVERNMENT, RESEARCH, ENTERPRISE, CUSTOM
+  visibility     String        @default("PRIVATE") // PRIVATE, TEAM, ORGANIZATION
+  dueDate        DateTime?
+  tags           String[]      @default([])
   userId         String
   organizationId String?
   createdAt      DateTime      @default(now())
@@ -189,22 +193,173 @@ model Case {
   organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   evidence     Evidence[]
   reports      Report[]
+  members      CaseMember[]
+  activities   CaseActivity[]
+  notes        CaseNote[]
+  comments     CaseComment[]
+  pinnedItems  PinnedItem[]
+
+  @@index([userId, status])
+  @@index([userId, updatedAt])
+  @@index([organizationId])
 }
 
 model Evidence {
+  id              String   @id @default(cuid())
+  title           String
+  modality        String   // text, image, audio, video, pdf, url, document, screenshot, archive
+  fileHash        String   // SHA-256 cryptographic hash
+  storageUrl      String?
+  fileSizeBytes   Int?
+  caseId          String?
+  userId          String
+  analysisStatus  String   @default("PENDING") // PENDING, ANALYZING, COMPLETED, FAILED
+  confidence      Float?
+  status          String   @default("ACTIVE") // ACTIVE, ARCHIVED
+  favorite        Boolean  @default(false)
+  version         Int      @default(1)
+  creditsUsed     Int      @default(0)
+  notes           String?  @db.Text
+  customMetadata  Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  case      Case?             @relation(fields: [caseId], references: [id], onDelete: SetNull)
+  reports   Report[]
+  tags      EvidenceTag[]
+  metadata  EvidenceMetadata?
+  versions  EvidenceVersion[]
+
+  @@index([userId, caseId])
+  @@index([userId, createdAt])
+  @@index([userId, status])
+  @@index([fileHash])
+}
+
+model EvidenceTag {
+  id         String   @id @default(cuid())
+  evidenceId String
+  tag        String
+  createdAt  DateTime @default(now())
+
+  evidence Evidence @relation(fields: [evidenceId], references: [id], onDelete: Cascade)
+
+  @@unique([evidenceId, tag])
+  @@index([tag])
+}
+
+model EvidenceMetadata {
+  id              String   @id @default(cuid())
+  evidenceId      String   @unique
+  uploaderName    String?
+  mimeType        String?
+  originalFilename String?
+  storageLocation String?
+  analysisHistory Json?    @default("[]")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  evidence Evidence @relation(fields: [evidenceId], references: [id], onDelete: Cascade)
+}
+
+model EvidenceVersion {
   id            String   @id @default(cuid())
-  title         String
-  modality      String   // text, image, audio, video, pdf, url
-  fileHash      String   // SHA-256 cryptographic hash
+  evidenceId    String
+  versionNumber Int
+  fileHash      String
   storageUrl    String?
   fileSizeBytes Int?
-  caseId        String?
-  userId        String
+  changeNotes   String?
   createdAt     DateTime @default(now())
 
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  case    Case?    @relation(fields: [caseId], references: [id], onDelete: SetNull)
-  reports Report[]
+  evidence Evidence @relation(fields: [evidenceId], references: [id], onDelete: Cascade)
+
+  @@unique([evidenceId, versionNumber])
+  @@index([evidenceId])
+}
+
+model CaseMember {
+  id        String   @id @default(cuid())
+  caseId    String
+  userId    String
+  role      String   @default("VIEWER") // OWNER, EDITOR, VIEWER, GUEST
+  invitedAt DateTime @default(now())
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@unique([caseId, userId])
+  @@index([userId])
+}
+
+model CaseActivity {
+  id        String   @id @default(cuid())
+  caseId    String
+  userId    String
+  action    String   // EVIDENCE_ADDED, ANALYSIS_COMPLETED, REPORT_GENERATED, COMMENT, STATUS_CHANGE, EXPORT, NOTE_EDIT
+  details   Json?
+  createdAt DateTime @default(now())
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId, createdAt])
+}
+
+model CaseNote {
+  id        String   @id @default(cuid())
+  caseId    String
+  userId    String
+  title     String?
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+}
+
+model CaseComment {
+  id         String    @id @default(cuid())
+  caseId     String
+  userId     String
+  userName   String
+  content    String    @db.Text
+  parentId   String?
+  resolved   Boolean   @default(false)
+  reactions  Json?     @default("{}")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId, createdAt])
+}
+
+model PinnedItem {
+  id         String   @id @default(cuid())
+  userId     String
+  itemType   String   // CASE, EVIDENCE, REPORT
+  itemId     String
+  caseId     String?
+  pinnedAt   DateTime @default(now())
+
+  case Case? @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, itemType, itemId])
+  @@index([userId])
+}
+
+model WorkspaceStorage {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  totalBytes      BigInt   @default(0)
+  evidenceCount   Int      @default(0)
+  caseCount       Int      @default(0)
+  reportCount     Int      @default(0)
+  lastCalculated  DateTime @default(now())
+
+  @@index([userId])
 }
 
 model Report {
@@ -263,11 +418,13 @@ model APIKey {
 model ActivityLog {
   id        String   @id @default(cuid())
   userId    String
-  action    String
+  action    String   // UPLOAD, ANALYSIS, REPORT, EXPORT, CASE_CREATE, CASE_UPDATE, CREDIT_PURCHASE
   details   Json?
   ipAddress String?
   userAgent String?
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }

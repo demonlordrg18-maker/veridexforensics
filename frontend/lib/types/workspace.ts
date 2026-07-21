@@ -274,6 +274,9 @@ export interface UpdateEvidenceInput {
 
 export interface UserWorkspaceData {
   userId: string;
+  workspaceId?: string;
+  workspaceName?: string;
+  isOrg?: boolean;
   cases: CaseItem[];
   evidence: EvidenceItem[];
   reports: ReportSummary[];
@@ -285,4 +288,59 @@ export interface UserWorkspaceData {
   caseMembers: Record<string, CaseMember[]>;
   storage: StorageStats;
   seeded: boolean;
+
+  // Enterprise & Developer Fields
+  orgLogo?: string;
+  orgIndustry?: string;
+  orgDescription?: string;
+  orgDomain?: string;
+  billingOwnerId?: string;
+  primaryContact?: string;
+  createdDate?: string;
+  departments?: { id: string; name: string; adminId: string; memberIds: string[] }[];
+  members?: { userId: string; name: string; email: string; role: string; status: string; joinedAt: string; departmentId?: string }[];
+  securitySettings?: {
+    twoFactorRequired: boolean;
+    passwordPolicy: { minLength: number; requireSpecial: boolean };
+    sessionTimeout: number;
+    ipRestrictions: string;
+    domainVerified: boolean;
+  };
+  billingSettings?: {
+    subscriptionTier: string;
+    subscriptionStatus: string;
+    billingEmail: string;
+    paymentMethod: string;
+    invoiceHistory: Array<{ id: string; date: string; amount: number; status: string }>;
+  };
+  apiKeys?: {
+    id: string;
+    name: string;
+    keyPrefix: string;
+    keyHash: string;
+    scopes: string[];
+    createdAt: string;
+    expiresAt?: string;
+    lastUsed?: string;
+    status: "ACTIVE" | "REVOKED";
+  }[];
+  webhooks?: {
+    id: string;
+    url: string;
+    description: string;
+    secret: string;
+    events: string[];
+    createdAt: string;
+    status: "ACTIVE" | "INACTIVE";
+  }[];
+  webhookLogs?: {
+    id: string;
+    webhookId: string;
+    event: string;
+    payload: string;
+    statusCode: number;
+    response: string;
+    timestamp: string;
+    retryCount: number;
+  }[];
 }

@@ -111,6 +111,7 @@ export interface UserSession {
   role: UserRole;
   subscriptionTier: SubscriptionTier;
   organizationId?: string;
+  activeWorkspaceId?: string;
   referralCode: string;
   createdDate: string;
   lastLogin: string;

@@ -1,5 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
+import { cookies } from "next/headers";
 import type { UserSession } from "@/lib/types/auth";
 import type {
   CaseActivityEntry,
@@ -16,7 +17,7 @@ import type {
   UpdateEvidenceInput,
   UserWorkspaceData,
 } from "@/lib/types/workspace";
-import { createEmptyWorkspace, createSeedWorkspace } from "@/lib/workspace/seed-data";
+import { createEmptyWorkspace, createSeedWorkspace, createEmptyOrgWorkspace, createSeedOrgWorkspace } from "@/lib/workspace/seed-data";
 import {
   addActivity,
   computeStorageStats,
@@ -33,17 +34,32 @@ async function ensureDataDir() {
   await fs.mkdir(DATA_DIR, { recursive: true });
 }
 
-function getUserFilePath(userId: string) {
-  return path.join(DATA_DIR, `${userId}.json`);
+export async function getActiveWorkspaceId(userId: string): Promise<string> {
+  try {
+    const cookieStore = await cookies();
+    const wsId = cookieStore.get("veridex_active_workspace")?.value;
+    return wsId || userId;
+  } catch {
+    return userId;
+  }
+}
+
+async function getWorkspaceFilePath(userId: string) {
+  const wsId = await getActiveWorkspaceId(userId);
+  return path.join(DATA_DIR, `${wsId}.json`);
 }
 
 async function readWorkspace(userId: string): Promise<UserWorkspaceData> {
   await ensureDataDir();
-  const filePath = getUserFilePath(userId);
+  const wsId = await getActiveWorkspaceId(userId);
+  const filePath = path.join(DATA_DIR, `${wsId}.json`);
   try {
     const raw = await fs.readFile(filePath, "utf8");
     return JSON.parse(raw) as UserWorkspaceData;
   } catch {
+    if (wsId.startsWith("org_")) {
+      return createEmptyOrgWorkspace(wsId, userId);
+    }
     return createEmptyWorkspace(userId);
   }
 }
@@ -51,23 +67,70 @@ async function readWorkspace(userId: string): Promise<UserWorkspaceData> {
 async function writeWorkspace(data: UserWorkspaceData): Promise<void> {
   await ensureDataDir();
   data.storage = computeStorageStats(data);
-  await fs.writeFile(getUserFilePath(data.userId), JSON.stringify(data, null, 2), "utf8");
+  const wsId = data.workspaceId || data.userId;
+  const filePath = path.join(DATA_DIR, `${wsId}.json`);
+  await fs.writeFile(filePath, JSON.stringify(data, null, 2), "utf8");
 }
 
 async function getOrSeedWorkspace(user: UserSession): Promise<UserWorkspaceData> {
+  const wsId = await getActiveWorkspaceId(user.id);
   let data = await readWorkspace(user.id);
-  if (!data.seeded && data.cases.length === 0 && data.evidence.length === 0) {
-    data = createSeedWorkspace(user.id, user.name);
-    await writeWorkspace(data);
+  if (wsId.startsWith("org_")) {
+    if (!data.seeded) {
+      const orgName = wsId === "org_democorp" ? "Veridex Enterprise Demo" : "Veridex Forensic University";
+      data = createSeedOrgWorkspace(wsId, orgName, user.id, user.name);
+      await writeWorkspace(data);
+    }
   } else {
-    data.storage = computeStorageStats(data);
+    if (!data.seeded && data.cases.length === 0 && data.evidence.length === 0) {
+      data = createSeedWorkspace(user.id, user.name);
+      await writeWorkspace(data);
+    }
   }
+  data.storage = computeStorageStats(data);
   return data;
 }
 
-function assertOwnership(userId: string, ownerId: string) {
-  if (userId !== ownerId) {
-    throw new Error("Unauthorized access to workspace resource");
+function assertWorkspacePermission(user: UserSession, data: UserWorkspaceData) {
+  if (data.isOrg) {
+    const isMember = data.members?.some((m) => m.userId === user.id);
+    if (!isMember) {
+      throw new Error("Unauthorized access to organization workspace");
+    }
+  } else {
+    if (user.id !== data.userId) {
+      throw new Error("Unauthorized access to personal workspace");
+    }
+  }
+}
+
+function checkWorkspaceRBAC(user: UserSession, data: UserWorkspaceData, requiredPermission: string): boolean {
+  if (!data.isOrg) return true;
+  const member = data.members?.find((m) => m.userId === user.id);
+  if (!member) return false;
+  if (member.status !== "ACTIVE") return false;
+
+  const rolePermissions: Record<string, string[]> = {
+    OWNER: ["read", "write", "delete", "admin", "billing", "security"],
+    ADMINISTRATOR: ["read", "write", "delete", "admin", "billing"],
+    SECURITY_ADMINISTRATOR: ["read", "write", "security"],
+    MANAGER: ["read", "write", "delete"],
+    INVESTIGATOR: ["read", "write"],
+    ANALYST: ["read", "write"],
+    FACULTY: ["read", "write"],
+    RESEARCHER: ["read", "write"],
+    VIEWER: ["read"],
+    GUEST: ["read"]
+  };
+
+  const permissions = rolePermissions[member.role] || [];
+  return permissions.includes(requiredPermission);
+}
+
+function assertWorkspaceRBAC(user: UserSession, data: UserWorkspaceData, requiredPermission: string) {
+  assertWorkspacePermission(user, data);
+  if (!checkWorkspaceRBAC(user, data, requiredPermission)) {
+    throw new Error(`Unauthorized: Missing required permission [${requiredPermission}]`);
   }
 }
 
@@ -112,16 +175,17 @@ export async function getEvidence(user: UserSession, evidenceId: string): Promis
   const data = await getOrSeedWorkspace(user);
   const item = data.evidence.find((e) => e.id === evidenceId);
   if (!item) return null;
-  assertOwnership(user.id, item.userId);
+  assertWorkspaceRBAC(user, data, "read");
   const caseItem = data.cases.find((c) => c.id === item.caseId);
   return { ...item, caseTitle: caseItem?.title };
 }
 
 export async function createEvidence(user: UserSession, input: CreateEvidenceInput): Promise<EvidenceItem> {
   const data = await getOrSeedWorkspace(user);
+  assertWorkspaceRBAC(user, data, "write");
   if (input.caseId) {
     const caseItem = data.cases.find((c) => c.id === input.caseId);
-    if (!caseItem || caseItem.userId !== user.id) throw new Error("Case not found");
+    if (!caseItem) throw new Error("Case not found");
   }
 
   const now = nowIso();
@@ -187,7 +251,7 @@ export async function updateEvidence(
   if (index === -1) throw new Error("Evidence not found");
 
   const item = data.evidence[index];
-  assertOwnership(user.id, item.userId);
+  assertWorkspaceRBAC(user, data, "write");
 
   const oldCaseId = item.caseId;
   const updated: EvidenceItem = {
@@ -219,7 +283,7 @@ export async function deleteEvidence(user: UserSession, evidenceId: string): Pro
   const data = await getOrSeedWorkspace(user);
   const item = data.evidence.find((e) => e.id === evidenceId);
   if (!item) throw new Error("Evidence not found");
-  assertOwnership(user.id, item.userId);
+  assertWorkspaceRBAC(user, data, "delete");
   data.evidence = data.evidence.filter((e) => e.id !== evidenceId);
   await writeWorkspace(data);
 }
@@ -248,7 +312,7 @@ export async function getCase(user: UserSession, caseId: string) {
   const data = await getOrSeedWorkspace(user);
   const caseItem = data.cases.find((c) => c.id === caseId);
   if (!caseItem) return null;
-  assertOwnership(user.id, caseItem.userId);
+  assertWorkspaceRBAC(user, data, "read");
 
   const enriched = enrichCasesWithCounts(data).find((c) => c.id === caseId)!;
   const evidence = data.evidence.filter((e) => e.caseId === caseId);
@@ -318,7 +382,7 @@ export async function updateCase(
   const data = await getOrSeedWorkspace(user);
   const index = data.cases.findIndex((c) => c.id === caseId);
   if (index === -1) throw new Error("Case not found");
-  assertOwnership(user.id, data.cases[index].userId);
+  assertWorkspaceRBAC(user, data, "write");
 
   const now = nowIso();
   const updated = { ...data.cases[index], ...input, updatedAt: now };
@@ -373,7 +437,7 @@ export async function addCaseNote(user: UserSession, caseId: string, content: st
   const data = await getOrSeedWorkspace(user);
   const caseItem = data.cases.find((c) => c.id === caseId);
   if (!caseItem) throw new Error("Case not found");
-  assertOwnership(user.id, caseItem.userId);
+  assertWorkspaceRBAC(user, data, "write");
 
   const now = nowIso();
   const note: CaseNote = { id: generateId("note"), caseId, userId: user.id, title, content, createdAt: now, updatedAt: now };
@@ -386,7 +450,7 @@ export async function addCaseComment(user: UserSession, caseId: string, content:
   const data = await getOrSeedWorkspace(user);
   const caseItem = data.cases.find((c) => c.id === caseId);
   if (!caseItem) throw new Error("Case not found");
-  assertOwnership(user.id, caseItem.userId);
+  assertWorkspaceRBAC(user, data, "write");
 
   const now = nowIso();
   const comment: CaseComment = {

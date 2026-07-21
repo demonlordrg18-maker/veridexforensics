@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { promises as fs } from "fs";
+import path from "path";
 import { createNewUserSession, MOCK_USERS } from "@/lib/auth";
 import { SESSION_COOKIE_NAME, SESSION_TTL_SECONDS, signSession, verifySession } from "@/lib/session";
 
@@ -42,6 +44,31 @@ export async function GET(
 
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const session = await verifySession(token);
+  if (session) {
+    const activeWs = request.cookies.get("veridex_active_workspace")?.value || session.id;
+    session.organizationId = activeWs.startsWith("org_") ? activeWs : undefined;
+    (session as any).activeWorkspaceId = activeWs;
+
+    if (activeWs.startsWith("org_")) {
+      try {
+        const DATA_DIR = path.join(process.cwd(), ".workspace-data");
+        const raw = await fs.readFile(path.join(DATA_DIR, `${activeWs}.json`), "utf8");
+        const orgData = JSON.parse(raw);
+        if (orgData.billingSettings) {
+          session.creditsRemaining = orgData.billingSettings.creditsRemaining ?? 2500;
+          session.creditsUsed = orgData.billingSettings.creditsUsed ?? 120;
+          session.monthlyAllocation = orgData.billingSettings.monthlyAllocation ?? 5000;
+          session.subscriptionTier = orgData.billingSettings.subscriptionTier ?? "ENTERPRISE";
+        }
+      } catch {
+        // Defaults
+        session.creditsRemaining = 2450;
+        session.creditsUsed = 1550;
+        session.monthlyAllocation = 4000;
+        session.subscriptionTier = "ENTERPRISE";
+      }
+    }
+  }
   return NextResponse.json({ user: session });
 }
 

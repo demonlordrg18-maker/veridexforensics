@@ -58,6 +58,7 @@ export const Navbar = () => {
         </div>
 
         <Link href="/methodology" className="hover:text-amber-signal transition-colors py-2">Methodology</Link>
+        <Link href="/education" className="hover:text-amber-signal transition-colors py-2">Education</Link>
         <Link href="/pricing" className="hover:text-amber-signal transition-colors py-2">Pricing</Link>
         {user && (
           <Link href="/dashboard" className="text-amber-signal font-bold transition-colors py-2 flex items-center gap-1">
@@ -123,6 +124,7 @@ export const Footer = () => (
         <h5 className="text-slate-100 font-mono font-bold mb-6 text-xs uppercase tracking-widest">// Platform</h5>
         <ul className="space-y-4 text-xs font-mono text-slate-400">
           <li><Link href="/platform" className="hover:text-amber-signal transition-colors">The Engine</Link></li>
+          <li><Link href="/education" className="hover:text-amber-signal transition-colors">Education Platform</Link></li>
           <li><Link href="/pricing" className="hover:text-amber-signal transition-colors">Plans & Pricing</Link></li>
           <li><Link href="/audit" className="hover:text-amber-signal transition-colors">Professional Auditor</Link></li>
           <li><Link href="/features/verity-index" className="hover:text-amber-signal transition-colors">Verity Index</Link></li>

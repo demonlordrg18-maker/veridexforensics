@@ -7,3 +7,5 @@ export { Button } from "./Button";
 export { Dialog } from "./Dialog";
 export { PageHeader } from "./PageHeader";
 export { Tabs } from "./Tabs";
+export { InteractiveDemo } from "./InteractiveDemo";
+export { EducationPreviews } from "./EducationPreviews";

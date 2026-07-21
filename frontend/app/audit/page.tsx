@@ -103,6 +103,10 @@ const COLORS = ["#F59E0B", "#10B981", "#94a3b8", "#EF4444", "#fb7185"];
 
 import { Navbar, Footer } from "../../components/Navigation";
 import { Search, Shield, Zap, Activity, Fingerprint, Lock, Database, Microscope, ShieldCheck, FileCheck, Mail, ChevronRight } from "lucide-react";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { AuditLimitGate } from "@/components/audit/AuditLimitGate";
+import { getGuestAuditCount, incrementGuestAuditCount, hasReachedGuestLimit } from "@/lib/guest-session";
+import { calculatePostTransactionBalance, getCreditCost, recordCreditTransaction } from "@/lib/credit-engine";
 
 // --- Components ---
 
@@ -169,6 +173,7 @@ export default function AuditPage() {
 }
 
 function Dashboard() {
+  const { user, updateCredits } = useAuth();
   const searchParams = useSearchParams();
   const [mode, setMode] = useState<Mode>("text");
   const [content, setContent] = useState("The Apollo 11 mission landed on the Moon in 1969. It was a historic achievement for humanity.");
@@ -180,7 +185,9 @@ function Dashboard() {
   const [expandedMatch, setExpandedMatch] = useState<number | null>(null);
   const [email, setEmail] = useState("");
   const [showEmailPrompt, setShowEmailPrompt] = useState(false);
-  const [creditsRemaining, setCreditsRemaining] = useState<number | null>(null);
+  const [creditsRemaining, setCreditsRemaining] = useState<number | null>(user ? user.creditsRemaining : 50);
+  const [isGuestLimitReached, setIsGuestLimitReached] = useState<boolean>(!user && hasReachedGuestLimit());
+  const isGuestReportLocked = !user && isGuestLimitReached;
 
   const handleCheckout = async (plan: string, mode: "payment" | "subscription") => {
     // Track pricing click
@@ -318,6 +325,21 @@ function Dashboard() {
     const activeContent = forcedContent || content;
     const activeUrl = forcedUrl || url;
 
+    // Guest Limit Check
+    if (!user && hasReachedGuestLimit()) {
+      setIsGuestLimitReached(true);
+      setError("Free guest audit limit reached. Please create an account to unlock unlimited reports and 50 free credits.");
+      return;
+    }
+
+    // Credit Engine Check for Authenticated Users
+    const creditQuote = calculatePostTransactionBalance(user?.creditsRemaining ?? 0, activeMode as any);
+    const cost = getCreditCost(activeMode as any);
+    if (user && !creditQuote.ok) {
+      setError(`INSUFFICIENT CREDITS: ${creditQuote.reason} You have ${user.creditsRemaining} remaining. Please top up your credits to continue.`);
+      return;
+    }
+
     setLoading(true);
     setError("");
     setResult(null);
@@ -337,7 +359,7 @@ function Dashboard() {
           body: JSON.stringify({ 
             content: activeContent, 
             include_metadata: true,
-            email: email || undefined
+            email: email || user?.email || undefined
           }),
         });
       } else if (activeMode === "link") {
@@ -345,14 +367,14 @@ function Dashboard() {
         response = await fetch(`/api/audit/link`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: activeUrl, email: email || undefined }),
+          body: JSON.stringify({ url: activeUrl, email: email || user?.email || undefined }),
         });
       } else {
         if (!file) throw new Error("File required for this audit mode.");
         const form = new FormData();
         form.append("file", file);
         const urlParams = new URLSearchParams();
-        if (email) urlParams.append("email", email);
+        if (email || user?.email) urlParams.append("email", email || user?.email || "");
         response = await fetch(`/api/audit/${activeMode}?${urlParams.toString()}`, { method: "POST", body: form });
       }
 
@@ -370,9 +392,20 @@ function Dashboard() {
         throw new Error(msg);
       }
       setResult(data);
-      if (data.remaining_credits !== undefined) {
-        setCreditsRemaining(data.remaining_credits);
+
+      // Handle Credit Deduction or Guest Tracking
+      if (user) {
+        const remaining = creditQuote.remaining;
+        updateCredits(remaining, cost);
+        setCreditsRemaining(remaining);
+        recordCreditTransaction(user.id, `${activeMode.toUpperCase()} Forensic Execution`, cost, remaining, undefined, data.id);
+      } else {
+        const newCount = incrementGuestAuditCount();
+        if (newCount >= 1) {
+          setIsGuestLimitReached(true);
+        }
       }
+
       // Track audit completion
       window.gtag?.('event', 'audit_completed', {
         event_category: 'engagement',
@@ -542,7 +575,11 @@ function Dashboard() {
                 // Analyzed using 500+ forensic markers across spectral, linguistic, and metadata layers.
               </div>
             </form>
-             {error && (
+              {isGuestLimitReached && !result && (
+                <AuditLimitGate />
+              )}
+
+              {error && (
               <motion.div 
                 initial={{ opacity: 0, y: 15 }} 
                 animate={{ opacity: 1, y: 0 }}
@@ -635,9 +672,11 @@ function Dashboard() {
                   </div>
                 </div>
 
+                {isGuestReportLocked && <AuditLimitGate />}
+
                 {/* Proof of thinking / derivation */}
                 {derivationSteps.length > 0 && (
-                  <div className="border border-deepslate bg-[#030712] p-8 rounded-none">
+                  <div className={`border border-deepslate bg-[#030712] p-8 rounded-none ${isGuestReportLocked ? "blur-sm pointer-events-none select-none" : ""}`}>
                     <div className="flex items-center justify-between gap-6 mb-6">
                       <div>
                         <h3 className="text-sm font-bold uppercase tracking-widest text-slate-300 font-mono">
@@ -670,7 +709,7 @@ function Dashboard() {
                 )}
 
                 {/* Forensic Deep-Dive Section */}
-                <div className="border border-deepslate bg-[#030712] p-8 rounded-none">
+                <div className={`border border-deepslate bg-[#030712] p-8 rounded-none ${isGuestReportLocked ? "blur-sm pointer-events-none select-none" : ""}`}>
                   <div className="flex items-center gap-4 mb-8">
                     <div className="h-10 w-10 border border-amber-signal/20 bg-amber-signal/5 flex items-center justify-center text-amber-signal rounded-none">
                       <Microscope size={20} />
@@ -753,7 +792,7 @@ function Dashboard() {
                 </div>
 
                 {/* Findings & Claims */}
-                <div className="border border-deepslate bg-[#030712] p-8 rounded-none">
+                <div className={`border border-deepslate bg-[#030712] p-8 rounded-none ${isGuestReportLocked ? "blur-sm pointer-events-none select-none" : ""}`}>
                   <h3 className="mb-6 text-sm font-bold uppercase tracking-widest text-slate-400 font-mono">// Forensic Evidence Trail</h3>
                   <div className="space-y-4 text-xs text-slate-300">
                     {result.findings.map((f, i) => (
@@ -851,7 +890,7 @@ function Dashboard() {
                 </div>
 
                 {/* Defensibility & Conversion Box */}
-                  <div className="border border-deepslate bg-[#030712] p-10 flex flex-col items-center text-center rounded-none">
+                  <div className={`border border-deepslate bg-[#030712] p-10 flex flex-col items-center text-center rounded-none ${isGuestReportLocked ? "blur-sm pointer-events-none select-none" : ""}`}>
                     <div className="h-12 w-12 border border-amber-signal/20 bg-amber-signal/5 flex items-center justify-center text-amber-signal mb-6 rounded-none">
                       <ShieldCheck size={24} />
                     </div>

@@ -4,9 +4,12 @@ import Link from "next/link";
 import { ChevronDown, Terminal, Shield } from "lucide-react";
 import { useState } from "react";
 
+import { useAuth } from "./auth/AuthProvider";
+
 export const Navbar = () => {
   const [solutionsOpen, setSolutionsOpen] = useState(false);
   const [featuresOpen, setFeaturesOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   return (
     <nav className="flex items-center justify-between py-4 px-6 md:px-12 fixed top-0 w-full z-50 bg-obsidian border-b border-deepslate shadow-[0_4px_20px_rgba(0,0,0,0.6)]">
@@ -56,37 +59,40 @@ export const Navbar = () => {
 
         <Link href="/methodology" className="hover:text-amber-signal transition-colors py-2">Methodology</Link>
         <Link href="/pricing" className="hover:text-amber-signal transition-colors py-2">Pricing</Link>
-        <Link href="/learn" className="hover:text-amber-signal transition-colors py-2">Learn</Link>
+        {user && (
+          <Link href="/dashboard" className="text-amber-signal font-bold transition-colors py-2 flex items-center gap-1">
+            <span>Dashboard</span>
+            <span className="px-1.5 py-0.2 bg-amber-signal text-black text-[8px]">{user.creditsRemaining} CR</span>
+          </Link>
+        )}
       </div>
 
       {/* Toggles & CTA */}
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-4">
         <Link 
           href="/audit" 
-          onClick={() => {
-            window.gtag?.('event', 'run_audit_click', {
-              event_category: 'engagement',
-              event_label: 'navbar_open_auditor',
-            });
-          }}
           className="hidden sm:inline-flex items-center gap-2 font-mono text-[9px] uppercase tracking-wider text-slate-400 hover:text-slate-100 transition-colors"
         >
           <span className="h-1.5 w-1.5 rounded-none bg-verity-green shadow-[0_0_8px_#10B981] animate-pulse" />
           [ Open Auditor ]
         </Link>
-        <Link 
-          href="/request-demo" 
-          onClick={() => {
-            window.gtag?.('event', 'demo_click', {
-              event_category: 'engagement',
-              event_label: 'navbar_request_demo',
-            });
-          }}
-          className="btn-switch-primary py-1.5 px-4 text-[9px] hover:glow-amber-strong"
-        >
-          <span className="led-indicator-amber" />
-          Request Demo
-        </Link>
+        
+        {user ? (
+          <button
+            onClick={logout}
+            className="font-mono text-[9px] uppercase tracking-wider text-slate-400 hover:text-white border border-deepslate px-3 py-1.5"
+          >
+            Sign Out
+          </button>
+        ) : (
+          <Link 
+            href="/login" 
+            className="btn-switch-primary py-1.5 px-4 text-[9px] hover:glow-amber-strong"
+          >
+            <span className="led-indicator-amber" />
+            Sign In
+          </Link>
+        )}
       </div>
     </nav>
   );

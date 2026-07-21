@@ -61,10 +61,15 @@ export const Navbar = () => {
         <Link href="/education" className="hover:text-amber-signal transition-colors py-2">Education</Link>
         <Link href="/pricing" className="hover:text-amber-signal transition-colors py-2">Pricing</Link>
         {user && (
-          <Link href="/dashboard" className="text-amber-signal font-bold transition-colors py-2 flex items-center gap-1">
-            <span>Dashboard</span>
-            <span className="px-1.5 py-0.2 bg-amber-signal text-black text-[8px]">{user.creditsRemaining} CR</span>
-          </Link>
+          <>
+            <Link href="/dashboard" className="text-amber-signal font-bold transition-colors py-2 flex items-center gap-1">
+              <span>Dashboard</span>
+              <span className="px-1.5 py-0.2 bg-amber-signal text-black text-[8px]">{user.creditsRemaining} CR</span>
+            </Link>
+            <Link href="/billing" className="hover:text-amber-signal transition-colors py-2">Billing</Link>
+            <Link href="/analytics" className="hover:text-amber-signal transition-colors py-2">Analytics</Link>
+            <Link href="/community" className="hover:text-amber-signal transition-colors py-2">Community</Link>
+          </>
         )}
       </div>
 

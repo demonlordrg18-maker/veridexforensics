@@ -66,6 +66,8 @@ model User {
   apiKeys               APIKey[]
   activityLogs          ActivityLog[]
   subscriptions         Subscription[]
+  invoices              Invoice[]
+  payments              Payment[]
 }
 
 model Account {
@@ -427,4 +429,206 @@ model ActivityLog {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
+}
+
+model Invoice {
+  id             String   @id @default(cuid())
+  invoiceNumber  String   @unique
+  userId         String
+  amount         Float
+  currency       String   @default("USD")
+  status         String   // paid, open, void, uncollectible
+  dueDate        DateTime
+  paidAt         DateTime?
+  pdfUrl         String?
+  billingAddress Json?
+  taxId          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  userId        String
+  invoiceId     String?
+  amount        Float
+  currency      String   @default("USD")
+  status        String   // succeeded, pending, failed
+  paymentMethod String   // card, bank_transfer, upi, other
+  provider      String   // stripe, wire, mock
+  providerTxId  String?
+  createdAt     DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Coupon {
+  id             String   @id @default(cuid())
+  code           String   @unique
+  discountType   String   // percentage, fixed_amount
+  discountValue  Float
+  active         Boolean  @default(true)
+  expiresAt      DateTime?
+  maxRedemptions Int?
+  redemptions    Int      @default(0)
+  createdAt      DateTime @default(now())
+}
+
+model Referral {
+  id            String   @id @default(cuid())
+  referrerId    String
+  referredId    String   @unique
+  rewardPaid    Boolean  @default(false)
+  creditsEarned Int      @default(25)
+  createdAt     DateTime @default(now())
+}
+
+model AnalyticsEvent {
+  id           String   @id @default(cuid())
+  userId       String?
+  orgId        String?
+  eventType    String   // credit_usage, storage_upload, api_call, login, report_generated
+  modality     String?  // text, image, audio, video, document, link, metadata
+  creditsUsed  Int      @default(0)
+  storageBytes Int      @default(0)
+  details      Json?
+  timestamp    DateTime @default(now())
+
+  @@index([userId, timestamp])
+  @@index([orgId, timestamp])
+  @@index([eventType])
+}
+
+model UsageMetric {
+  id             String   @id @default(cuid())
+  userId         String
+  metricName     String   // credits_remaining, storage_used_bytes, cases_count
+  value          Float
+  timestamp      DateTime @default(now())
+
+  @@index([userId, metricName, timestamp])
+}
+
+model CustomDashboard {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  layout      Json     // Widgets layout & query configuration
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model KnowledgeArticle {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String   @db.Text
+  category    String   // guide, methodology, tutorial, release_note, security
+  tags        String[] @default([])
+  published   Boolean  @default(true)
+  authorName  String   @default("Veridex Core Team")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+}
+
+model DiscussionThread {
+  id          String   @id @default(cuid())
+  title       String
+  content     String   @db.Text
+  category    String   // question, announcement, methodology, general
+  tags        String[] @default([])
+  userId      String
+  userName    String
+  userAvatar  String?
+  upvotes     Int      @default(0)
+  views       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  comments    DiscussionComment[]
+  bookmarks   DiscussionBookmark[]
+
+  @@index([category])
+  @@index([userId])
+}
+
+model DiscussionComment {
+  id          String   @id @default(cuid())
+  threadId    String
+  userId      String
+  userName    String
+  userAvatar  String?
+  content     String   @db.Text
+  parentId    String?
+  upvotes     Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  thread      DiscussionThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@index([threadId])
+}
+
+model DiscussionBookmark {
+  id          String   @id @default(cuid())
+  threadId    String
+  userId      String
+  createdAt   DateTime @default(now())
+
+  thread      DiscussionThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, threadId])
+}
+
+model InvestigationTemplate {
+  id             String   @id @default(cuid())
+  userId         String
+  name           String
+  description    String?
+  config         Json     // Analysis workflow settings, rate configurations
+  isPublic       Boolean  @default(false)
+  downloads      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId, isPublic])
+}
+
+model MarketplaceListing {
+  id             String   @id @default(cuid())
+  name           String
+  description    String
+  category       String   // template, pipeline, plugin, extension, theme
+  pricingModel   String   // free, dynamic_credits, commercial
+  priceCredits   Int      @default(0)
+  authorName     String
+  authorId       String
+  configTemplate Json?
+  downloads      Int      @default(0)
+  rating         Float    @default(5.0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([category])
+}
+
+model IntegrationSetting {
+  id             String   @id @default(cuid())
+  userId         String
+  orgId          String?
+  provider       String   // slack, msteams, gdrive, dropbox, github, jira, zapier, webhook
+  enabled        Boolean  @default(false)
+  config         Json     // OAuth tokens, webhook urls, specific folders
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([userId, provider])
+  @@index([userId])
 }

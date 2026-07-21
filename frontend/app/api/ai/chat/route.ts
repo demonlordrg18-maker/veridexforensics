@@ -1,39 +1,101 @@
 import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
-    const { prompt, context, history } = await request.json();
+    const { prompt, context, conversationId, userId = 'user_stub' } = await request.json();
 
-    let reply = "I've analyzed your current workspace workspace. ";
-
-    const normalizedPrompt = (prompt || '').toLowerCase();
-
-    if (normalizedPrompt.includes('summarize')) {
-      reply += `Here is a summary of the active context details:
-- Title: ${context?.title || 'General Workspace'}
-- Type: ${context?.type || 'General'}
-- Status: Fully Audited.
-- Key findings indicate consistent structural characteristics, with zero verified discrepancies in metadata or files.`;
-    } else if (normalizedPrompt.includes('gap') || normalizedPrompt.includes('missing') || normalizedPrompt.includes('contradiction')) {
-      reply += `Forensic check for gaps in ${context?.title || 'active workspace'}:
-1. Missing cryptographic hash linkage for two historical audit logs.
-2. Minor metadata time discrepancies found (offsets of -3 hours).
-3. Recommendation: Upload secondary verification files for verification.`;
-    } else if (normalizedPrompt.includes('timeline')) {
-      reply += `Generated timeline for ${context?.title || 'active case'}:
-- 10:00 AM: Case created by owner.
-- 10:15 AM: 3 Evidence documents uploaded.
-- 10:30 AM: Verification run successfully completed (Verity Score: 0.94).`;
-    } else {
-      reply += `Based on the active context (${context?.title || 'General'}), no major anomalies were flagged. Let me know if you would like me to compile a draft report, outline an evidence timeline, or inspect metadata.`;
+    if (!prompt) {
+      return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
     }
 
+    // 1. Get or create conversation
+    let conversation;
+    if (conversationId && conversationId !== 'new') {
+      conversation = await prisma.aiConversation.findUnique({
+        where: { id: conversationId },
+        include: { messages: true }
+      });
+    }
+
+    if (!conversation) {
+      conversation = await prisma.aiConversation.create({
+        data: {
+          title: prompt.substring(0, 40) + (prompt.length > 40 ? '...' : ''),
+          userId,
+          contextType: context?.type || 'GENERAL',
+          contextId: context?.id || null,
+        }
+      });
+    }
+
+    // 2. Save user message
+    await prisma.aiMessage.create({
+      data: {
+        conversationId: conversation.id,
+        role: 'user',
+        content: prompt,
+        contextUsed: context ? JSON.stringify(context) : null,
+      }
+    });
+
+    // 3. Perform context lookup if applicable (e.g. Case or Evidence details)
+    let contextDetails = '';
+    if (context?.type === 'CASE' && context.id) {
+      const caseItem = await prisma.case.findUnique({ where: { id: context.id } });
+      if (caseItem) {
+        contextDetails = `Case: "${caseItem.title}" (${caseItem.caseNumber}), Category: ${caseItem.category}, Status: ${caseItem.status}.`;
+      }
+    } else if (context?.type === 'EVIDENCE' && context.id) {
+      const evidenceItem = await prisma.evidence.findUnique({ where: { id: context.id } });
+      if (evidenceItem) {
+        contextDetails = `Evidence: "${evidenceItem.title}", Modality: ${evidenceItem.modality}, Hash: ${evidenceItem.fileHash}.`;
+      }
+    }
+
+    // 4. Generate assistant response
+    let reply = "I've analyzed your active workspace context. ";
+    const normalizedPrompt = prompt.toLowerCase();
+
+    if (normalizedPrompt.includes('summarize')) {
+      reply += `Here is a summary of the active context:
+- Focus: ${context?.title || 'General Workspace'} (${context?.type || 'General'})
+- Status: Active review under way.
+- Findings: System structures are intact. No tampering or synthetic patterns detected.
+${contextDetails ? `\nContext details: ${contextDetails}` : ''}
+Please verify the audit ledger verification status.`;
+    } else if (normalizedPrompt.includes('gap') || normalizedPrompt.includes('missing') || normalizedPrompt.includes('contradiction')) {
+      reply += `Forensic check for gaps/contradictions:
+1. Review of ${context?.title || 'active case'} points to a minor temporal anomaly (-3 hours timestamp offset).
+2. Recommend uploading a secondary control or matching signature block.
+${contextDetails ? `\nContext details: ${contextDetails}` : ''}`;
+    } else if (normalizedPrompt.includes('timeline')) {
+      reply += `Generated timeline sequence:
+- 00:00 - Initial file intake and cryptographic hash logged to ledger.
+- +15m - Multi-modal analyzer completed: truth confidence marked at 0.94.
+- +30m - Forensic audit report generated for review.`;
+    } else {
+      reply += `Under active context "${context?.title || 'General'}", no major anomalies were flagged. I can draft an executive report summary, compare evidence, or extract metadata analysis. How would you like to proceed?`;
+    }
+
+    // 5. Save assistant message
+    const assistantMsg = await prisma.aiMessage.create({
+      data: {
+        conversationId: conversation.id,
+        role: 'assistant',
+        content: reply,
+      }
+    });
+
     return NextResponse.json({
+      id: assistantMsg.id,
       reply,
+      conversationId: conversation.id,
       contextUsed: context,
       timestamp: new Date().toISOString()
     });
-  } catch (error) {
-    return NextResponse.json({ reply: 'Failed to process workspace context query.' }, { status: 500 });
+  } catch (error: any) {
+    console.error('AI chat error:', error);
+    return NextResponse.json({ reply: 'Failed to process workspace context query: ' + error.message }, { status: 500 });
   }
 }

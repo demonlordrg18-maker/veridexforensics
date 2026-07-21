@@ -1,4 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Sparkles, 
+  Send, 
+  Pin, 
+  Plus, 
+  Search, 
+  MessageSquare, 
+  History, 
+  FolderPlus,
+  HelpCircle,
+  X
+} from 'lucide-react';
 
 interface Message {
   id: string;
@@ -18,38 +30,72 @@ interface AIPrompt {
 
 export function AIAssistantDrawer({ activeContext }: { activeContext?: { type: string; id: string; title: string } }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
       role: 'assistant',
-      content: 'Welcome to the Veridex AI Forensic Assistant. Select a prompt below or ask questions about the cases, evidence audits, or report summaries in your active workspace.',
+      content: 'Welcome to the Veridex AI Forensic Assistant. Choose a prompt template or ask custom verification questions about your active case, evidence, or reports.',
       createdAt: new Date().toISOString(),
     },
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [pinnedPrompts, setPinnedPrompts] = useState<AIPrompt[]>([
-    {
-      id: 'p1',
-      name: 'Summarize Investigation',
-      description: 'Generates a condensed breakdown of facts.',
-      promptText: 'Summarize the investigation findings and flag contradictions.',
-      category: 'summarization',
-    },
-    {
-      id: 'p2',
-      name: 'Identify Contradictions',
-      description: 'Locates missing evidence and discrepancies.',
-      promptText: 'Find gaps in evidence items and point out logical discrepancies.',
-      category: 'triage',
-    },
-  ]);
+  const [pinnedPrompts, setPinnedPrompts] = useState<AIPrompt[]>([]);
+  const [showPromptCreator, setShowPromptCreator] = useState(false);
+  const [newPromptName, setNewPromptName] = useState('');
+  const [newPromptText, setNewPromptText] = useState('');
+  const [newPromptCat, setNewPromptCat] = useState('triage');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (isOpen) {
+      fetchPrompts();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const fetchPrompts = async () => {
+    try {
+      const res = await fetch('/api/ai/prompts');
+      const data = await res.json();
+      if (data.templates) {
+        setPinnedPrompts(data.templates);
+      }
+    } catch (err) {
+      console.error('Failed to load prompt templates', err);
+    }
+  };
+
+  const handleCreatePrompt = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPromptName.trim() || !newPromptText.trim()) return;
+
+    try {
+      const res = await fetch('/api/ai/prompts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newPromptName,
+          promptText: newPromptText,
+          category: newPromptCat,
+          description: 'Custom user-saved template.'
+        })
+      });
+      if (res.ok) {
+        setNewPromptName('');
+        setNewPromptText('');
+        setShowPromptCreator(false);
+        fetchPrompts();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleSendMessage = async (text: string) => {
     if (!text.trim()) return;
@@ -73,15 +119,19 @@ export function AIAssistantDrawer({ activeContext }: { activeContext?: { type: s
         body: JSON.stringify({
           prompt: text,
           context: activeContext,
-          history: messages,
+          conversationId: conversationId || undefined,
         }),
       });
       const data = await response.json();
 
+      if (data.conversationId) {
+        setConversationId(data.conversationId);
+      }
+
       setMessages((prev) => [
         ...prev,
         {
-          id: Math.random().toString(),
+          id: data.id || Math.random().toString(),
           role: 'assistant',
           content: data.reply || 'No response from assistant.',
           contextUsed: data.contextUsed,
@@ -103,46 +153,113 @@ export function AIAssistantDrawer({ activeContext }: { activeContext?: { type: s
     }
   };
 
+  const startNewSession = () => {
+    setConversationId(null);
+    setMessages([
+      {
+        id: 'welcome',
+        role: 'assistant',
+        content: 'Started new investigation session. Workspace context is locked and active.',
+        createdAt: new Date().toISOString(),
+      }
+    ]);
+  };
+
   return (
     <>
       {/* Collapsed floating button */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-amber-500 text-black shadow-lg hover:bg-amber-600 transition-all border border-amber-400 focus:outline-none"
+          className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-amber-500 text-black shadow-2xl hover:bg-amber-600 transition-all border border-amber-400 focus:outline-none hover:scale-105"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 0 1-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8Z" />
-          </svg>
+          <Sparkles className="w-6 h-6 animate-pulse" />
         </button>
       )}
 
       {/* Floating Panel */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 flex h-[600px] w-96 flex-col rounded-xl border border-zinc-800 bg-zinc-950/95 text-zinc-100 shadow-2xl backdrop-blur-xl">
+        <div className="fixed bottom-6 right-6 z-50 flex h-[620px] w-[400px] flex-col rounded-xl border border-zinc-800 bg-zinc-950/95 text-zinc-100 shadow-2xl backdrop-blur-xl transition-all">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-zinc-800 p-4">
             <div className="flex items-center space-x-2">
               <div className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
-              <span className="font-semibold tracking-wide text-zinc-100 text-sm font-mono">VERIDEX AI ASSISTANT</span>
+              <span className="font-semibold tracking-wide text-zinc-100 text-xs font-mono uppercase">VERIDEX OS AI ASSISTANT</span>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="rounded p-1 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-              </svg>
-            </button>
+            <div className="flex items-center space-x-2">
+              <button 
+                onClick={startNewSession}
+                title="New Session"
+                className="rounded p-1.5 text-zinc-400 hover:bg-zinc-900 hover:text-amber-500 font-mono text-[10px]"
+              >
+                [ NEW SESSION ]
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="rounded p-1 text-zinc-400 hover:bg-zinc-850 hover:text-zinc-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* Context banner */}
           {activeContext && (
-            <div className="flex items-center space-x-2 bg-amber-500/10 border-b border-amber-500/25 px-4 py-2 text-xs text-amber-400">
-              <span className="font-mono uppercase font-semibold">Active Context:</span>
-              <span>{activeContext.type} ({activeContext.title})</span>
+            <div className="flex items-center justify-between bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 text-[10px] text-amber-400 font-mono">
+              <div className="flex items-center space-x-1.5">
+                <span className="font-bold">ACTIVE CONTEXT:</span>
+                <span>{activeContext.type} ({activeContext.title})</span>
+              </div>
+              <span className="text-[9px] px-1 bg-amber-500/20 rounded font-semibold uppercase text-amber-500">Locked</span>
             </div>
           )}
+
+          {/* Prompt Creator Overlap */}
+          {showPromptCreator ? (
+            <form onSubmit={handleCreatePrompt} className="p-4 border-b border-zinc-900 bg-zinc-900/40 space-y-3">
+              <div className="text-[10px] font-mono text-amber-400 font-bold uppercase">// SAVE NEW PROMPT TEMPLATE</div>
+              <input
+                type="text"
+                placeholder="Template name (e.g. Audit Metadata)"
+                value={newPromptName}
+                onChange={(e) => setNewPromptName(e.target.value)}
+                className="w-full rounded bg-zinc-900 border border-zinc-800 p-2 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-amber-500"
+              />
+              <textarea
+                placeholder="Template prompt text..."
+                value={newPromptText}
+                onChange={(e) => setNewPromptText(e.target.value)}
+                rows={3}
+                className="w-full rounded bg-zinc-900 border border-zinc-800 p-2 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-amber-500"
+              />
+              <div className="flex justify-between items-center">
+                <select
+                  value={newPromptCat}
+                  onChange={(e) => setNewPromptCat(e.target.value)}
+                  className="rounded bg-zinc-900 border border-zinc-800 p-1 text-[10px] text-zinc-400 font-mono"
+                >
+                  <option value="triage">Triage</option>
+                  <option value="summarization">Summary</option>
+                  <option value="reporting">Report</option>
+                </select>
+                <div className="flex space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowPromptCreator(false)}
+                    className="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-[10px] font-mono text-zinc-400"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-2.5 py-1 rounded bg-amber-500 text-black font-bold text-[10px] font-mono hover:bg-amber-600"
+                  >
+                    Save Template
+                  </button>
+                </div>
+              </div>
+            </form>
+          ) : null}
 
           {/* Messages area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -154,41 +271,52 @@ export function AIAssistantDrawer({ activeContext }: { activeContext?: { type: s
                 }`}
               >
                 <div
-                  className={`rounded-lg p-3 text-xs leading-relaxed max-w-[85%] ${
+                  className={`rounded-lg p-3 text-xs leading-relaxed max-w-[85%] font-sans ${
                     msg.role === 'user'
-                      ? 'bg-amber-500 text-black font-medium'
+                      ? 'bg-amber-500 text-black font-semibold'
                       : 'bg-zinc-900 border border-zinc-850 text-zinc-300'
                   }`}
                 >
                   {msg.content}
                 </div>
                 {msg.contextUsed && (
-                  <span className="text-[10px] text-zinc-500 font-mono">
-                    using context: {msg.contextUsed.title}
+                  <span className="text-[9px] text-zinc-500 font-mono">
+                    context attached: {typeof msg.contextUsed === 'string' ? JSON.parse(msg.contextUsed).title : msg.contextUsed.title}
                   </span>
                 )}
               </div>
             ))}
             {isLoading && (
-              <div className="flex items-center space-x-2 text-zinc-500 text-xs">
+              <div className="flex items-center space-x-2 text-zinc-500 text-xs font-mono">
                 <div className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-ping" />
-                <span>Assistant is drafting response...</span>
+                <span>AI Assistant is assembling context...</span>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick Prompts */}
-          <div className="p-3 border-t border-zinc-900 bg-zinc-950 flex flex-wrap gap-2">
-            {pinnedPrompts.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => handleSendMessage(p.promptText)}
-                className="rounded border border-zinc-800 bg-zinc-900/50 px-2 py-1 text-[10px] text-zinc-400 hover:border-amber-500/40 hover:text-amber-400 transition-all font-mono"
+          {/* Quick Prompts Carousel */}
+          <div className="p-3 border-t border-zinc-900 bg-zinc-950 flex flex-col space-y-2">
+            <div className="flex justify-between items-center text-[9px] font-mono text-zinc-500">
+              <span>SELECT PROMPT TEMPLATE</span>
+              <button 
+                onClick={() => setShowPromptCreator(true)}
+                className="text-amber-500 hover:underline flex items-center gap-1"
               >
-                + {p.name}
+                <Plus size={10} /> ADD CUSTOM
               </button>
-            ))}
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+              {pinnedPrompts.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => handleSendMessage(p.promptText)}
+                  className="flex-shrink-0 rounded border border-zinc-800 bg-zinc-900/50 px-2 py-1 text-[10px] text-zinc-400 hover:border-amber-500/40 hover:text-amber-400 transition-all font-mono"
+                >
+                  + {p.name}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Input field */}
@@ -203,15 +331,15 @@ export function AIAssistantDrawer({ activeContext }: { activeContext?: { type: s
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Ask Veridex AI..."
+              placeholder="Ask Veridex AI assistant..."
               className="flex-1 rounded-l bg-zinc-900 px-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 border border-zinc-800 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
             />
             <button
               type="submit"
               disabled={isLoading}
-              className="rounded-r bg-amber-500 px-4 text-xs font-semibold text-black hover:bg-amber-600 focus:outline-none"
+              className="rounded-r bg-amber-500 px-4 text-xs font-semibold text-black hover:bg-amber-600 focus:outline-none flex items-center justify-center"
             >
-              Send
+              <Send size={14} />
             </button>
           </form>
         </div>

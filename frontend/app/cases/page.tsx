@@ -7,7 +7,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PageHeader, Dialog, Button, LoadingState, EmptyState, Skeleton } from "@/components/shared";
 import { CaseCard } from "@/components/cases";
@@ -15,6 +15,19 @@ import { useCases } from "@/lib/hooks";
 import { Plus } from "lucide-react";
 
 export default function CasesPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-obsidian text-slate-300 p-6 lg:p-8">
+        <PageHeader title="Cases" description="Manage your forensic investigations" />
+        <Skeleton count={6} variant="card" />
+      </div>
+    }>
+      <CasesContent />
+    </Suspense>
+  );
+}
+
+function CasesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { cases, loading, listCases, createCase } = useCases();

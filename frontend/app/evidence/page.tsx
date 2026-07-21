@@ -7,7 +7,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PageHeader, Dialog, Button, LoadingState, EmptyState, Skeleton } from "@/components/shared";
 import { EvidenceCard } from "@/components/evidence";
@@ -15,6 +15,19 @@ import { useEvidence } from "@/lib/hooks";
 import { Upload } from "lucide-react";
 
 export default function EvidencePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-obsidian text-slate-300 p-6 lg:p-8">
+        <PageHeader title="Evidence Vault" description="Your forensic evidence archive" />
+        <Skeleton count={6} variant="card" />
+      </div>
+    }>
+      <EvidenceContent />
+    </Suspense>
+  );
+}
+
+function EvidenceContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { evidence, loading, listEvidence } = useEvidence();

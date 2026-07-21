@@ -41,11 +41,19 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-obsidian text-slate-300 p-6 lg:p-8">
-      <PageHeader
-        title="Dashboard"
-        description="Your forensic investigation headquarters"
-      />
+    <div className="min-h-screen bg-obsidian text-slate-300 p-6 lg:p-8 space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <PageHeader
+          title="Dashboard"
+          description="Your forensic investigation headquarters"
+        />
+        <button
+          onClick={() => router.push("/dashboard/platform")}
+          className="rounded border border-amber-500/20 bg-amber-500/5 px-3 py-1.5 text-xs text-amber-500 hover:bg-amber-500 hover:text-black font-mono transition-all"
+        >
+          [ Global OS Admin Panel ]
+        </button>
+      </div>
 
       {statsLoading || casesLoading || storageLoading ? (
         <Skeleton count={6} variant="card" />
@@ -78,3 +86,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+

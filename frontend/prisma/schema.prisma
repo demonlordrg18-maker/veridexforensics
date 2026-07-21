@@ -68,6 +68,7 @@ model User {
   subscriptions         Subscription[]
   invoices              Invoice[]
   payments              Payment[]
+  aiConversations       AIConversation[]
 }
 
 model Account {
@@ -632,3 +633,100 @@ model IntegrationSetting {
   @@unique([userId, provider])
   @@index([userId])
 }
+
+// ==========================================
+// PHASE 14 & 15: AI ASSISTANT & GLOBAL PLATFORM
+// ==========================================
+
+model AIConversation {
+  id             String        @id @default(cuid())
+  title          String
+  userId         String
+  pinned         Boolean       @default(false)
+  contextType    String?       // CASE, EVIDENCE, REPORT, GENERAL
+  contextId      String?       // Reference ID of the active context
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages       AIMessage[]
+}
+
+model AIMessage {
+  id             String         @id @default(cuid())
+  conversationId String
+  role           String         // user, assistant, system
+  content        String         @db.Text
+  contextUsed    Json?          // Snapshot of Case/Evidence metadata attached
+  createdAt      DateTime       @default(now())
+
+  conversation   AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+model AIPromptTemplate {
+  id             String         @id @default(cuid())
+  userId         String?        // null for system-wide templates
+  name           String
+  description    String?
+  promptText     String         @db.Text
+  category       String         // summarization, timeline, triage, reporting
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model AutomationWorkflow {
+  id             String         @id @default(cuid())
+  userId         String
+  orgId          String?
+  name           String
+  triggerType    String         // EVIDENCE_UPLOADED, CASE_CREATED, STATUS_CHANGED
+  actions        Json           // Ordered actions array: e.g., [{"type":"analyze"},{"type":"notify"}]
+  enabled        Boolean        @default(true)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  runs           WorkflowRun[]
+}
+
+model WorkflowRun {
+  id             String             @id @default(cuid())
+  workflowId     String
+  status         String             // PENDING, RUNNING, COMPLETED, FAILED
+  triggerData    Json
+  logs           Json?              // Output execution steps
+  startedAt      DateTime           @default(now())
+  completedAt    DateTime?
+
+  workflow       AutomationWorkflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+}
+
+model FeatureFlag {
+  id             String         @id @default(cuid())
+  key            String         @unique
+  description    String?
+  enabled        Boolean        @default(false)
+  rolloutPercent Int            @default(100)
+  rules          Json?          // Scope target: e.g., {"organizations":["org_cuid"],"industries":["journalism"]}
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model SystemMetric {
+  id             String         @id @default(cuid())
+  timestamp      DateTime       @default(now())
+  metricType     String         // CPU, MEMORY, API_THROUGHPUT, AI_LATENCY, STORAGE_USAGE
+  value          Float
+  dimensions     Json?          // Extra context: e.g., {"endpoint": "/api/ai/chat"}
+}
+
+model TenantSetting {
+  id             String         @id @default(cuid())
+  orgId          String         @unique
+  industry       String         @default("CYBERSECURITY") // JOURNALISM, ACADEMIC, LEGAL, GOVERNMENT, ENTERPRISE
+  locale         String         @default("en-US")
+  timezone       String         @default("UTC")
+  retentionDays  Int            @default(365)
+  featuresConfig Json?          // Specific configuration toggles
+  updatedAt      DateTime       @updatedAt
+}
+

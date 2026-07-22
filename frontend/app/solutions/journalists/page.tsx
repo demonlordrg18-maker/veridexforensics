@@ -115,6 +115,43 @@ export default function JournalistSolution() {
         </div>
       </section>
 
+      {/* 30-Second Product Walkthrough */}
+      <section className="py-24 px-6 md:px-12 border-b border-deepslate bg-[#02050b]">
+        <div className="max-w-7xl mx-auto space-y-16">
+          <div className="text-center space-y-4">
+            <span className="font-mono text-[9px] font-bold text-amber-signal uppercase tracking-[0.3em] block">// 30-SECOND WALKTHROUGH</span>
+            <h2 className="text-3xl font-extrabold text-white tracking-tight">What Happens After You Upload?</h2>
+            <p className="text-slate-400 text-sm max-w-xl mx-auto">Follow the automated pipeline from raw media intake to verifiable evidence registry.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            <div className="border border-deepslate bg-[#030712] p-8 space-y-4 relative">
+              <div className="absolute -top-4 left-6 bg-amber-signal text-black px-2 py-0.5 font-mono text-[10px] font-bold">01 / INTAKE</div>
+              <h4 className="text-sm font-bold text-white uppercase tracking-wider mt-2">Upload Asset or URL</h4>
+              <p className="text-xs text-slate-400 leading-relaxed font-sans">
+                Drag-and-drop the evidence file (audio, video, PDF, or image) or paste a web address. The payload is transiently written in RAM; we never persist your source files.
+              </p>
+            </div>
+            
+            <div className="border border-deepslate bg-[#030712] p-8 space-y-4 relative">
+              <div className="absolute -top-4 left-6 bg-amber-signal text-black px-2 py-0.5 font-mono text-[10px] font-bold">02 / DECOMPOSITION</div>
+              <h4 className="text-sm font-bold text-white uppercase tracking-wider mt-2">Automated Modality Scanning</h4>
+              <p className="text-xs text-slate-400 leading-relaxed font-sans">
+                Parallel validation engines analyze acoustic vocoder signatures, measure EXIF camera profile consistency, and map stylographic writing patterns.
+              </p>
+            </div>
+
+            <div className="border border-deepslate bg-[#030712] p-8 space-y-4 relative">
+              <div className="absolute -top-4 left-6 bg-amber-signal text-black px-2 py-0.5 font-mono text-[10px] font-bold">03 / REGISTRY</div>
+              <h4 className="text-sm font-bold text-white uppercase tracking-wider mt-2">Verity Report & Ledger Lock</h4>
+              <p className="text-xs text-slate-400 leading-relaxed font-sans">
+                Receive a signed forensic PDF report containing raw confidence metrics, timeline graphs, and a tamper-evident SHA-256 stamp recorded on our immutable ledger.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Benefits */}
       <section className="py-24 px-6 md:px-12 bg-obsidian">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center">

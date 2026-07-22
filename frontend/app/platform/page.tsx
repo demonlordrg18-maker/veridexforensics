@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Navbar, Footer } from "../../components/Navigation";
 import { 
@@ -39,6 +40,9 @@ const ModuleCard = ({ icon: Icon, title, description, features }: any) => (
 );
 
 export default function PlatformPage() {
+  const [techTab, setTechTab] = useState<"security" | "compliance" | "integrations" | "deployment" | "architecture">("security");
+  const [apiTab, setApiTab] = useState<"curl" | "response" | "python" | "node">("curl");
+
   return (
     <div className="min-h-screen bg-obsidian text-slate-300 font-sans selection:bg-amber-signal/20 selection:text-amber-signal">
       <Navbar />
@@ -242,11 +246,185 @@ export default function PlatformPage() {
               ]}
             />
             <div className="border border-amber-signal/20 bg-[#070b19]/30 p-8 rounded-none flex flex-col justify-center items-center text-center space-y-6">
-               <h4 className="text-lg font-bold text-white uppercase font-geist tracking-wide">// Integrate Veridex API</h4>
+               <h4 className="text-lg font-bold text-white uppercase font-geist tracking-wide">// Request API Access</h4>
                <p className="text-xs text-slate-400 font-sans">Build forensic verification directly into your CMS or discovery workflow.</p>
                <Link href="/request-demo" className="text-amber-signal font-mono font-bold hover:underline flex items-center gap-2 uppercase tracking-widest text-[10px]">
-                 Get API Access <ChevronRight size={14} />
+                 Get Credentials <ChevronRight size={14} />
                </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Enterprise Specifications Deck & API Previews */}
+      <section className="py-24 px-6 md:px-12 bg-[#02050b] border-t border-deepslate relative">
+        <div className="max-w-7xl mx-auto space-y-16">
+          <div className="text-center space-y-4">
+            <span className="font-mono text-[9px] font-bold text-amber-signal uppercase tracking-[0.3em] block">// TECHNICAL ARCHITECTURE & SPECS</span>
+            <h2 className="text-3xl font-extrabold text-white tracking-tight">Enterprise Infrastructure Deck</h2>
+            <p className="text-slate-400 text-sm max-w-xl mx-auto">Explore security mandates, compliance baselines, integrations, and deployment schemas.</p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Left: Enterprise Spec Tabs (7 cols) */}
+            <div className="lg:col-span-7 bg-obsidian border border-deepslate p-8 space-y-8">
+              <div className="flex flex-wrap gap-2 border-b border-slate-900 pb-4 font-mono text-[9px]">
+                {(["security", "compliance", "integrations", "deployment", "architecture"] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setTechTab(tab)}
+                    className={`py-1.5 px-3 uppercase tracking-wider transition-all border ${
+                      techTab === tab 
+                        ? "bg-amber-signal/10 border-amber-signal text-amber-signal shadow-[0_0_8px_rgba(245,158,11,0.15)]"
+                        : "bg-transparent border-slate-800 text-slate-500 hover:text-slate-300"
+                    }`}
+                  >
+                    [{tab}]
+                  </button>
+                ))}
+              </div>
+
+              <div className="min-h-[220px] text-left space-y-6">
+                {techTab === "security" && (
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-bold text-white font-mono uppercase tracking-wide">// Zero-Storage Privacy Policy</h4>
+                    <p className="text-xs text-slate-400 leading-relaxed font-sans">
+                      All forensic evidence payloads are processed transiently in volatile RAM buffers. No files, documents, or metadata artifacts are written to persistent disks. Buffer pages are securely scrubbed and zeroed immediately post-audit.
+                    </p>
+                    <ul className="font-mono text-[9px] text-slate-500 space-y-1">
+                      <li>• Ephemeral memory buffer rooms</li>
+                      <li>• Ephemeral key signatures for report checksums</li>
+                      <li>• Salted SHA-256 hash masking for all usernames</li>
+                    </ul>
+                  </div>
+                )}
+                {techTab === "compliance" && (
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-bold text-white font-mono uppercase tracking-wide">// Regulatory Compliance Frames</h4>
+                    <p className="text-xs text-slate-400 leading-relaxed font-sans">
+                      Designed to satisfy high-security compliance metrics in legal, defense, education, and finance sectors. Maintains total accountability paths.
+                    </p>
+                    <ul className="font-mono text-[9px] text-slate-500 space-y-1">
+                      <li>• SOC2 Type II Trust Principles framework ready</li>
+                      <li>• HIPAA secure transmission compliance</li>
+                      <li>• FERPA compliant student privacy layers</li>
+                      <li>• GDPR Article 32 personal data processing compliance</li>
+                    </ul>
+                  </div>
+                )}
+                {techTab === "integrations" && (
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-bold text-white font-mono uppercase tracking-wide">// System Integration Pipelines</h4>
+                    <p className="text-xs text-slate-400 leading-relaxed font-sans">
+                      Integrate Veridex into your pre-existing infrastructure via high-performance REST APIs, custom webhook subscriptions, or LTI academic gateways.
+                    </p>
+                    <ul className="font-mono text-[9px] text-slate-500 space-y-1">
+                      <li>• Webhooks triggered on task complete / credit depletion</li>
+                      <li>• Official Node/TypeScript & Python helper SDKs</li>
+                      <li>• LTI v1.3 compliance for LMS integrations</li>
+                    </ul>
+                  </div>
+                )}
+                {techTab === "deployment" && (
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-bold text-white font-mono uppercase tracking-wide">// Flexible Cloud Infrastructure</h4>
+                    <p className="text-xs text-slate-400 leading-relaxed font-sans">
+                      Available as a secure multi-tenant cloud service, or deployed inside your company's virtual private cloud boundary for strict isolation.
+                    </p>
+                    <ul className="font-mono text-[9px] text-slate-500 space-y-1">
+                      <li>• AWS / GCP / Azure private tenant options</li>
+                      <li>• Private Kubernetes clusters with hardware security modules</li>
+                      <li>• Zero-trust edge nodes running on Cloudflare Workers</li>
+                    </ul>
+                  </div>
+                )}
+                {techTab === "architecture" && (
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-bold text-white font-mono uppercase tracking-wide">// Evidentiary Execution Pipeline</h4>
+                    <p className="text-xs text-slate-400 leading-relaxed font-sans">
+                      Every asset verification proceeds through a structured, multi-model pipeline. Cryptographic hashes are registered immediately to seal the digital chain of custody.
+                    </p>
+                    <ul className="font-mono text-[9px] text-slate-500 space-y-1">
+                      <li>• Non-custodial ledger stamps for SHA-256 verifications</li>
+                      <li>• Parallel execution threads for EXIF, spectral, and stylography verification</li>
+                      <li>• Multi-modal scoring maps signed by key chains</li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right: API Code Previews (5 cols) */}
+            <div className="lg:col-span-5 bg-[#030712] border border-deepslate p-6 space-y-6">
+              <div className="flex justify-between items-center border-b border-slate-900 pb-3">
+                <span className="font-mono text-[9px] font-bold text-slate-400 uppercase tracking-widest">// Executable API Preview</span>
+                <span className="h-1.5 w-1.5 bg-amber-signal shadow-[0_0_5px_#F59E0B]" />
+              </div>
+
+              <div className="flex bg-obsidian border border-slate-900 font-mono text-[8px] p-0.5 select-none">
+                {(["curl", "response", "python", "node"] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setApiTab(tab)}
+                    className={`flex-1 py-1.5 uppercase transition-all ${
+                      apiTab === tab ? "bg-[#030712] text-amber-signal font-bold" : "text-slate-500 hover:text-slate-300"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+
+              <div className="bg-[#010409] border border-deepslate/80 p-4 font-mono text-[9px] text-slate-300 overflow-x-auto min-h-[220px] select-all relative">
+                {apiTab === "curl" && (
+                  <pre className="whitespace-pre">{`curl -X POST https://api.veridex.ai/v1/verify \\
+  -H "Authorization: Bearer vdx_live_prod_xxxx" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "modality": "text",
+    "content": "Verify stylistic integrity of this statement."
+  }'`}</pre>
+                )}
+                {apiTab === "response" && (
+                  <pre className="whitespace-pre text-emerald-400">{`{
+  "status": "success",
+  "verityIndex": 0.24,
+  "verdict": "SYNTHETIC",
+  "confidence": 98.42,
+  "ledgerHash": "8f4e2a1b9c3d5e7f8g...",
+  "timestamp": "2026-07-22T15:10:42Z",
+  "creditsUsed": 5
+}`}</pre>
+                )}
+                {apiTab === "python" && (
+                  <pre className="whitespace-pre">{`import veridex
+
+client = veridex.Client(api_key="vdx_live_prod_xxxx")
+
+# Perform forensic validation
+result = client.verify.text(
+    content="Verify stylistic integrity of this statement."
+)
+
+print(f"Verity Index: {result.verity_index * 100}%")`}</pre>
+                )}
+                {apiTab === "node" && (
+                  <pre className="whitespace-pre">{`import { VeridexClient } from "@veridex/sdk";
+
+const client = new VeridexClient({
+  apiKey: "vdx_live_prod_xxxx"
+});
+
+const result = await client.verify.text({
+  content: "Verify stylistic integrity."
+});
+
+console.log(result.verityIndex);`}</pre>
+                )}
+              </div>
+              <p className="font-sans text-[10px] text-slate-500 text-left">
+                * View full endpoints, authentication schemas, and query parameters in the <Link href="/login" className="text-amber-signal hover:underline">Developer Console</Link>.
+              </p>
             </div>
           </div>
         </div>

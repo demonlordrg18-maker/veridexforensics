@@ -131,6 +131,69 @@ export default function EducationPlatformPage() {
         </div>
       </section>
 
+      {/* Academic Integrity Ecosystem Section */}
+      <section className="py-24 px-6 md:px-12 bg-[#02050b] border-b border-deepslate">
+        <div className="max-w-7xl mx-auto space-y-16">
+          <div className="text-center space-y-4">
+            <span className="font-mono text-[9px] font-bold text-amber-signal uppercase tracking-[0.3em] block">// INSTITUTION SYSTEM PLATFORM</span>
+            <h2 className="text-3xl font-extrabold text-white tracking-tight">The Academic Integrity Ecosystem</h2>
+            <p className="text-slate-400 text-sm max-w-xl mx-auto">Universities buy systems, not technology. Veridex acts as a multi-tier structural platform supporting all academic stakeholders.</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 text-left font-mono">
+            <div className="border border-deepslate bg-[#030712] p-6 space-y-3 flex flex-col justify-between">
+              <div>
+                <div className="text-amber-signal font-bold text-[9px]">// 01 / FACULTY PORTAL</div>
+                <h4 className="text-white font-bold text-xs uppercase tracking-tight mt-1">Faculty Dashboard</h4>
+                <p className="text-[10px] text-slate-500 font-sans leading-relaxed mt-2">
+                  Manage class assignments, view pooled stylography maps, and review student submissions with granular match metrics.
+                </p>
+              </div>
+            </div>
+            
+            <div className="border border-deepslate bg-[#030712] p-6 space-y-3 flex flex-col justify-between">
+              <div>
+                <div className="text-amber-signal font-bold text-[9px]">// 02 / STUDENT CONSOLE</div>
+                <h4 className="text-white font-bold text-xs uppercase tracking-tight mt-1">Student Workspace</h4>
+                <p className="text-[10px] text-slate-500 font-sans leading-relaxed mt-2">
+                  Self-serve checking of drafts, APA/MLA reference validation, and style analysis without risk of auto-penalization.
+                </p>
+              </div>
+            </div>
+
+            <div className="border border-deepslate bg-[#030712] p-6 space-y-3 flex flex-col justify-between">
+              <div>
+                <div className="text-amber-signal font-bold text-[9px]">// 03 / LMS GATEWAY</div>
+                <h4 className="text-white font-bold text-xs uppercase tracking-tight mt-1">LMS LTI 1.3 Bridge</h4>
+                <p className="text-[10px] text-slate-500 font-sans leading-relaxed mt-2">
+                  Connect seamlessly into Canvas, Moodle, and Blackboard. Audits trigger webhook scans directly within your LMS gradebook.
+                </p>
+              </div>
+            </div>
+
+            <div className="border border-deepslate bg-[#030712] p-6 space-y-3 flex flex-col justify-between">
+              <div>
+                <div className="text-amber-signal font-bold text-[9px]">// 04 / ADMINISTRATION</div>
+                <h4 className="text-white font-bold text-xs uppercase tracking-tight mt-1">Department Nodes</h4>
+                <p className="text-[10px] text-slate-500 font-sans leading-relaxed mt-2">
+                  Pool credit pools across departments, configure target validation rules, and monitor course integrity logs.
+                </p>
+              </div>
+            </div>
+
+            <div className="border border-deepslate bg-[#030712] p-6 space-y-3 flex flex-col justify-between">
+              <div>
+                <div className="text-amber-signal font-bold text-[9px]">// 05 / RESEARCH TRUST</div>
+                <h4 className="text-white font-bold text-xs uppercase tracking-tight mt-1">Integrity Seals</h4>
+                <p className="text-[10px] text-slate-500 font-sans leading-relaxed mt-2">
+                  Register preprints, research data, and clinical trial results on the blockchain ledger for unalterable timestamp verification.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* LMS Integration Section */}
       <section className="py-24 px-6 md:px-12 bg-obsidian border-b border-deepslate">
         <div className="max-w-7xl mx-auto space-y-16">

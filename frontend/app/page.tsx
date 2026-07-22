@@ -161,12 +161,22 @@ export default function LandingPage() {
             >
               <a href="#interactive-demo" className="btn-switch-primary py-4 px-8 text-center">
                 <span className="led-indicator-amber" />
-                Run Free Audit
+                Try Interactive Demo
               </a>
-              <Link href="/request-demo" className="font-mono text-[10px] uppercase tracking-wider text-slate-400 hover:text-white border border-deepslate py-4 px-8 text-center flex items-center justify-center gap-2">
-                Book Enterprise Demo
+              <Link href="/sample-audit" className="btn-switch-secondary py-4 px-8 text-center flex items-center justify-center gap-2">
+                Browse Sample Report
                 <ArrowRight size={12} />
               </Link>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.25 }}
+              className="font-mono text-[9px] text-slate-500 uppercase tracking-widest space-y-1.5"
+            >
+              <div>// Try instantly: No sign-up required for basic scan</div>
+              <div>// Pricing: Free tier includes 50 credits | Time-to-value: &lt;15 seconds</div>
             </motion.div>
 
             <motion.div
@@ -186,6 +196,19 @@ export default function LandingPage() {
             <InteractiveDemo />
           </div>
 
+        </div>
+      </section>
+
+      {/* Investigator Call-out Banner */}
+      <section className="bg-gradient-to-r from-amber-signal/10 to-transparent border-b border-deepslate py-6 px-6 md:px-12">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-left font-mono">
+          <div className="space-y-1">
+            <div className="text-[10px] text-amber-signal font-bold tracking-widest">// EVARY EVIDENCE TRANSPARENCY</div>
+            <p className="text-xs text-slate-300">Investigators: You can scroll through real evidence, graphs, metadata, and ledger hashes before uploading anything.</p>
+          </div>
+          <Link href="/sample-audit" className="text-[9px] font-bold uppercase tracking-wider text-slate-200 border border-slate-700 hover:border-amber-signal px-4 py-2 hover:bg-amber-signal hover:text-black transition-all">
+            Open Sample Forensic Report &rarr;
+          </Link>
         </div>
       </section>
 
@@ -228,67 +251,67 @@ export default function LandingPage() {
       <section className="py-24 px-6 md:px-12 bg-obsidian border-b border-deepslate">
         <div className="max-w-7xl mx-auto space-y-16">
           <div className="text-left space-y-4">
-            <span className="font-mono text-[9px] font-bold text-amber-signal uppercase tracking-[0.3em] block">// FORENSIC WORKFLOW SHOWCASE</span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Demonstrated Verification Capabilities</h2>
-            <p className="text-slate-400 text-sm max-w-xl">Move beyond simple outputs. Track every content verification sequence directly through interactive pipelines.</p>
+            <span className="font-mono text-[9px] font-bold text-amber-signal uppercase tracking-[0.3em] block">// FORENSIC ENGINE CAPABILITIES</span>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Three Core Flagship Forensic Pillars</h2>
+            <p className="text-slate-400 text-sm max-w-xl">Every input is processed through specialized pipelines that deliver objective, math-based evidentiary signals.</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-px bg-deepslate border border-deepslate">
             
-            {/* Workflow 1 */}
+            {/* Flagship Pillar 1 */}
             <div className="bg-[#02050b] p-8 space-y-6 flex flex-col justify-between">
               <div className="space-y-4">
-                <span className="font-mono text-[8px] text-amber-signal uppercase tracking-widest">// IMAGE FORENSICS PIPELINE</span>
-                <h3 className="text-base font-bold text-white">Sensor & Camera Matching</h3>
+                <span className="font-mono text-[8px] text-amber-signal uppercase tracking-widest">// FLAGSHIP ENGINE 01</span>
+                <h3 className="text-base font-bold text-white">Deepfake Audio & Voice Cloning</h3>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  Verify source authenticity of photo evidence. Detect sensor noise anomalies, evaluate EXIF inconsistencies, and generate court-admissible metadata stamps.
+                  Isolate spectral vocoder artifacts and synthetic acoustics. Ideal for background checks, proxy interview validation, and newsroom audio screening.
                 </p>
                 <div className="font-mono text-[8px] text-slate-500 space-y-1.5 pt-2">
-                  <div className="flex items-center gap-1.5"><Check size={10} className="text-verity-green" /> Parse EXIF block data</div>
-                  <div className="flex items-center gap-1.5"><Check size={10} className="text-verity-green" /> Image sensor anomaly matrix</div>
-                  <div className="flex items-center gap-1.5"><Check size={10} className="text-verity-green" /> Render authenticity certification</div>
-                </div>
-              </div>
-              <Link href="/features/multimodal-forensics" className="text-xs font-mono text-amber-signal flex items-center gap-1.5 hover:underline">
-                View Image Details <CornerDownRight size={10} />
-              </Link>
-            </div>
-
-            {/* Workflow 2 */}
-            <div className="bg-[#02050b] p-8 space-y-6 flex flex-col justify-between">
-              <div className="space-y-4">
-                <span className="font-mono text-[8px] text-amber-signal uppercase tracking-widest">// DOCUMENT AUTHENTICITY PIPELINE</span>
-                <h3 className="text-base font-bold text-white">Stylography & Language Maps</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Analyze styling trends in reports, research papers, and claims. Map lexical patterns to identify synthetic writing styles or hidden plagiarized sentences.
-                </p>
-                <div className="font-mono text-[8px] text-slate-500 space-y-1.5 pt-2">
-                  <div className="flex items-center gap-1.5"><Check size={10} className="text-verity-green" /> Sentence-by-sentence decomposition</div>
-                  <div className="flex items-center gap-1.5"><Check size={10} className="text-verity-green" /> Lexical density calculation</div>
-                  <div className="flex items-center gap-1.5"><Check size={10} className="text-verity-green" /> Flag AI synthesis signatures</div>
-                </div>
-              </div>
-              <Link href="/features/claim-decomposition" className="text-xs font-mono text-amber-signal flex items-center gap-1.5 hover:underline">
-                View Document Details <CornerDownRight size={10} />
-              </Link>
-            </div>
-
-            {/* Workflow 3 */}
-            <div className="bg-[#02050b] p-8 space-y-6 flex flex-col justify-between">
-              <div className="space-y-4">
-                <span className="font-mono text-[8px] text-amber-signal uppercase tracking-widest">// DEEPFAKE DETECTOR PIPELINE</span>
-                <h3 className="text-base font-bold text-white">Audio Spectrum Isolation</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Decompose audio files and tracks into frequency bands to locate voice synthesis patterns, audio editing cuts, or microphone mismatch errors.
-                </p>
-                <div className="font-mono text-[8px] text-slate-500 space-y-1.5 pt-2">
-                  <div className="flex items-center gap-1.5"><Check size={10} className="text-verity-green" /> Waveform frequency isolation</div>
-                  <div className="flex items-center gap-1.5"><Check size={10} className="text-verity-green" /> Voice clone vocoder extraction</div>
-                  <div className="flex items-center gap-1.5"><Check size={10} className="text-verity-green" /> Register Immutable Ledger Hash</div>
+                  <div className="flex items-center gap-1.5"><Check size={10} className="text-verity-green" /> Acoustic frequency isolation</div>
+                  <div className="flex items-center gap-1.5"><Check size={10} className="text-verity-green" /> GAN / Diffusion vocoder matching</div>
+                  <div className="flex items-center gap-1.5"><Check size={10} className="text-verity-green" /> Micro-silence anomaly detection</div>
                 </div>
               </div>
               <Link href="/features/verity-index" className="text-xs font-mono text-amber-signal flex items-center gap-1.5 hover:underline">
                 View Audio Details <CornerDownRight size={10} />
+              </Link>
+            </div>
+
+            {/* Flagship Pillar 2 */}
+            <div className="bg-[#02050b] p-8 space-y-6 flex flex-col justify-between">
+              <div className="space-y-4">
+                <span className="font-mono text-[8px] text-amber-signal uppercase tracking-widest">// FLAGSHIP ENGINE 02</span>
+                <h3 className="text-base font-bold text-white">Sensor, Video & Image Forensics</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Verify the physical integrity of photos and video footage. Analyze sensor noise alignment, EXIF tags, and facial mesh temporal consistency.
+                </p>
+                <div className="font-mono text-[8px] text-slate-500 space-y-1.5 pt-2">
+                  <div className="flex items-center gap-1.5"><Check size={10} className="text-verity-green" /> EXIF metadata parsing</div>
+                  <div className="flex items-center gap-1.5"><Check size={10} className="text-verity-green" /> Image sensor anomaly matrix</div>
+                  <div className="flex items-center gap-1.5"><Check size={10} className="text-verity-green" /> Facial mesh temporal coherence</div>
+                </div>
+              </div>
+              <Link href="/features/multimodal-forensics" className="text-xs font-mono text-amber-signal flex items-center gap-1.5 hover:underline">
+                View Image/Video Details <CornerDownRight size={10} />
+              </Link>
+            </div>
+
+            {/* Flagship Pillar 3 */}
+            <div className="bg-[#02050b] p-8 space-y-6 flex flex-col justify-between">
+              <div className="space-y-4">
+                <span className="font-mono text-[8px] text-amber-signal uppercase tracking-widest">// FLAGSHIP ENGINE 03</span>
+                <h3 className="text-base font-bold text-white">Document Stylography & Language</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Verify statement authenticity and stylography. Maps lexical distributions and builds claim-level integrity trails against reference archives.
+                </p>
+                <div className="font-mono text-[8px] text-slate-500 space-y-1.5 pt-2">
+                  <div className="flex items-center gap-1.5"><Check size={10} className="text-verity-green" /> Stylography writing metrics</div>
+                  <div className="flex items-center gap-1.5"><Check size={10} className="text-verity-green" /> Sentence-by-sentence decomposition</div>
+                  <div className="flex items-center gap-1.5"><Check size={10} className="text-verity-green" /> Citation & reference verification</div>
+                </div>
+              </div>
+              <Link href="/features/claim-decomposition" className="text-xs font-mono text-amber-signal flex items-center gap-1.5 hover:underline">
+                View Document Details <CornerDownRight size={10} />
               </Link>
             </div>
 

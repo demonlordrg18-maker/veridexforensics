@@ -19,18 +19,18 @@ const LimitationCard = ({ icon: Icon, title, description }: any) => (
     <div className="h-10 w-10 border border-deepslate bg-deepslate/30 flex items-center justify-center text-amber-signal mb-6 rounded-none">
       <Icon size={18} />
     </div>
-    <h3 className="text-lg font-bold text-white mb-4 font-geist uppercase">{title}</h3>
+    <h3 className="text-lg font-bold text-white mb-4 uppercase">{title}</h3>
     <p className="text-slate-400 text-xs leading-relaxed font-sans">{description}</p>
   </div>
 );
 
 export default function LimitationsPage() {
   return (
-    <div className="min-h-screen bg-obsidian text-slate-300 font-sans selection:bg-amber-signal/20 selection:text-amber-signal">
+    <div className="min-h-screen bg-obsidian text-slate-300 font-sans selection:bg-amber-signal/20 selection:text-amber-signal scanline-overlay">
       <Navbar />
       
       <section className="pt-32 pb-20 px-6 md:px-12 bg-gradient-to-b from-[#030712] to-obsidian border-b border-deepslate relative overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(245,158,11,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(245,158,11,0.015)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.015),transparent_70%)] pointer-events-none" />
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -38,97 +38,88 @@ export default function LimitationsPage() {
             className="max-w-3xl space-y-4"
           >
             <div className="inline-flex items-center gap-2 border border-amber-signal/30 bg-amber-signal/5 px-4 py-1.5 text-[9px] font-mono font-bold text-amber-signal uppercase tracking-[0.3em] rounded-none">
-              // DISCLOSURE OF TECHNICAL LIMITATIONS
+              // LIMITATIONS & SCIENTIFIC FAILURE MARGINS
             </div>
-            <h1 className="text-4xl md:text-7xl font-black text-white mb-8 tracking-tight font-geist uppercase">
-              Bridging the <span className="text-amber-signal">Gap.</span>
+            <h1 className="text-4xl md:text-7xl font-black text-white mb-8 tracking-tight uppercase">
+              Assurance & <span className="text-amber-signal">Limits.</span>
             </h1>
             <p className="text-base md:text-lg text-slate-400 leading-relaxed font-sans max-w-2xl">
-              Veridex is an adaptive forensic platform. We are continuously engineering around traditional detection limits through multi-model consensus and deep-pixel analysis.
+              Veridex does not promise magic solutions. A high-assurance tool must explicitly define its error rates, degraded state boundaries, and validation limits.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Philosophy Banner */}
+      {/* Main Warnings Banner */}
       <section className="py-12 px-6 md:px-12 bg-obsidian">
         <div className="max-w-7xl mx-auto border border-amber-signal/20 bg-[#070b19]/30 p-8 rounded-none flex flex-col md:flex-row gap-8 items-center relative">
             <div className="absolute top-0 left-0 w-1 h-full bg-amber-signal" />
             <ShieldAlert className="text-amber-signal shrink-0" size={36} />
             <p className="text-slate-300 text-xs font-sans leading-relaxed text-justify">
-              Veridex provides probabilistic and heuristic signals. We do not provide absolute legal or factual certainty. Our outputs are intended to support, not replace, the judgment of qualified experts.
+              <strong>Core Protocol:</strong> Veridex provides probabilistic signal metrics for human experts. It is not an automated judge or final decision maker. Every output is designed to be cross-examined under professional discretion.
             </p>
         </div>
       </section>
 
-      {/* Main Limitations Grid */}
+      {/* Structured Limitations Table */}
+      <section className="py-12 px-6 md:px-12 bg-[#02050b] border-y border-deepslate font-mono text-[11px]">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <h2 className="text-xs font-bold text-white uppercase tracking-wider">// ACCURACY DEGRADATION REGISTER</h2>
+          <div className="border border-deepslate bg-[#030712] overflow-hidden">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-deepslate bg-[#070b19]/30 text-slate-400 uppercase tracking-widest text-[9px] font-bold">
+                  <th className="p-4">Modality</th>
+                  <th className="p-4">Degraded State Factor</th>
+                  <th className="p-4">Impact on Confidence Metric</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-deepslate text-slate-300">
+                <tr>
+                  <td className="p-4 font-bold text-white uppercase">Audio (Voice Clones)</td>
+                  <td className="p-4">Extreme compression (e.g. 64kbps, WhatsApp audio files)</td>
+                  <td className="p-4 text-amber-signal">Reduces confidence by up to 25% due to spectral artifact blurring.</td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-bold text-white uppercase">Image (Splicing)</td>
+                  <td className="p-4">Low resolution, dark/underexposed sensor captures</td>
+                  <td className="p-4 text-amber-signal">Blurs Camera PRNU noise maps, degrading localized mask accuracy.</td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-bold text-white uppercase">Document (Text)</td>
+                  <td className="p-4">Translation layers or short lexical count (under 100 words)</td>
+                  <td className="p-4 text-amber-signal">Lacks syntactic variation baseline required for stylographic skews.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Limitations Cards */}
       <section className="py-24 px-6 md:px-12 bg-obsidian">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <LimitationCard 
               icon={EyeOff}
-              title="Probabilistic Signaling"
-              description="Forensic markers (deepfake detection, bias mapping) are probabilistic, not deterministic. False positives and false negatives can and do occur based on media complexity."
+              title="Probabilistic Scoring"
+              description="Forensic signals are mathematically probabilistic, not binary. The system delivers likelihood values backed by signal anomaly thresholds."
             />
             <LimitationCard 
               icon={Scale}
-              title="Not Legal Advice"
-              description="Copyright risk assessments and verity profiles are forensic indicators. They are not legal opinions and do not constitute courtroom-ready evidence without human expert testimony."
+              title="Not Legal Opinion"
+              description="Our checks assist legal discovery and verification, but the reports do not replace qualified counsel or human expert testimonies."
             />
             <LimitationCard 
               icon={AlertTriangle}
-              title="Entropy Mapping"
-              description="To counter high compression, we use linguistic and visual entropy analysis. This detects structural 'flatness' common in generative models even when surface-level artifacts are obscured."
+              title="Zero permanent storage"
+              description="Because we immediately clear transient RAM scan rooms post-audit, historical file payloads cannot be retrieved or re-analyzed by Veridex."
             />
-            <LimitationCard 
-              icon={ZapOff}
-              title="Post-Metadata Forensics"
-              description="Stripped metadata no longer halts analysis. We employ Micro-noise Variance mapping to identify sensor-level inconsistencies and provenance even in scrubbed social media assets."
-            />
-            <LimitationCard 
-               icon={HelpCircle}
-               title="Live Fact-Crawl"
-               description="Our extraction engine now crawls external links in real-time, cross-referencing claims against active archives to catch hallucinations that traditional static models might miss."
-            />
-            <LimitationCard 
-               icon={Info}
-               title="Human Review Required"
-               description="In high-stakes cases (legal, journalistic, intelligence), Veridex outputs must be reviewed by a human professional who understands the specific context of the asset being audited."
-            />
-        </div>
-      </section>
-
-      {/* Specific Domain Notes */}
-      <section className="py-24 px-6 md:px-12 bg-obsidian border-t border-deepslate scanner-grid">
-        <div className="max-w-4xl mx-auto space-y-16 relative z-10 font-mono text-[11px]">
-           <div className="space-y-4">
-             <span className="text-[9px] font-bold text-amber-signal uppercase tracking-[0.3em] block">// AUDIO & VIDEO CORE HEURISTICS</span>
-             <h4 className="text-xl font-bold text-white uppercase font-geist tracking-wide">Audio & Video Limitations</h4>
-             <p className="text-slate-400 text-xs font-sans leading-relaxed text-justify">
-               As generative audio (voice cloning) becomes more sophisticated, the 'gap' between synthetic and organic signals continues to narrow. Veridex detects current-generation artifacts, but no tool can claim 100% detection rates against future, evolving generative models.
-             </p>
-           </div>
-           
-           <div className="pt-16 border-t border-deepslate space-y-4">
-              <span className="text-[9px] font-bold text-amber-signal uppercase tracking-[0.3em] block">// COPYRIGHT REGISTRY SCOPE</span>
-              <h4 className="text-xl font-bold text-white uppercase font-geist tracking-wide">Copyright Audit Scope</h4>
-              <p className="text-slate-400 text-xs font-sans leading-relaxed text-justify">
-                Our copyright analysis identifies verbatim overlap and significant training-set similarity. It does not assess 'fair use,' licensing status, or jurisdictional legality. It identifies *risk* by showing *where* the content matches existing data.
-              </p>
-           </div>
-
-           <div className="pt-16 border-t border-deepslate space-y-4">
-              <span className="text-[9px] font-bold text-amber-signal uppercase tracking-[0.3em] block">// GLOBAL JURISDICTIONAL COMPLIANCE</span>
-              <h4 className="text-xl font-bold text-white uppercase font-geist tracking-wide">Jurisdictional Warnings</h4>
-              <p className="text-slate-400 text-xs font-sans leading-relaxed text-justify">
-                Legislation regarding AI-generated evidence and content labeling varies globally (e.g., EU AI Act vs. US State laws). Veridex is a technical audit tool, not a compliance platform. Users are responsible for local legal adherence.
-              </p>
-           </div>
         </div>
       </section>
 
       {/* CTA */}
       <section className="py-24 px-6 md:px-12 text-center bg-obsidian border-t border-deepslate">
-        <h3 className="text-lg font-bold text-white uppercase font-geist tracking-wide">Questions about our forensic boundaries?</h3>
+        <h3 className="text-lg font-bold text-white uppercase tracking-wide">Questions about our forensic boundaries?</h3>
         <div className="mt-6 font-mono text-[10px]">
           <Link href="/request-demo" className="btn-switch-primary">
             Request Technical Walkthrough
